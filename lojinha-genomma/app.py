@@ -485,6 +485,7 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
         s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
         s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
 
+init_stock()
 # ── Start ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     init_stock()
