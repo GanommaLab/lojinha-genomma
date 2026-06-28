@@ -25,7 +25,14 @@ DATA  = BASE / 'data'          # Excel fica sempre junto ao código
 UPLOAD= TMP  / 'uploads'
 STOCK = TMP  / 'stock.json'
 ORDERS= TMP  / 'orders.json'
-EXCEL = DATA / 'Estoque_Lojinha_jun26.xlsx'
+def _find_excel():
+    """Retorna o .xlsx mais recente da pasta data/"""
+    files = sorted(DATA.glob('*.xlsx'), key=lambda f: f.stat().st_mtime, reverse=True)
+    if not files:
+        raise FileNotFoundError(f'Nenhum arquivo .xlsx encontrado em {DATA}')
+    if len(files) > 1:
+        log.info(f'📂 Encontrados {len(files)} arquivos Excel — usando o mais recente: {files[0].name}')
+    return files[0]
 LOCK  = threading.Lock()
 
 UPLOAD.mkdir(parents=True, exist_ok=True)
@@ -77,8 +84,9 @@ def require_admin(f):
 
 # ── Estoque ───────────────────────────────────────────────────────────────────
 def load_from_excel():
-    log.info('📊 Lendo planilha Excel...')
-    wb = openpyxl.load_workbook(str(EXCEL), read_only=True, data_only=True)
+    excel = _find_excel()
+    log.info(f'📊 Lendo planilha Excel: {excel.name}')
+    wb = openpyxl.load_workbook(str(excel), read_only=True, data_only=True)
     ws = wb['Estoque']
     products = {}
     for row in ws.iter_rows(min_row=3, values_only=True):
