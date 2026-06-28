@@ -154,6 +154,21 @@ def load_from_excel():
     excel = _find_excel()
     log.info(f'📊 Lendo planilha Excel: {excel.name}')
     wb = openpyxl.load_workbook(str(excel), read_only=True, data_only=True)
+
+    # ── Lê preços da aba "Tabela de Venda" (cabeçalho na linha 4, dados a partir da 5)
+    prices = {}
+    if 'Tabela de Venda' in wb.sheetnames:
+        ws_tv = wb['Tabela de Venda']
+        for row in ws_tv.iter_rows(min_row=5, values_only=True):
+            if not row[0]: continue
+            try:
+                code  = str(int(float(row[0]))).strip()
+                price = round(float(row[2]), 2) if row[2] is not None else 0.0
+                prices[code] = price
+            except: pass
+        log.info(f'💲 {len(prices)} preços carregados da aba "Tabela de Venda".')
+
+    # ── Lê estoque da aba "Estoque"
     ws = wb['Estoque']
     products = {}
     for row in ws.iter_rows(min_row=3, values_only=True):
@@ -164,7 +179,7 @@ def load_from_excel():
         except: qtd = 0
         if qtd > 0:
             if code not in products:
-                products[code] = {'code': code, 'name': name, 'stock': 0}
+                products[code] = {'code': code, 'name': name, 'stock': 0, 'price': prices.get(code, 0.0)}
             products[code]['stock'] += qtd
     wb.close()
     for p in products.values(): p['stock'] = int(p['stock'])
@@ -267,6 +282,8 @@ def api_order():
         attach_path = UPLOAD / attach_name
         file.save(str(attach_path))
 
+    preco_unit  = round(float(snap.get('price', 0.0)), 2)
+    valor_total = round(preco_unit * qty, 2)
     order = {
         'id':           datetime.now().strftime('%Y%m%d%H%M%S%f')[:17],
         'data_hora':    datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
@@ -276,6 +293,8 @@ def api_order():
         'produto_code': pcode,
         'produto_name': snap['name'],
         'quantidade':   qty,
+        'preco_unit':   preco_unit,
+        'valor_total':  valor_total,
         'comprovante':  attach_name or '',
         'status':       'pendente'
     }
@@ -668,6 +687,7 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
     <div class="stat">       <div class="n" id="st-units">—</div>   <div class="l">Unidades pedidas</div></div>
     <div class="stat green"> <div class="n" id="st-done">—</div>    <div class="l">✅ Entregues</div></div>
     <div class="stat orange"><div class="n" id="st-pend">—</div>    <div class="l">⏳ Pendentes</div></div>
+    <div class="stat" style="border-color:#1A5FB4"><div class="n" style="color:#1A5FB4;font-size:1.2rem" id="st-valor">—</div><div class="l">💰 Valor total</div></div>
   </div>
 
   <div class="filters">
@@ -721,6 +741,8 @@ function stats(orders) {{
   document.getElementById('st-units').textContent   = orders.reduce((s,o)=>s+(parseInt(o.quantidade)||0),0);
   document.getElementById('st-done').textContent    = orders.filter(o=>o.status==='entregue').length;
   document.getElementById('st-pend').textContent    = orders.filter(o=>o.status!=='entregue').length;
+  const total_val = orders.reduce((s,o)=>s+(parseFloat(o.valor_total)||0),0);
+  document.getElementById('st-valor').textContent   = 'R$ ' + total_val.toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}});
 }}
 
 function applyFilter() {{
@@ -765,13 +787,16 @@ function render(orders) {{
     const newSt  = done ? 'pendente' : 'entregue';
     const btnLbl = done ? '↩ Desfazer' : '✅ Marcar entregue';
     const btnCls = done ? 'done' : 'pend';
+    const fmtBRL = v => v != null && v > 0 ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}}) : '—';
     rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">
       <td style="white-space:nowrap;color:#666;font-size:.78rem;">${{o.data_hora||''}}</td>
       <td style="font-weight:600">${{o.nome||''}}</td>
       <td style="color:#4A1B7A;font-size:.82rem;">${{o.email||''}}</td>
       <td>${{tBadge}}</td>
-      <td style="max-width:200px">${{o.produto_name||''}}</td>
+      <td style="max-width:180px">${{o.produto_name||''}}</td>
       <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{o.quantidade||''}}</td>
+      <td style="text-align:center;font-size:.82rem;color:#555;">${{fmtBRL(o.preco_unit)}}</td>
+      <td style="text-align:center;font-weight:700;color:#1A5FB4;">${{fmtBRL(o.valor_total)}}</td>
       <td style="text-align:center">${{cLink}}</td>
       <td style="text-align:center">${{sBadge}}</td>
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
@@ -780,7 +805,10 @@ function render(orders) {{
   }});
   wrap.innerHTML = `<table><thead><tr>
     <th>Data/Hora</th><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Produto</th>
-    <th style="text-align:center">Qtd</th><th style="text-align:center">Comprovante</th>
+    <th style="text-align:center">Qtd</th>
+    <th style="text-align:center">Preço Unit.</th>
+    <th style="text-align:center">Valor Total</th>
+    <th style="text-align:center">Comprovante</th>
     <th style="text-align:center">Status</th><th style="text-align:center">Entrega</th>
     <th style="text-align:center">Excluir</th>
   </tr></thead><tbody>${{rows}}</tbody></table>`;
