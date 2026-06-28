@@ -444,12 +444,20 @@
         <div class="stock-badge" id="stock-info" style="display:none">
           📦 <span id="stock-qty">0</span> unidades disponíveis
         </div>
+        <div id="price-info" style="display:none;margin-top:8px;background:#EDE3F5;border-radius:10px;padding:10px 14px;font-size:.88rem;color:#4A1B7A;">
+          <span style="font-weight:600">💲 Preço unitário:</span>
+          <span id="price-unit" style="font-weight:800;margin-left:4px;">—</span>
+        </div>
       </div>
 
       <div class="field">
         <label>Quantidade <span class="req">*</span></label>
-        <input type="number" id="quantidade" min="1" value="1" placeholder="Qtd" />
+        <input type="number" id="quantidade" min="1" value="1" placeholder="Qtd" oninput="updateTotal()" />
         <div class="field-error" id="err-quantidade">Quantidade inválida.</div>
+        <div id="total-info" style="display:none;margin-top:8px;background:linear-gradient(135deg,#4A1B7A,#1A5FB4);border-radius:10px;padding:10px 14px;text-align:center;">
+          <div style="color:rgba(255,255,255,.75);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Total a pagar</div>
+          <div id="price-total" style="color:white;font-size:1.4rem;font-weight:800;margin-top:2px;">—</div>
+        </div>
       </div>
     </div>
 
@@ -477,6 +485,8 @@
       <div class="summary-row"><span class="key">E-mail</span><span class="val" id="sum-email">—</span></div>
       <div class="summary-row"><span class="key">Produto</span><span class="val" id="sum-produto">—</span></div>
       <div class="summary-row"><span class="key">Quantidade</span><span class="val" id="sum-qty">—</span></div>
+      <div class="summary-row" id="sum-preco-row" style="display:none"><span class="key">Preço unit.</span><span class="val" id="sum-preco">—</span></div>
+      <div class="summary-row" id="sum-total-row" style="display:none;border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px"><span class="key" style="font-weight:700;color:#4A1B7A">💰 Total</span><span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="sum-total">—</span></div>
     </div>
 
     <!-- Tipo -->
@@ -551,6 +561,8 @@
         <div class="summary-row"><span class="key">Produto</span><span class="val" id="final-produto">—</span></div>
         <div class="summary-row"><span class="key">Quantidade</span><span class="val" id="final-qty">—</span></div>
         <div class="summary-row"><span class="key">Vínculo</span><span class="val" id="final-tipo">—</span></div>
+        <div class="summary-row" id="final-preco-row" style="display:none"><span class="key">Preço unit.</span><span class="val" id="final-preco">—</span></div>
+        <div class="summary-row" id="final-total-row" style="display:none;border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px"><span class="key" style="font-weight:700;color:#4A1B7A">💰 Total pago</span><span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="final-total">—</span></div>
       </div>
       <button class="btn btn-outline" style="margin-top:16px;" onclick="novosPedido()">
         ➕ Fazer Novo Pedido
@@ -586,6 +598,7 @@ async function loadProducts() {
       opt.value = p.code;
       opt.dataset.stock = p.stock;
       opt.dataset.name  = p.name;
+      opt.dataset.price = p.price || 0;
       opt.textContent   = p.name;
       sel.appendChild(opt);
     });
@@ -595,18 +608,51 @@ async function loadProducts() {
 }
 
 /* ── Produto selecionado ──────────────────────────────────────── */
+function fmtBRL(v) {
+  return 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
 function onProductChange() {
-  const sel = document.getElementById('produto');
-  const opt = sel.selectedOptions[0];
+  const sel   = document.getElementById('produto');
+  const opt   = sel.selectedOptions[0];
   const badge = document.getElementById('stock-info');
+  const priceBox = document.getElementById('price-info');
   if (opt && opt.value) {
-    const qty = parseInt(opt.dataset.stock);
+    const qty   = parseInt(opt.dataset.stock);
+    const price = parseFloat(opt.dataset.price) || 0;
     badge.style.display = 'inline-flex';
     document.getElementById('stock-qty').textContent = qty.toLocaleString('pt-BR');
     badge.className = 'stock-badge' + (qty <= 10 ? ' low' : '');
     document.getElementById('quantidade').max = qty;
+    if (price > 0) {
+      priceBox.style.display = 'block';
+      document.getElementById('price-unit').textContent = fmtBRL(price);
+    } else {
+      priceBox.style.display = 'none';
+    }
+    updateTotal();
   } else {
     badge.style.display = 'none';
+    priceBox.style.display = 'none';
+    document.getElementById('total-info').style.display = 'none';
+  }
+}
+
+function updateTotal() {
+  const sel   = document.getElementById('produto');
+  const opt   = sel.selectedOptions[0];
+  const qty   = parseInt(document.getElementById('quantidade').value) || 0;
+  const totalBox = document.getElementById('total-info');
+  if (opt && opt.value && qty > 0) {
+    const price = parseFloat(opt.dataset.price) || 0;
+    if (price > 0) {
+      totalBox.style.display = 'block';
+      document.getElementById('price-total').textContent = fmtBRL(price * qty);
+    } else {
+      totalBox.style.display = 'none';
+    }
+  } else {
+    totalBox.style.display = 'none';
   }
 }
 
@@ -658,11 +704,19 @@ function goToStep3() {
   orderData.produto_name = opt.dataset.name;
   orderData.quantidade   = qty;
   orderData.estoque_disp = opt.dataset.stock;
+  orderData.preco_unit   = parseFloat(opt.dataset.price) || 0;
+  orderData.valor_total  = orderData.preco_unit * qty;
 
   document.getElementById('sum-nome').textContent    = orderData.nome;
   document.getElementById('sum-email').textContent   = orderData.email;
   document.getElementById('sum-produto').textContent = orderData.produto_name;
   document.getElementById('sum-qty').textContent     = `${qty} unidades`;
+  if (orderData.preco_unit > 0) {
+    document.getElementById('sum-preco-row').style.display = '';
+    document.getElementById('sum-total-row').style.display = '';
+    document.getElementById('sum-preco').textContent  = fmtBRL(orderData.preco_unit);
+    document.getElementById('sum-total').textContent  = fmtBRL(orderData.valor_total);
+  }
 
   selectedTipo = null;
   document.getElementById('tc-terceirizado').classList.remove('selected');
@@ -758,6 +812,12 @@ async function finalizarPedido() {
     document.getElementById('final-produto').textContent = orderData.produto_name;
     document.getElementById('final-qty').textContent     = `${orderData.quantidade} unidades`;
     document.getElementById('final-tipo').textContent    = selectedTipo === 'genomma' ? '🏢 Genomma' : '🤝 Terceirizado(a)';
+    if (orderData.preco_unit > 0) {
+      document.getElementById('final-preco-row').style.display = '';
+      document.getElementById('final-total-row').style.display = '';
+      document.getElementById('final-preco').textContent = fmtBRL(orderData.preco_unit);
+      document.getElementById('final-total').textContent = fmtBRL(orderData.valor_total);
+    }
 
     // Atualizar estoque no dropdown para próximos compradores
     const sel = document.getElementById('produto');
