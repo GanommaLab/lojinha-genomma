@@ -1,7 +1,7 @@
 """
 Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 """
-import os, json, threading, smtplib, logging
+import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -48,8 +48,12 @@ SMTP_USER  = ''
 SMTP_PASS  = ''
 DEST_EMAIL = 'maycon.silva@contractor.genommalab.com'
 PORT       = 3000
-ADMIN_USER = 'admin'
-ADMIN_PASS = '5827'
+ADMIN_USER    = 'admin'
+ADMIN_PASS    = '5827'
+GITHUB_TOKEN  = ''
+GITHUB_OWNER  = 'GanommaLab'
+GITHUB_REPO   = 'lojinha-genomma'
+GITHUB_BRANCH = 'main'
 
 env_file = BASE / '.env'
 if env_file.exists():
@@ -63,7 +67,70 @@ SMTP_PORT  = int(os.getenv('SMTP_PORT', str(SMTP_PORT)))
 SMTP_USER  = os.getenv('SMTP_USER', SMTP_USER)
 SMTP_PASS  = os.getenv('SMTP_PASS', SMTP_PASS)
 PORT       = int(os.getenv('PORT', str(PORT)))
-ADMIN_PASS = os.getenv('ADMIN_PASS', ADMIN_PASS)
+ADMIN_PASS    = os.getenv('ADMIN_PASS',    ADMIN_PASS)
+GITHUB_TOKEN  = os.getenv('GITHUB_TOKEN',  GITHUB_TOKEN)
+GITHUB_OWNER  = os.getenv('GITHUB_OWNER',  GITHUB_OWNER)
+GITHUB_REPO   = os.getenv('GITHUB_REPO',   GITHUB_REPO)
+GITHUB_BRANCH = os.getenv('GITHUB_BRANCH', GITHUB_BRANCH)
+
+# ── Backup GitHub ─────────────────────────────────────────────────────────────
+def _gh_request(method, path, body=None):
+    """Chama a API REST do GitHub. Retorna dict ou None em caso de erro."""
+    if not GITHUB_TOKEN:
+        return None
+    url = f'https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{path}'
+    headers = {
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Content-Type':  'application/json',
+        'Accept':        'application/vnd.github.v3+json',
+        'User-Agent':    'lojinha-genomma',
+    }
+    data = json.dumps(body).encode() if body else None
+    req  = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        log.warning(f'⚠️  GitHub API {method} {path}: HTTP {e.code}')
+        return None
+    except Exception as e:
+        log.warning(f'⚠️  GitHub API erro: {e}')
+        return None
+
+def _gh_backup(filename, content_str):
+    """Salva arquivo na pasta backups/ do repositório GitHub."""
+    if not GITHUB_TOKEN:
+        return
+    path     = f'backups/{filename}'
+    encoded  = base64.b64encode(content_str.encode('utf-8')).decode()
+    existing = _gh_request('GET', path)
+    payload  = {
+        'message': f'backup: {filename}',
+        'content': encoded,
+        'branch':  GITHUB_BRANCH,
+    }
+    if existing and 'sha' in existing:
+        payload['sha'] = existing['sha']
+    if _gh_request('PUT', path, payload):
+        log.info(f'☁️  Backup GitHub OK → backups/{filename}')
+    else:
+        log.warning(f'⚠️  Backup GitHub falhou: backups/{filename}')
+
+def _gh_restore(filename):
+    """Lê arquivo da pasta backups/ do repositório GitHub."""
+    if not GITHUB_TOKEN:
+        return None
+    result = _gh_request('GET', f'backups/{filename}')
+    if result and 'content' in result:
+        try:
+            content = base64.b64decode(result['content']).decode('utf-8')
+            log.info(f'☁️  Backup restaurado do GitHub: backups/{filename}')
+            return content
+        except Exception as e:
+            log.warning(f'⚠️  Erro ao decodificar backup: {e}')
+    return None
 
 # ── Autenticação Admin ────────────────────────────────────────────────────────
 def _check_auth(username, password):
@@ -108,27 +175,54 @@ stock_data: dict = {}
 
 def init_stock():
     global stock_data
+    # 1) arquivo local (container ainda vivo)
     if STOCK.exists():
         try:
             stock_data = json.loads(STOCK.read_text('utf-8'))
-            log.info(f'📦 Estoque carregado ({len(stock_data)} produtos).')
+            log.info(f'📦 Estoque local carregado ({len(stock_data)} produtos).')
             return
         except: pass
+    # 2) backup no GitHub (após redeploy)
+    backup = _gh_restore('stock.json')
+    if backup:
+        try:
+            stock_data = json.loads(backup)
+            STOCK.write_text(backup, 'utf-8')
+            log.info(f'📦 Estoque restaurado do GitHub ({len(stock_data)} produtos).')
+            return
+        except: pass
+    # 3) lê planilha Excel (primeira vez)
     stock_data = load_from_excel()
-    STOCK.write_text(json.dumps(stock_data, ensure_ascii=False, indent=2), 'utf-8')
+    content    = json.dumps(stock_data, ensure_ascii=False, indent=2)
+    STOCK.write_text(content, 'utf-8')
+    threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
 
 def save_stock():
-    STOCK.write_text(json.dumps(stock_data, ensure_ascii=False, indent=2), 'utf-8')
+    content = json.dumps(stock_data, ensure_ascii=False, indent=2)
+    STOCK.write_text(content, 'utf-8')
+    threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
 
 # ── Pedidos ───────────────────────────────────────────────────────────────────
 def load_orders():
+    # 1) arquivo local (container ainda vivo)
     if ORDERS.exists():
         try: return json.loads(ORDERS.read_text('utf-8'))
+        except: pass
+    # 2) backup no GitHub (após redeploy)
+    backup = _gh_restore('orders.json')
+    if backup:
+        try:
+            orders = json.loads(backup)
+            ORDERS.write_text(backup, 'utf-8')
+            log.info(f'📥 {len(orders)} pedidos restaurados do backup GitHub.')
+            return orders
         except: pass
     return []
 
 def write_orders(orders):
-    ORDERS.write_text(json.dumps(orders, ensure_ascii=False, indent=2), 'utf-8')
+    content = json.dumps(orders, ensure_ascii=False, indent=2)
+    ORDERS.write_text(content, 'utf-8')
+    threading.Thread(target=_gh_backup, args=('orders.json', content), daemon=True).start()
 
 # ── API: produtos ─────────────────────────────────────────────────────────────
 @app.get('/api/products')
