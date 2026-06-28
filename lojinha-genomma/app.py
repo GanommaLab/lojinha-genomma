@@ -26,12 +26,11 @@ UPLOAD= TMP  / 'uploads'
 STOCK = TMP  / 'stock.json'
 ORDERS= TMP  / 'orders.json'
 def _find_excel():
-    """Retorna o .xlsx mais recente da pasta data/"""
-    files = sorted(DATA.glob('*.xlsx'), key=lambda f: f.stat().st_mtime, reverse=True)
+    """Retorna o .xlsx mais recente — busca em data/, raiz do projeto e subpastas"""
+    files = sorted(BASE.rglob('*.xlsx'), key=lambda f: f.stat().st_mtime, reverse=True)
     if not files:
-        raise FileNotFoundError(f'Nenhum arquivo .xlsx encontrado em {DATA}')
-    if len(files) > 1:
-        log.info(f'📂 Encontrados {len(files)} arquivos Excel — usando o mais recente: {files[0].name}')
+        raise FileNotFoundError(f'Nenhum arquivo .xlsx encontrado em {BASE}')
+    log.info(f'📂 Excel encontrado: {files[0].relative_to(BASE)}')
     return files[0]
 LOCK  = threading.Lock()
 
