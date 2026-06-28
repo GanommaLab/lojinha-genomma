@@ -11,16 +11,15 @@ from pathlib import Path
 
 from flask import Flask, request, jsonify, send_from_directory, Response
 import openpyxl
+import functools
 
 app   = Flask(__name__, static_folder='public')
 BASE  = Path(__file__).parent
 
-# No Render, usa /tmp para arquivos mutáveis (stock, orders, uploads)
-# Localmente, usa a própria pasta do projeto
 IS_RENDER = os.getenv('RENDER', '') != ''
 TMP       = Path('/tmp/lojinha') if IS_RENDER else BASE
 
-DATA  = BASE / 'data'          # Excel fica sempre junto ao código
+DATA  = BASE / 'data'
 UPLOAD= TMP  / 'uploads'
 STOCK = TMP  / 'stock.json'
 ORDERS= TMP  / 'orders.json'
@@ -40,6 +39,8 @@ SMTP_USER  = ''
 SMTP_PASS  = ''
 DEST_EMAIL = 'maycon.silva@contractor.genommalab.com'
 PORT       = 3000
+ADMIN_USER = 'admin'
+ADMIN_PASS = '5827'
 
 env_file = BASE / '.env'
 if env_file.exists():
@@ -48,11 +49,29 @@ if env_file.exists():
         if line and not line.startswith('#') and '=' in line:
             k, v = line.split('=', 1)
             os.environ.setdefault(k.strip(), v.strip())
-SMTP_HOST = os.getenv('SMTP_HOST', SMTP_HOST)
-SMTP_PORT = int(os.getenv('SMTP_PORT', str(SMTP_PORT)))
-SMTP_USER = os.getenv('SMTP_USER', SMTP_USER)
-SMTP_PASS = os.getenv('SMTP_PASS', SMTP_PASS)
-PORT      = int(os.getenv('PORT', str(PORT)))
+SMTP_HOST  = os.getenv('SMTP_HOST', SMTP_HOST)
+SMTP_PORT  = int(os.getenv('SMTP_PORT', str(SMTP_PORT)))
+SMTP_USER  = os.getenv('SMTP_USER', SMTP_USER)
+SMTP_PASS  = os.getenv('SMTP_PASS', SMTP_PASS)
+PORT       = int(os.getenv('PORT', str(PORT)))
+ADMIN_PASS = os.getenv('ADMIN_PASS', ADMIN_PASS)
+
+# ── Autenticação Admin ────────────────────────────────────────────────────────
+def _check_auth(username, password):
+    return username == ADMIN_USER and password == ADMIN_PASS
+
+def require_admin(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not _check_auth(auth.username, auth.password):
+            return Response(
+                'Acesso restrito. Digite o usuário e senha.',
+                401,
+                {'WWW-Authenticate': 'Basic realm="Admin Lojinha Genomma"'}
+            )
+        return f(*args, **kwargs)
+    return decorated
 
 # ── Estoque ───────────────────────────────────────────────────────────────────
 def load_from_excel():
@@ -171,11 +190,13 @@ def api_order():
 
 # ── API: listar pedidos ────────────────────────────────────────────────────────
 @app.get('/api/orders')
+@require_admin
 def api_orders():
     return jsonify(load_orders())
 
 # ── API: atualizar status ──────────────────────────────────────────────────────
 @app.post('/api/orders/<order_id>/status')
+@require_admin
 def api_status(order_id):
     data       = request.get_json(force=True)
     new_status = data.get('status','pendente')
@@ -198,6 +219,7 @@ def api_status(order_id):
 
 # ── Página Admin ──────────────────────────────────────────────────────────────
 @app.get('/admin')
+@require_admin
 def admin():
     total = len(load_orders())
     html = f"""<!DOCTYPE html>
@@ -213,14 +235,12 @@ header h1{{color:white;font-size:1.4rem;font-weight:800}}
 header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .badge{{background:rgba(255,255,255,.2);color:white;padding:5px 14px;border-radius:20px;font-size:.83rem;font-weight:700}}
 .container{{max-width:1250px;margin:0 auto;padding:24px 18px}}
-/* stats */
 .stats{{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:20px}}
 .stat{{background:white;border-radius:13px;padding:15px 19px;flex:1;min-width:120px;box-shadow:0 2px 10px rgba(74,27,122,.09);border-left:4px solid #4A1B7A}}
 .stat.green{{border-color:#27AE60}} .stat.orange{{border-color:#E67E22}}
 .stat .n{{font-size:1.7rem;font-weight:800;color:#4A1B7A}}
 .stat.green .n{{color:#27AE60}} .stat.orange .n{{color:#E67E22}}
 .stat .l{{font-size:.75rem;color:#999;margin-top:1px}}
-/* filtros */
 .filters{{background:white;border-radius:13px;padding:16px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(74,27,122,.09);display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}}
 .fgroup label{{font-size:.72rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}}
 .fgroup input,.fgroup select{{border:2px solid rgba(74,27,122,.15);border-radius:8px;padding:7px 11px;font-size:.85rem;color:#333;outline:none;background:white;min-width:130px}}
@@ -230,12 +250,10 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .btn-primary:hover{{opacity:.88}}
 .btn-ghost{{background:white;color:#7B3FAD;border:2px solid rgba(74,27,122,.2)}}
 .btn-ghost:hover{{background:#F3EDF9}}
-/* card */
 .card{{background:white;border-radius:15px;box-shadow:0 2px 14px rgba(74,27,122,.09);overflow:hidden}}
 .card-head{{padding:15px 20px;border-bottom:1px solid #F0E8FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}}
 .card-head h2{{font-size:.92rem;font-weight:700;color:#4A1B7A}}
 .count-lbl{{font-size:.78rem;color:#aaa}}
-/* tabela */
 table{{width:100%;border-collapse:collapse}}
 thead th{{background:#F8F3FF;padding:9px 12px;text-align:left;font-size:.7rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}}
 tbody tr{{border-bottom:1px solid #FAF5FF;transition:background .13s}}
@@ -243,18 +261,15 @@ tbody tr:hover{{background:#FAF5FF}}
 tbody tr.entregue{{background:#F0FFF4}}
 tbody tr.entregue:hover{{background:#E8FFF0}}
 td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
-/* badges */
 .tg{{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}}
 .tg-g{{background:#E8F5E9;color:#2E7D32}}
 .tg-t{{background:#E3F2FD;color:#1565C0}}
 .tg-p{{background:#FFF8E1;color:#E65100}}
 .tg-e{{background:#E8F5E9;color:#1B5E20}}
-/* botão entrega */
 .btn-del{{border:none;cursor:pointer;border-radius:7px;padding:5px 12px;font-size:.76rem;font-weight:700;transition:.18s;white-space:nowrap}}
 .btn-del.pend{{background:#4A1B7A;color:white}} .btn-del.pend:hover{{background:#6B2FA0}}
 .btn-del.done{{background:#E8F5E9;color:#2E7D32;border:1.5px solid #A5D6A7}}
 .btn-del.done:hover{{background:#FFEBEE;color:#c62828;border-color:#EF9A9A}}
-/* empty */
 .empty{{text-align:center;padding:50px;color:#ccc}}
 .empty span{{font-size:2.5rem;display:block;margin-bottom:10px}}
 .rbtn{{background:#4A1B7A;color:white;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600}}
@@ -485,10 +500,11 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
         s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
         s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
 
+# ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
+
 # ── Start ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
-    init_stock()
     log.info(f'\n🚀 Lojinha            → http://localhost:{PORT}')
     log.info(f'🔧 Painel de pedidos  → http://localhost:{PORT}/admin')
     log.info(f'📧 Destino do email   → {DEST_EMAIL}')
