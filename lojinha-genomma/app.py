@@ -1,4 +1,4 @@
-    """
+"""
 Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 """
 import os, json, threading, smtplib, logging
