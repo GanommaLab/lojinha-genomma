@@ -887,27 +887,39 @@ function render(orders) {{
     const btnLbl = done ? '↩ Desfazer' : '✅ Marcar entregue';
     const btnCls = done ? 'done' : 'pend';
     const fmtBRL = v => v != null && v > 0 ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}}) : '—';
-    const qty    = orderQty(o);
-    const preco  = o.items ? '—' : fmtBRL(o.preco_unit);
-    rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">
+    const base = `
       <td style="white-space:nowrap;color:#666;font-size:.78rem;">${{o.data_hora||''}}</td>
       <td style="font-weight:600">${{o.nome||''}}</td>
       <td style="color:#4A1B7A;font-size:.82rem;">${{o.email||''}}</td>
-      <td>${{tBadge}}</td>
-      <td style="max-width:200px;font-size:.82rem;">${{orderProductLabel(o)}}</td>
-      <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{qty||''}}</td>
-      <td style="text-align:center;font-size:.82rem;color:#555;">${{preco}}</td>
+      <td>${{tBadge}}</td>`;
+    const tail = `
       <td style="text-align:center;font-weight:700;color:#1A5FB4;">${{fmtBRL(o.valor_total)}}</td>
       <td style="text-align:center">${{cLink}}</td>
       <td style="text-align:center">${{sBadge}}</td>
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
-      <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>
-    </tr>`;
+      <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>`;
+    let mid = '';
+    if (o.items && o.items.length) {{
+      const miniRows = o.items.map(it =>
+        `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #EDE3F5;flex-wrap:wrap;">
+          <span style="flex:1;min-width:120px;font-size:.8rem;color:#333;">${{it.produto_name}}</span>
+          <span style="font-size:.8rem;font-weight:700;color:#27AE60;white-space:nowrap;">${{it.quantidade}} un.</span>
+          <span style="font-size:.8rem;color:#888;white-space:nowrap;">${{fmtBRL(it.preco_unit)}}/un</span>
+          <span style="font-size:.8rem;font-weight:700;color:#1A5FB4;white-space:nowrap;">${{fmtBRL(it.valor_total)}}</span>
+        </div>`
+      ).join('');
+      mid = `<td colspan="3" style="padding:6px 8px;">${{miniRows}}</td>`;
+    }} else {{
+      mid = `
+        <td style="max-width:180px;font-size:.82rem;">${{o.produto_name||''}}</td>
+        <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{o.quantidade||''}}</td>
+        <td style="text-align:center;font-size:.82rem;color:#555;">${{fmtBRL(o.preco_unit)}}</td>`;
+    }}
+    rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">${{base}}${{mid}}${{tail}}</tr>`;
   }});
   wrap.innerHTML = `<table><thead><tr>
-    <th>Data/Hora</th><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Produto</th>
-    <th style="text-align:center">Qtd</th>
-    <th style="text-align:center">Preço Unit.</th>
+    <th>Data/Hora</th><th>Nome</th><th>E-mail</th><th>Tipo</th>
+    <th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:center">Preço Unit.</th>
     <th style="text-align:center">Valor Total</th>
     <th style="text-align:center">Comprovante</th>
     <th style="text-align:center">Status</th><th style="text-align:center">Entrega</th>
