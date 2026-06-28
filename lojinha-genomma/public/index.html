@@ -461,11 +461,27 @@
       </div>
     </div>
 
+    <!-- Carrinho -->
+    <div id="cart-section" style="display:none;margin-top:18px;">
+      <div style="border-top:1px solid #E8DEF8;margin:14px 0;"></div>
+      <div style="font-size:.88rem;font-weight:700;color:#4A1B7A;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">🛒 Itens no Carrinho</div>
+      <div id="cart-list"></div>
+      <div style="background:linear-gradient(135deg,#4A1B7A,#1A5FB4);border-radius:10px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <span style="color:rgba(255,255,255,.8);font-size:.82rem;font-weight:600;">TOTAL DO PEDIDO</span>
+        <span id="cart-total-val" style="color:white;font-size:1.25rem;font-weight:800;">R$ 0,00</span>
+      </div>
+    </div>
+
     <div class="divider"></div>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn btn-outline" style="flex:1; min-width:120px;" onclick="goToStep1()">← Voltar</button>
-      <button class="btn btn-primary" style="flex:2; min-width:160px;" onclick="goToStep3()">
+      <button class="btn btn-primary" style="flex:2; min-width:160px;" onclick="addToCart()">
+        <span class="btn-text">➕ Adicionar ao Carrinho</span>
+      </button>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-success" id="btn-fazer-pedido" style="width:100%;display:none;" onclick="goToStep3()">
         <span class="btn-text">🛒 Fazer Pedido</span>
       </button>
     </div>
@@ -483,10 +499,11 @@
       <h3>Resumo do Pedido</h3>
       <div class="summary-row"><span class="key">Comprador</span><span class="val" id="sum-nome">—</span></div>
       <div class="summary-row"><span class="key">E-mail</span><span class="val" id="sum-email">—</span></div>
-      <div class="summary-row"><span class="key">Produto</span><span class="val" id="sum-produto">—</span></div>
-      <div class="summary-row"><span class="key">Quantidade</span><span class="val" id="sum-qty">—</span></div>
-      <div class="summary-row" id="sum-preco-row" style="display:none"><span class="key">Preço unit.</span><span class="val" id="sum-preco">—</span></div>
-      <div class="summary-row" id="sum-total-row" style="display:none;border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px"><span class="key" style="font-weight:700;color:#4A1B7A">💰 Total</span><span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="sum-total">—</span></div>
+      <div id="sum-items-wrap"></div>
+      <div class="summary-row" style="border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px">
+        <span class="key" style="font-weight:700;color:#4A1B7A">💰 Total</span>
+        <span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="sum-total">—</span>
+      </div>
     </div>
 
     <!-- Tipo -->
@@ -558,11 +575,12 @@
         <h3>Detalhes do Pedido</h3>
         <div class="summary-row"><span class="key">Nome</span><span class="val" id="final-nome">—</span></div>
         <div class="summary-row"><span class="key">E-mail</span><span class="val" id="final-email">—</span></div>
-        <div class="summary-row"><span class="key">Produto</span><span class="val" id="final-produto">—</span></div>
-        <div class="summary-row"><span class="key">Quantidade</span><span class="val" id="final-qty">—</span></div>
         <div class="summary-row"><span class="key">Vínculo</span><span class="val" id="final-tipo">—</span></div>
-        <div class="summary-row" id="final-preco-row" style="display:none"><span class="key">Preço unit.</span><span class="val" id="final-preco">—</span></div>
-        <div class="summary-row" id="final-total-row" style="display:none;border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px"><span class="key" style="font-weight:700;color:#4A1B7A">💰 Total pago</span><span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="final-total">—</span></div>
+        <div id="final-items-wrap"></div>
+        <div class="summary-row" style="border-top:2px solid #D1C4E9;padding-top:10px;margin-top:4px">
+          <span class="key" style="font-weight:700;color:#4A1B7A">💰 Total pago</span>
+          <span class="val" style="font-weight:800;color:#1A5FB4;font-size:1.05rem" id="final-total">—</span>
+        </div>
       </div>
       <button class="btn btn-outline" style="margin-top:16px;" onclick="novosPedido()">
         ➕ Fazer Novo Pedido
@@ -577,6 +595,7 @@
 let products    = [];
 let selectedTipo = null;
 let orderData   = {};
+let cart        = [];
 
 /* ── Inicialização ─────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -688,35 +707,23 @@ function goToStep2() {
 }
 
 function goToStep3() {
-  const sel   = document.getElementById('produto');
-  const qty   = parseInt(document.getElementById('quantidade').value) || 0;
-  const opt   = sel.selectedOptions[0];
-  let ok = true;
-  if (!sel.value) { showErr('err-produto'); ok = false; }
-  if (qty < 1)    { showErr('err-quantidade'); ok = false; }
-  if (opt && qty > parseInt(opt.dataset.stock)) {
-    showErr('err-quantidade'); ok = false;
-    setAlert('alert-product', `⚠️ Quantidade maior que o estoque disponível (${opt.dataset.stock} unidades).`);
+  if (!cart.length) {
+    setAlert('alert-product', '⚠️ Adicione pelo menos um produto ao carrinho antes de continuar.');
+    return;
   }
-  if (!ok) return;
   hideAlert('alert-product');
-  orderData.produto_code = sel.value;
-  orderData.produto_name = opt.dataset.name;
-  orderData.quantidade   = qty;
-  orderData.estoque_disp = opt.dataset.stock;
-  orderData.preco_unit   = parseFloat(opt.dataset.price) || 0;
-  orderData.valor_total  = orderData.preco_unit * qty;
 
-  document.getElementById('sum-nome').textContent    = orderData.nome;
-  document.getElementById('sum-email').textContent   = orderData.email;
-  document.getElementById('sum-produto').textContent = orderData.produto_name;
-  document.getElementById('sum-qty').textContent     = `${qty} unidades`;
-  if (orderData.preco_unit > 0) {
-    document.getElementById('sum-preco-row').style.display = '';
-    document.getElementById('sum-total-row').style.display = '';
-    document.getElementById('sum-preco').textContent  = fmtBRL(orderData.preco_unit);
-    document.getElementById('sum-total').textContent  = fmtBRL(orderData.valor_total);
-  }
+  const total = cart.reduce((s, i) => s + i.valor_total, 0);
+  document.getElementById('sum-nome').textContent  = orderData.nome;
+  document.getElementById('sum-email').textContent = orderData.email;
+  document.getElementById('sum-total').textContent = fmtBRL(total);
+
+  document.getElementById('sum-items-wrap').innerHTML = cart.map(item =>
+    `<div class="summary-row">
+      <span class="key" style="font-size:.82rem;">${item.produto_name}</span>
+      <span class="val" style="font-size:.82rem;">${item.quantidade} un.${item.preco_unit > 0 ? ' &nbsp;·&nbsp; ' + fmtBRL(item.valor_total) : ''}</span>
+    </div>`
+  ).join('');
 
   selectedTipo = null;
   document.getElementById('tc-terceirizado').classList.remove('selected');
@@ -785,11 +792,10 @@ async function finalizarPedido() {
   btn.disabled = true;
 
   const fd = new FormData();
-  fd.append('nome',         orderData.nome);
-  fd.append('email',        orderData.email);
-  fd.append('produto_code', orderData.produto_code);
-  fd.append('quantidade',   orderData.quantidade);
+  fd.append('nome',           orderData.nome);
+  fd.append('email',          orderData.email);
   fd.append('tipo_comprador', selectedTipo);
+  fd.append('items_json',     JSON.stringify(cart));
 
   if (selectedTipo === 'genomma') {
     const file = document.getElementById('comprovante').files[0];
@@ -806,30 +812,35 @@ async function finalizarPedido() {
       return;
     }
 
-    // Sucesso!
-    document.getElementById('final-nome').textContent    = orderData.nome;
-    document.getElementById('final-email').textContent   = orderData.email;
-    document.getElementById('final-produto').textContent = orderData.produto_name;
-    document.getElementById('final-qty').textContent     = `${orderData.quantidade} unidades`;
-    document.getElementById('final-tipo').textContent    = selectedTipo === 'genomma' ? '🏢 Genomma' : '🤝 Terceirizado(a)';
-    if (orderData.preco_unit > 0) {
-      document.getElementById('final-preco-row').style.display = '';
-      document.getElementById('final-total-row').style.display = '';
-      document.getElementById('final-preco').textContent = fmtBRL(orderData.preco_unit);
-      document.getElementById('final-total').textContent = fmtBRL(orderData.valor_total);
-    }
+    // Sucesso — preencher tela final
+    const total = cart.reduce((s, i) => s + i.valor_total, 0);
+    document.getElementById('final-nome').textContent  = orderData.nome;
+    document.getElementById('final-email').textContent = orderData.email;
+    document.getElementById('final-tipo').textContent  = selectedTipo === 'genomma' ? '🏢 Genomma' : '🤝 Terceirizado(a)';
+    document.getElementById('final-total').textContent = fmtBRL(total);
 
-    // Atualizar estoque no dropdown para próximos compradores
+    document.getElementById('final-items-wrap').innerHTML = cart.map(item =>
+      `<div class="summary-row">
+        <span class="key" style="font-size:.82rem;">${item.produto_name}</span>
+        <span class="val" style="font-size:.82rem;">${item.quantidade} un.${item.preco_unit > 0 ? ' &nbsp;·&nbsp; ' + fmtBRL(item.valor_total) : ''}</span>
+      </div>`
+    ).join('');
+
+    // Atualizar estoque no dropdown para todos os itens do carrinho
     const sel = document.getElementById('produto');
-    for (const opt of sel.options) {
-      if (opt.value === orderData.produto_code) {
-        const novoEstoque = parseInt(opt.dataset.stock) - parseInt(orderData.quantidade);
-        opt.dataset.stock = Math.max(0, novoEstoque);
-        if (novoEstoque <= 0) opt.remove();
-        break;
+    for (const cartItem of cart) {
+      for (const opt of sel.options) {
+        if (opt.value === cartItem.produto_code) {
+          const novoEstoque = parseInt(opt.dataset.stock) - cartItem.quantidade;
+          opt.dataset.stock = Math.max(0, novoEstoque);
+          if (novoEstoque <= 0) opt.remove();
+          break;
+        }
       }
     }
 
+    cart = [];
+    renderCart();
     setStep(4);
 
   } catch(e) {
@@ -842,17 +853,105 @@ async function finalizarPedido() {
 function novosPedido() {
   orderData    = {};
   selectedTipo = null;
-  document.getElementById('nome').value      = '';
-  document.getElementById('email').value     = '';
-  document.getElementById('produto').value   = '';
+  cart         = [];
+  renderCart();
+  document.getElementById('nome').value       = '';
+  document.getElementById('email').value      = '';
+  document.getElementById('produto').value    = '';
   document.getElementById('quantidade').value = '1';
-  document.getElementById('stock-info').style.display = 'none';
+  document.getElementById('stock-info').style.display  = 'none';
+  document.getElementById('price-info').style.display  = 'none';
+  document.getElementById('total-info').style.display  = 'none';
   document.getElementById('comprovante').value = '';
   document.getElementById('upload-zone').classList.remove('has-file');
   document.getElementById('upload-icon').textContent = '📎';
   document.getElementById('upload-filename').classList.remove('show');
   loadProducts();
   setStep(1);
+}
+
+/* ── Carrinho ────────────────────────────────────────────────────── */
+function round2(v) { return Math.round(v * 100) / 100; }
+
+function addToCart() {
+  const sel = document.getElementById('produto');
+  const qty = parseInt(document.getElementById('quantidade').value) || 0;
+  const opt = sel.selectedOptions[0];
+  let ok = true;
+  if (!sel.value)  { showErr('err-produto');    ok = false; }
+  if (qty < 1)     { showErr('err-quantidade'); ok = false; }
+  if (opt && qty > parseInt(opt.dataset.stock)) {
+    showErr('err-quantidade'); ok = false;
+    setAlert('alert-product', `⚠️ Quantidade maior que o estoque disponível (${opt.dataset.stock} unidades).`);
+  }
+  if (!ok) return;
+  hideAlert('alert-product');
+
+  // Se já existe no carrinho, soma a quantidade
+  const existing = cart.find(i => i.produto_code === sel.value);
+  if (existing) {
+    const novoQty = existing.quantidade + qty;
+    const max = parseInt(opt.dataset.stock);
+    if (novoQty > max) {
+      setAlert('alert-product', `⚠️ Total no carrinho (${novoQty}) maior que o estoque (${max} unidades).`);
+      return;
+    }
+    existing.quantidade = novoQty;
+    existing.valor_total = round2(existing.preco_unit * novoQty);
+  } else {
+    cart.push({
+      produto_code: sel.value,
+      produto_name: opt.dataset.name,
+      quantidade:   qty,
+      preco_unit:   parseFloat(opt.dataset.price) || 0,
+      valor_total:  round2((parseFloat(opt.dataset.price) || 0) * qty)
+    });
+  }
+
+  // Limpar seleção
+  sel.value = '';
+  document.getElementById('quantidade').value = '1';
+  document.getElementById('stock-info').style.display = 'none';
+  document.getElementById('price-info').style.display = 'none';
+  document.getElementById('total-info').style.display = 'none';
+
+  renderCart();
+}
+
+function removeFromCart(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+}
+
+function renderCart() {
+  const section  = document.getElementById('cart-section');
+  const listEl   = document.getElementById('cart-list');
+  const btnFazer = document.getElementById('btn-fazer-pedido');
+
+  if (!cart.length) {
+    section.style.display  = 'none';
+    btnFazer.style.display = 'none';
+    return;
+  }
+
+  section.style.display  = 'block';
+  btnFazer.style.display = '';
+
+  const total  = cart.reduce((s, i) => s + i.valor_total, 0);
+  const nItens = cart.reduce((s, i) => s + i.quantidade, 0);
+  document.getElementById('cart-total-val').textContent = fmtBRL(total);
+  btnFazer.querySelector('.btn-text').textContent =
+    `🛒 Fazer Pedido  (${cart.length} produto${cart.length > 1 ? 's' : ''} · ${nItens} un.)`;
+
+  listEl.innerHTML = cart.map((item, i) => `
+    <div style="display:flex;align-items:center;background:#F3EEF9;border-radius:8px;padding:8px 10px;margin-bottom:6px;gap:8px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:100px;font-size:.83rem;font-weight:600;color:#4A1B7A;">${item.produto_name}</div>
+      <div style="font-size:.8rem;color:#666;white-space:nowrap;">${item.quantidade} un.</div>
+      ${item.preco_unit > 0 ? `<div style="font-size:.8rem;color:#888;white-space:nowrap;">${fmtBRL(item.preco_unit)}/un</div>` : ''}
+      ${item.valor_total > 0 ? `<div style="font-size:.85rem;font-weight:700;color:#1A5FB4;white-space:nowrap;">${fmtBRL(item.valor_total)}</div>` : ''}
+      <button onclick="removeFromCart(${i})" style="background:#E74C3C;color:white;border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-size:.78rem;flex-shrink:0;">✕</button>
+    </div>
+  `).join('');
 }
 
 /* ── Utilidades ─────────────────────────────────────────────────── */
