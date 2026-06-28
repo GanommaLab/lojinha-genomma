@@ -251,12 +251,83 @@ def api_products():
 def api_order():
     nome  = request.form.get('nome','').strip()
     email = request.form.get('email','').strip()
-    pcode = request.form.get('produto_code','').strip()
-    qstr  = request.form.get('quantidade','0')
     tipo  = request.form.get('tipo_comprador','').strip()
     file  = request.files.get('comprovante')
+    items_json = request.form.get('items_json','').strip()
 
-    if not all([nome, email, pcode, qstr, tipo]):
+    if not all([nome, email, tipo]):
+        return jsonify({'error':'Preencha todos os campos obrigatórios.'}), 400
+
+    # ── Pedido multi-item (novo formato) ──────────────────────────────────────
+    if items_json:
+        try:
+            raw_items = json.loads(items_json)
+            if not isinstance(raw_items, list) or not raw_items:
+                return jsonify({'error':'Carrinho vazio.'}), 400
+        except Exception:
+            return jsonify({'error':'Dados de itens inválidos.'}), 400
+
+        order_items = []
+        total_valor = 0.0
+        with LOCK:
+            for item in raw_items:
+                pcode = str(item.get('produto_code', '')).strip()
+                try:
+                    qty = int(float(item.get('quantidade', 0)))
+                    if qty < 1: raise ValueError
+                except Exception:
+                    return jsonify({'error':f'Quantidade inválida para produto {pcode}.'}), 400
+                product = stock_data.get(pcode)
+                if not product:
+                    return jsonify({'error':f'Produto não encontrado: {pcode}'}), 404
+                if qty > product['stock']:
+                    return jsonify({'error':f'Estoque insuficiente para "{product["name"]}". Disponível: {product["stock"]} un.'}), 400
+                preco_unit = round(float(product.get('price', 0.0)), 2)
+                valor_item = round(preco_unit * qty, 2)
+                total_valor += valor_item
+                order_items.append({
+                    'produto_code': pcode,
+                    'produto_name': product['name'],
+                    'quantidade':   qty,
+                    'preco_unit':   preco_unit,
+                    'valor_total':  valor_item,
+                })
+                stock_data[pcode]['stock'] -= qty
+            save_stock()
+
+        attach_path, attach_name = None, None
+        if file and file.filename:
+            ts   = datetime.now().strftime('%Y%m%d_%H%M%S')
+            safe = ''.join(c if c.isalnum() or c in '._-' else '_' for c in file.filename)
+            attach_name = f'{ts}_{safe}'
+            attach_path = UPLOAD / attach_name
+            file.save(str(attach_path))
+
+        total_valor = round(total_valor, 2)
+        order = {
+            'id':          datetime.now().strftime('%Y%m%d%H%M%S%f')[:17],
+            'data_hora':   datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+            'nome':        nome,
+            'email':       email,
+            'tipo':        tipo,
+            'items':       order_items,
+            'valor_total': total_valor,
+            'comprovante': attach_name or '',
+            'status':      'pendente',
+        }
+        with LOCK:
+            orders = load_orders()
+            orders.insert(0, order)
+            write_orders(orders)
+        nomes = ', '.join(i['produto_name'] for i in order_items)
+        log.info(f'📝 Pedido {order["id"]} — {nome} / {len(order_items)} itens: {nomes}')
+        return jsonify({'success': True, 'message': 'Pedido finalizado!',
+                        'itens': len(order_items), 'total': total_valor})
+
+    # ── Pedido item único (backward compat) ───────────────────────────────────
+    pcode = request.form.get('produto_code','').strip()
+    qstr  = request.form.get('quantidade','0')
+    if not all([pcode, qstr]):
         return jsonify({'error':'Preencha todos os campos obrigatórios.'}), 400
     try:
         qty = int(float(qstr))
@@ -354,12 +425,25 @@ def api_delete_order(order_id):
             return jsonify({'error': 'Pedido não encontrado'}), 404
         orders.remove(found)
         write_orders(orders)
-        pcode = found.get('produto_code')
-        qty   = int(found.get('quantidade', 0))
-        if pcode and pcode in stock_data and qty > 0:
-            stock_data[pcode]['stock'] += qty
+        # Restaurar estoque — suporta pedidos com múltiplos itens e item único
+        stock_changed = False
+        if 'items' in found:
+            for item in found['items']:
+                pcode = item.get('produto_code')
+                qty   = int(item.get('quantidade', 0))
+                if pcode and pcode in stock_data and qty > 0:
+                    stock_data[pcode]['stock'] += qty
+                    stock_changed = True
+                    log.info(f'🔄 Estoque restaurado: +{qty} de {pcode}')
+        else:
+            pcode = found.get('produto_code')
+            qty   = int(found.get('quantidade', 0))
+            if pcode and pcode in stock_data and qty > 0:
+                stock_data[pcode]['stock'] += qty
+                stock_changed = True
+                log.info(f'🔄 Estoque restaurado: +{qty} de {pcode}')
+        if stock_changed:
             save_stock()
-            log.info(f'🔄 Estoque restaurado: +{qty} de {pcode}')
     return jsonify({'ok': True})
 
 # ── API: inventário ───────────────────────────────────────────────────────────
@@ -368,13 +452,20 @@ def api_delete_order(order_id):
 def api_inventario():
     with LOCK:
         orders = load_orders()
-        # Calcula vendas por produto
+        # Calcula vendas por produto (suporta pedidos multi-item e item único)
         vendas = {}
         for o in orders:
-            pc  = o.get('produto_code')
-            qty = int(o.get('quantidade', 0))
-            if pc:
-                vendas[pc] = vendas.get(pc, 0) + qty
+            if 'items' in o:
+                for item in o['items']:
+                    pc  = item.get('produto_code')
+                    qty = int(item.get('quantidade', 0))
+                    if pc:
+                        vendas[pc] = vendas.get(pc, 0) + qty
+            else:
+                pc  = o.get('produto_code')
+                qty = int(o.get('quantidade', 0))
+                if pc:
+                    vendas[pc] = vendas.get(pc, 0) + qty
         # Monta relatório
         items = []
         for code, p in stock_data.items():
@@ -733,11 +824,20 @@ async function loadOrders() {{
   }} catch(e) {{ console.error(e); }}
 }}
 
+function orderQty(o) {{
+  if (o.items) return o.items.reduce((s,i)=>s+(parseInt(i.quantidade)||0),0);
+  return parseInt(o.quantidade)||0;
+}}
+function orderProductLabel(o) {{
+  if (o.items) return o.items.map(i=>`${{i.produto_name}} (${{i.quantidade}} un.)`).join('<br>');
+  return o.produto_name||'';
+}}
+
 function stats(orders) {{
   document.getElementById('st-total').textContent   = orders.length;
   document.getElementById('st-genomma').textContent = orders.filter(o=>o.tipo==='genomma').length;
   document.getElementById('st-terc').textContent    = orders.filter(o=>o.tipo==='terceirizado').length;
-  document.getElementById('st-units').textContent   = orders.reduce((s,o)=>s+(parseInt(o.quantidade)||0),0);
+  document.getElementById('st-units').textContent   = orders.reduce((s,o)=>s+orderQty(o),0);
   document.getElementById('st-done').textContent    = orders.filter(o=>o.status==='entregue').length;
   document.getElementById('st-pend').textContent    = orders.filter(o=>o.status!=='entregue').length;
   const total_val = orders.reduce((s,o)=>s+(parseFloat(o.valor_total)||0),0);
@@ -787,19 +887,21 @@ function render(orders) {{
     const btnLbl = done ? '↩ Desfazer' : '✅ Marcar entregue';
     const btnCls = done ? 'done' : 'pend';
     const fmtBRL = v => v != null && v > 0 ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}}) : '—';
+    const qty    = orderQty(o);
+    const preco  = o.items ? '—' : fmtBRL(o.preco_unit);
     rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">
       <td style="white-space:nowrap;color:#666;font-size:.78rem;">${{o.data_hora||''}}</td>
       <td style="font-weight:600">${{o.nome||''}}</td>
       <td style="color:#4A1B7A;font-size:.82rem;">${{o.email||''}}</td>
       <td>${{tBadge}}</td>
-      <td style="max-width:180px">${{o.produto_name||''}}</td>
-      <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{o.quantidade||''}}</td>
-      <td style="text-align:center;font-size:.82rem;color:#555;">${{fmtBRL(o.preco_unit)}}</td>
+      <td style="max-width:200px;font-size:.82rem;">${{orderProductLabel(o)}}</td>
+      <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{qty||''}}</td>
+      <td style="text-align:center;font-size:.82rem;color:#555;">${{preco}}</td>
       <td style="text-align:center;font-weight:700;color:#1A5FB4;">${{fmtBRL(o.valor_total)}}</td>
       <td style="text-align:center">${{cLink}}</td>
       <td style="text-align:center">${{sBadge}}</td>
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
-      <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}','${{o.produto_name||''}}','${{o.quantidade||0}}')">🗑️ Excluir</button></td>
+      <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>
     </tr>`;
   }});
   wrap.innerHTML = `<table><thead><tr>
@@ -826,8 +928,10 @@ async function toggle(id, newStatus) {{
   }} catch(e) {{ alert('Erro de conexão.'); if(btn) btn.disabled=false; }}
 }}
 
-async function excluir(id, nome, qty) {{
-  if (!confirm(`Excluir este pedido?\n\n"${{nome}}" (x${{qty}} un.)\n\nO estoque será restaurado automaticamente.`)) return;
+async function excluir(id) {{
+  const row = document.getElementById(`row-${{id}}`);
+  const prod = row ? row.querySelector('td:nth-child(5)').innerText : '';
+  if (!confirm(`Excluir este pedido?\n\n${{prod}}\n\nO estoque será restaurado automaticamente.`)) return;
   try {{
     const r = await fetch(`/api/orders/${{id}}`, {{method: 'DELETE'}});
     if (r.ok) {{ await loadOrders(); }}
