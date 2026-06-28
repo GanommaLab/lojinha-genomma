@@ -242,6 +242,238 @@ def api_delete_order(order_id):
             log.info(f'🔄 Estoque restaurado: +{qty} de {pcode}')
     return jsonify({'ok': True})
 
+# ── API: inventário ───────────────────────────────────────────────────────────
+@app.get('/api/inventario')
+@require_admin
+def api_inventario():
+    with LOCK:
+        orders = load_orders()
+        # Calcula vendas por produto
+        vendas = {}
+        for o in orders:
+            pc  = o.get('produto_code')
+            qty = int(o.get('quantidade', 0))
+            if pc:
+                vendas[pc] = vendas.get(pc, 0) + qty
+        # Monta relatório
+        items = []
+        for code, p in stock_data.items():
+            sold    = vendas.get(code, 0)
+            current = p['stock']
+            initial = current + sold
+            items.append({
+                'code':    code,
+                'name':    p['name'],
+                'inicial': initial,
+                'vendido': sold,
+                'atual':   current,
+            })
+    items.sort(key=lambda x: x['name'].lower())
+    return jsonify(items)
+
+# ── Página Inventário ──────────────────────────────────────────────────────────
+@app.get('/inventario')
+@require_admin
+def inventario():
+    html = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inventário — Lojinha Genomma</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#F3EDF9;min-height:100vh}
+header{background:linear-gradient(135deg,#4A1B7A,#1A5FB4);padding:22px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+header h1{color:white;font-size:1.4rem;font-weight:800}
+header p{color:rgba(255,255,255,.75);font-size:.88rem}
+.rbtn{background:rgba(255,255,255,.2);color:white;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;text-decoration:none;display:inline-block}
+.rbtn:hover{background:rgba(255,255,255,.32)}
+.rbtn.green{background:#27AE60}.rbtn.green:hover{background:#219a52}
+.rbtn.blue{background:#1A5FB4}.rbtn.blue:hover{background:#1550a0}
+.container{max-width:1350px;margin:0 auto;padding:24px 18px}
+.stats{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:20px}
+.stat{background:white;border-radius:13px;padding:15px 19px;flex:1;min-width:130px;box-shadow:0 2px 10px rgba(74,27,122,.09);border-left:4px solid #4A1B7A}
+.stat.green{border-color:#27AE60}.stat.red{border-color:#E53935}.stat.orange{border-color:#E67E22}
+.stat .n{font-size:1.7rem;font-weight:800;color:#4A1B7A}
+.stat.green .n{color:#27AE60}.stat.red .n{color:#E53935}.stat.orange .n{color:#E67E22}
+.stat .l{font-size:.75rem;color:#999;margin-top:1px}
+.card{background:white;border-radius:15px;box-shadow:0 2px 14px rgba(74,27,122,.09);overflow:hidden;margin-bottom:20px}
+.card-head{padding:15px 20px;border-bottom:1px solid #F0E8FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-head h2{font-size:.92rem;font-weight:700;color:#4A1B7A}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+thead th{background:#F8F3FF;padding:9px 12px;text-align:left;font-size:.68rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+thead th.num{text-align:center}
+tbody tr{border-bottom:1px solid #FAF5FF;transition:background .13s}
+tbody tr:hover{background:#FAF5FF}
+tbody tr.diff-neg{background:#FFF8F8}
+tbody tr.diff-pos{background:#F8FFF8}
+td{padding:9px 12px;font-size:.84rem;vertical-align:middle}
+td.num{text-align:center;font-weight:700}
+td.code{font-family:monospace;font-size:.76rem;color:#999}
+.chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.chip-sold{background:#FFF3E0;color:#E65100}
+.chip-ok{background:#E8F5E9;color:#1B5E20}
+.chip-warn{background:#FFEBEE;color:#B71C1C}
+input.fisica{width:70px;text-align:center;border:2px solid #D1C4E9;border-radius:7px;padding:4px 6px;font-size:.85rem;font-weight:700;color:#4A1B7A;outline:none;transition:.15s}
+input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
+.dif-pos{color:#1B5E20;font-weight:800}
+.dif-neg{color:#B71C1C;font-weight:800}
+.dif-zero{color:#999}
+.info-box{background:#EDE7F6;border-left:4px solid #7B3FAD;padding:13px 16px;border-radius:8px;margin-bottom:18px;font-size:.85rem;color:#4A1B7A}
+.info-box strong{display:block;margin-bottom:4px}
+@media print{
+  header .rbtn{display:none}
+  .info-box{border:1px solid #ccc}
+  input.fisica{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>📊 Inventário</h1><p>Lojinha Interna — Genomma Lab</p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button class="rbtn green" onclick="exportCSV()">⬇️ Exportar CSV</button>
+    <button class="rbtn blue"  onclick="window.print()">🖨️ Imprimir</button>
+    <a href="/admin" class="rbtn">← Painel de Pedidos</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="info-box">
+    <strong>📋 Como usar esta página</strong>
+    Preencha a coluna <b>Contagem Física</b> com a quantidade que você contou fisicamente no estoque.
+    A coluna <b>Diferença</b> calculará automaticamente (Física − Sistema).
+    Valores negativos (em vermelho) indicam que o estoque físico está menor que o sistema.
+  </div>
+
+  <div class="stats">
+    <div class="stat">       <div class="n" id="st-prod">—</div>  <div class="l">Produtos ativos</div></div>
+    <div class="stat orange"><div class="n" id="st-ini">—</div>   <div class="l">Unidades iniciais</div></div>
+    <div class="stat red">   <div class="n" id="st-vend">—</div>  <div class="l">Unidades vendidas</div></div>
+    <div class="stat green"> <div class="n" id="st-atual">—</div> <div class="l">Em estoque (sistema)</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>📦 Relatório de Estoque</h2>
+      <span id="ref-label" style="font-size:.78rem;color:#aaa"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="inv-table">
+        <thead><tr>
+          <th>#</th>
+          <th>Código</th>
+          <th>Produto</th>
+          <th class="num">Est. Inicial</th>
+          <th class="num">Vendido</th>
+          <th class="num">Est. Sistema</th>
+          <th class="num">Contagem Física</th>
+          <th class="num">Diferença</th>
+        </tr></thead>
+        <tbody id="inv-body">
+          <tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let invData = [];
+
+async function load() {
+  try {
+    const r = await fetch('/api/inventario');
+    invData = await r.json();
+    render();
+  } catch(e) { console.error(e); }
+}
+
+function render() {
+  const body = document.getElementById('inv-body');
+  const now  = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('ref-label').textContent = 'Gerado em: ' + now;
+
+  let totIni=0, totVend=0, totAtual=0;
+  invData.forEach(p => { totIni+=p.inicial; totVend+=p.vendido; totAtual+=p.atual; });
+  document.getElementById('st-prod').textContent  = invData.length;
+  document.getElementById('st-ini').textContent   = totIni;
+  document.getElementById('st-vend').textContent  = totVend;
+  document.getElementById('st-atual').textContent = totAtual;
+
+  if (!invData.length) {
+    body.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:40px;color:#aaa'>Nenhum produto encontrado.</td></tr>";
+    return;
+  }
+
+  body.innerHTML = invData.map((p, i) => {
+    const hasSold = p.vendido > 0;
+    const chip = hasSold
+      ? `<span class='chip chip-sold'>-${p.vendido} vendido${p.vendido>1?'s':''}</span>`
+      : `<span class='chip chip-ok'>sem saída</span>`;
+    return `<tr id="row-${i}">
+      <td style="color:#bbb;font-size:.76rem">${i+1}</td>
+      <td class="code">${p.code}</td>
+      <td style="font-weight:600;max-width:280px">${p.name}</td>
+      <td class="num" style="color:#888">${p.inicial}</td>
+      <td class="num">${chip}</td>
+      <td class="num" style="color:#4A1B7A;font-size:1rem">${p.atual}</td>
+      <td class="num"><input class="fisica" type="number" min="0" id="fis-${i}" placeholder="—" onchange="calcDif(${i})" oninput="calcDif(${i})"></td>
+      <td class="num" id="dif-${i}" style="color:#ccc;font-size:1rem">—</td>
+    </tr>`;
+  }).join('');
+}
+
+function calcDif(i) {
+  const val = document.getElementById('fis-'+i).value;
+  const dif = document.getElementById('dif-'+i);
+  const row = document.getElementById('row-'+i);
+  if (val === '' || val === null) {
+    dif.innerHTML = '<span class="dif-zero">—</span>';
+    row.className = '';
+    return;
+  }
+  const fisica  = parseInt(val, 10);
+  const sistema = invData[i].atual;
+  const diff    = fisica - sistema;
+  if (diff > 0) {
+    dif.innerHTML = `<span class="dif-pos">+${diff}</span>`;
+    row.className = 'diff-pos';
+  } else if (diff < 0) {
+    dif.innerHTML = `<span class="dif-neg">${diff}</span>`;
+    row.className = 'diff-neg';
+  } else {
+    dif.innerHTML = `<span class="dif-zero">✓ 0</span>`;
+    row.className = '';
+  }
+}
+
+function exportCSV() {
+  const now = new Date().toLocaleDateString('pt-BR');
+  let csv = '\\uFEFF'; // BOM para Excel reconhecer UTF-8
+  csv += 'Código,Produto,Est. Inicial,Vendido,Est. Sistema,Contagem Física,Diferença\\n';
+  invData.forEach((p, i) => {
+    const fisEl = document.getElementById('fis-'+i);
+    const fis   = fisEl && fisEl.value !== '' ? parseInt(fisEl.value, 10) : '';
+    const dif   = fis !== '' ? fis - p.atual : '';
+    const name  = '"' + p.name.replace(/"/g, '""') + '"';
+    csv += `${p.code},${name},${p.inicial},${p.vendido},${p.atual},${fis},${dif}\\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'inventario_genomma_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+load();
+</script>
+</body></html>"""
+    return Response(html, mimetype='text/html')
+
 # ── Página Admin ──────────────────────────────────────────────────────────────
 @app.get('/admin')
 @require_admin
@@ -321,6 +553,7 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span class="badge" id="hdr-count">📦 {total} pedido(s)</span>
     <button class="rbtn" onclick="loadOrders()">↻ Atualizar</button>
+    <a href="/inventario" class="rbtn" style="text-decoration:none;background:rgba(39,174,96,.35)">📊 Inventário</a>
     <a href="/" class="rbtn" style="text-decoration:none">🛍️ Lojinha</a>
   </div>
 </header>
