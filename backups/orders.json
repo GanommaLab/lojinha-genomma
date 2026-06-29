@@ -17,24 +17,5 @@
     "valor_total": 9.71,
     "comprovante": "",
     "status": "pendente"
-  },
-  {
-    "id": "20260629025616535",
-    "data_hora": "29/06/2026 02:56:16",
-    "nome": "Teste Simulação",
-    "email": "teste@genommalab.com",
-    "tipo": "genomma",
-    "items": [
-      {
-        "produto_code": "1031087",
-        "produto_name": "Asepxia Barra Detox 80g",
-        "quantidade": 1,
-        "preco_unit": 9.71,
-        "valor_total": 9.71
-      }
-    ],
-    "valor_total": 9.71,
-    "comprovante": "",
-    "status": "pendente"
   }
 ]
