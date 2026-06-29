@@ -40,7 +40,7 @@ UPLOAD.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 log = logging.getLogger(__name__)
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────
 SMTP_HOST  = 'smtp.gmail.com'
 SMTP_PORT  = 587
 SMTP_USER  = ''
@@ -72,7 +72,7 @@ GITHUB_OWNER  = os.getenv('GITHUB_OWNER',  GITHUB_OWNER)
 GITHUB_REPO   = os.getenv('GITHUB_REPO',   GITHUB_REPO)
 GITHUB_BRANCH = os.getenv('GITHUB_BRANCH', GITHUB_BRANCH)
 
-# ── Backup GitHub ─────────────────────────────────────────────────────────────
+# ── Backup GitHub ─────────────────────────────────────────────────────────
 def _gh_request(method, path, body=None):
     """Chama a API REST do GitHub. Retorna dict ou None em caso de erro."""
     if not GITHUB_TOKEN:
@@ -131,7 +131,7 @@ def _gh_restore(filename):
             log.warning(f'⚠️  Erro ao decodificar backup: {e}')
     return None
 
-# ── Autenticação Admin ────────────────────────────────────────────────────────
+# ── Autenticação Admin ────────────────────────────────────────────────────
 def _check_auth(username, password):
     return username == ADMIN_USER and password == ADMIN_PASS
 
@@ -148,7 +148,7 @@ def require_admin(f):
         return f(*args, **kwargs)
     return decorated
 
-# ── Estoque ───────────────────────────────────────────────────────────────────
+# ── Estoque ───────────────────────────────────────────────────────────────
 def load_from_excel():
     excel = _find_excel()
     log.info(f'📊 Lendo planilha Excel: {excel.name}')
@@ -216,7 +216,7 @@ def save_stock():
     STOCK.write_text(content, 'utf-8')
     threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
 
-# ── Pedidos ───────────────────────────────────────────────────────────────────
+# ── Pedidos ───────────────────────────────────────────────────────────────
 def load_orders():
     # 1) arquivo local (container ainda vivo)
     if ORDERS.exists():
@@ -233,96 +233,12 @@ def load_orders():
         except: pass
     return []
 
-def _ntfy_order(nome, produtos, valor):
-    try:
-        emoji = '\U0001F6D2'
-        msg = f'{emoji} {nome} | {produtos} | R$ {valor:.2f}'.encode('utf-8')
-        req = urllib.request.Request(
-            'https://ntfy.sh/genomma-lojinha-gl2024',
-            data=msg,
-            headers={
-                'Title': 'Novo Pedido - Lojinha Genomma',
-                'Priority': 'high',
-                'Tags': 'shopping,tada'
-            }
-        )
-        urllib.request.urlopen(req, timeout=5)
-    except Exception as e:
-        log.warning(f'ntfy: {e}')
-
-
-# -- Alerta de estoque critico ---------------------------------------------------
-STOCK_LOW_THRESHOLD = 5
-
-def _ntfy_stock_alert(product_name, current_stock):
-    try:
-        msg = ('Estoque critico: ' + str(product_name) + ' | Restam ' + str(current_stock) + ' un.').encode('utf-8')
-        req = urllib.request.Request(
-            'https://ntfy.sh/genomma-lojinha-gl2024',
-            data=msg,
-            headers={
-                'Title': 'Alerta de Estoque - Lojinha Genomma',
-                'Priority': 'high',
-                'Tags': 'warning,package'
-            }
-        )
-        urllib.request.urlopen(req, timeout=5)
-    except Exception as exc:
-        log.warning(f'ntfy stock alert: {exc}')
-
-def _check_stock_alerts(changed_codes):
-    with LOCK:
-        for pcode in changed_codes:
-            p = stock_data.get(pcode)
-            if p and p.get('stock', 0) < STOCK_LOW_THRESHOLD:
-                threading.Thread(target=_ntfy_stock_alert, args=(p['name'], p['stock']), daemon=True).start()
-
-# -- Relatorio diario -----------------------------------------------------------
-def _send_daily_report():
-    try:
-        orders_list = load_orders()
-        total       = len(orders_list)
-        pendentes   = sum(1 for o in orders_list if str(o.get('status','')).lower() in ('pendente','pending','aguardando'))
-        entregues   = sum(1 for o in orders_list if str(o.get('status','')).lower() in ('entregue','delivered','concluido'))
-        val_pend    = sum(float(o.get('valor_total', o.get('total', 0))) for o in orders_list
-                         if str(o.get('status','')).lower() in ('pendente','pending','aguardando'))
-        with LOCK:
-            criticos = [f"{p['name']} ({p['stock']})" for p in stock_data.values() if p.get('stock',0) < STOCK_LOW_THRESHOLD]
-        hoje    = datetime.now().strftime('%d/%m/%Y')
-        est_txt = (', '.join(criticos[:5]) + (f' +{len(criticos)-5} outros' if len(criticos) > 5 else '')) if criticos else 'nenhum'
-        msg = (
-            f'Relatorio Lojinha Genomma {hoje}\n'
-            f'Pedidos: {total} total / {pendentes} pendentes / {entregues} entregues\n'
-            f'Valor pendente: R$ {val_pend:,.2f}\n'
-            f'Estoque critico (<{STOCK_LOW_THRESHOLD}): {est_txt}'
-        ).encode('utf-8')
-        req = urllib.request.Request(
-            'https://ntfy.sh/genomma-lojinha-gl2024',
-            data=msg,
-            headers={'Title': f'Relatorio Diario {hoje}', 'Priority': 'default', 'Tags': 'bar_chart'}
-        )
-        urllib.request.urlopen(req, timeout=5)
-        log.info('Relatorio diario enviado.')
-    except Exception as exc:
-        log.warning(f'Relatorio diario: {exc}')
-
-def _daily_report_scheduler():
-    import time as _t
-    from datetime import timedelta
-    while True:
-        now    = datetime.now()
-        target = now.replace(hour=8, minute=0, second=0, microsecond=0)
-        if now >= target:
-            target += timedelta(days=1)
-        _t.sleep((target - now).total_seconds())
-        _send_daily_report()
-
 def write_orders(orders):
     content = json.dumps(orders, ensure_ascii=False, indent=2)
     ORDERS.write_text(content, 'utf-8')
     threading.Thread(target=_gh_backup, args=('orders.json', content), daemon=True).start()
 
-# ── API: produtos ─────────────────────────────────────────────────────────────
+# ── API: produtos ─────────────────────────────────────────────────────────
 @app.get('/api/products')
 def api_products():
     with LOCK:
@@ -330,7 +246,7 @@ def api_products():
     lst.sort(key=lambda x: x['name'].lower())
     return jsonify(lst)
 
-# ── API: pedido ───────────────────────────────────────────────────────────────
+# ── API: pedido ───────────────────────────────────────────────────────────
 @app.post('/api/order')
 def api_order():
     nome  = request.form.get('nome','').strip()
@@ -342,7 +258,7 @@ def api_order():
     if not all([nome, email, tipo]):
         return jsonify({'error':'Preencha todos os campos obrigatórios.'}), 400
 
-    # ── Pedido multi-item (novo formato) ──────────────────────────────────────
+    # ── Pedido multi-item (novo formato) ──────────────────────────────────
     if items_json:
         try:
             raw_items = json.loads(items_json)
@@ -404,14 +320,11 @@ def api_order():
             orders.insert(0, order)
             write_orders(orders)
         nomes = ', '.join(i['produto_name'] for i in order_items)
-        threading.Thread(target=_ntfy_order, args=(nome, nomes, total_valor), daemon=True).start()
-        changed_codes = [i['produto_code'] for i in order_items]
-        threading.Thread(target=_check_stock_alerts, args=(changed_codes,), daemon=True).start()
         log.info(f'📝 Pedido {order["id"]} — {nome} / {len(order_items)} itens: {nomes}')
         return jsonify({'success': True, 'message': 'Pedido finalizado!',
                         'itens': len(order_items), 'total': total_valor})
 
-    # ── Pedido item único (backward compat) ───────────────────────────────────
+    # ── Pedido item único (backward compat) ───────────────────────────────
     pcode = request.form.get('produto_code','').strip()
     qstr  = request.form.get('quantidade','0')
     if not all([pcode, qstr]):
@@ -459,8 +372,6 @@ def api_order():
         orders = load_orders()
         orders.insert(0, order)
         write_orders(orders)
-    threading.Thread(target=_ntfy_order, args=(nome, snap['name'] + ' x' + str(qty), valor_total), daemon=True).start()
-        threading.Thread(target=_check_stock_alerts, args=([pcode],), daemon=True).start()
     log.info(f'📝 Pedido {order["id"]} — {nome} / {snap["name"]} x{qty}')
 
     def try_email():
@@ -470,13 +381,13 @@ def api_order():
 
     return jsonify({'success':True,'message':'Pedido finalizado!','produto':snap['name'],'quantidade':qty})
 
-# ── API: listar pedidos ────────────────────────────────────────────────────────
+# ── API: listar pedidos ───────────────────────────────────────────────────
 @app.get('/api/orders')
 @require_admin
 def api_orders():
     return jsonify(load_orders())
 
-# ── API: atualizar status ──────────────────────────────────────────────────────
+# ── API: atualizar status ─────────────────────────────────────────────────
 @app.post('/api/orders/<order_id>/status')
 @require_admin
 def api_status(order_id):
@@ -499,7 +410,32 @@ def api_status(order_id):
         write_orders(orders)
     return jsonify({'ok':True,'status':new_status})
 
-# ── API: excluir pedido ───────────────────────────────────────────────────────
+# ── API: anexar nota fiscal ───────────────────────────────────────────────
+@app.post('/api/orders/<order_id>/nota_fiscal')
+@require_admin
+def api_nota_fiscal(order_id):
+    file = request.files.get('nota_fiscal')
+    if not file or not file.filename:
+        return jsonify({'error': 'Nenhum arquivo enviado.'}), 400
+    ts   = datetime.now().strftime('%Y%m%d_%H%M%S')
+    safe = ''.join(c if c.isalnum() or c in '._-' else '_' for c in file.filename)
+    fname = f'nf_{order_id}_{ts}_{safe}'
+    file.save(str(UPLOAD / fname))
+    with LOCK:
+        orders = load_orders()
+        found  = False
+        for o in orders:
+            if o.get('id') == order_id:
+                o['nota_fiscal'] = fname
+                found = True
+                break
+        if not found:
+            return jsonify({'error': 'Pedido não encontrado.'}), 404
+        write_orders(orders)
+    log.info(f'📄 Nota fiscal anexada ao pedido {order_id}: {fname}')
+    return jsonify({'ok': True, 'nota_fiscal': fname})
+
+# ── API: excluir pedido ───────────────────────────────────────────────────
 @app.delete('/api/orders/<order_id>')
 @require_admin
 def api_delete_order(order_id):
@@ -535,7 +471,7 @@ def api_delete_order(order_id):
             save_stock()
     return jsonify({'ok': True})
 
-# ── API: inventário ───────────────────────────────────────────────────────────
+# ── API: inventário ───────────────────────────────────────────────────────
 @app.get('/api/inventario')
 @require_admin
 def api_inventario():
@@ -571,7 +507,7 @@ def api_inventario():
     items.sort(key=lambda x: x['name'].lower())
     return jsonify(items)
 
-# ── Página Inventário ──────────────────────────────────────────────────────────
+# ── Página Inventário ─────────────────────────────────────────────────────
 @app.get('/inventario')
 @require_admin
 def inventario():
@@ -751,14 +687,14 @@ function calcDif(i) {
 
 function exportCSV() {
   const now = new Date().toLocaleDateString('pt-BR');
-  let csv = '\\uFEFF'; // BOM para Excel reconhecer UTF-8
-  csv += 'Código,Produto,Est. Inicial,Vendido,Est. Sistema,Contagem Física,Diferença\\n';
+  let csv = '\uFEFF'; // BOM para Excel reconhecer UTF-8
+  csv += 'Código,Produto,Est. Inicial,Vendido,Est. Sistema,Contagem Física,Diferença\n';
   invData.forEach((p, i) => {
     const fisEl = document.getElementById('fis-'+i);
     const fis   = fisEl && fisEl.value !== '' ? parseInt(fisEl.value, 10) : '';
     const dif   = fis !== '' ? fis - p.atual : '';
     const name  = '"' + p.name.replace(/"/g, '""') + '"';
-    csv += `${p.code},${name},${p.inicial},${p.vendido},${p.atual},${fis},${dif}\\n`;
+    csv += `${p.code},${name},${p.inicial},${p.vendido},${p.atual},${fis},${dif}\n`;
   });
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url  = URL.createObjectURL(blob);
@@ -774,7 +710,7 @@ load();
 </body></html>"""
     return Response(html, mimetype='text/html')
 
-# ── Página Admin ──────────────────────────────────────────────────────────────
+# ── Página Admin ──────────────────────────────────────────────────────────
 @app.get('/admin')
 @require_admin
 def admin():
@@ -961,7 +897,7 @@ function render(orders) {{
   const wrap = document.getElementById('tbl-wrap');
   document.getElementById('tbl-count').textContent = orders.length + ' registro(s)';
   if (!orders.length) {{
-    wrap.innerHTML = "<div class='empty'><span>📭</span>Nenhum pedido encontrado.</div>";
+    wrap.innerHTML = "<div class='empty'><span>🚫</span>Nenhum pedido encontrado.</div>";
     return;
   }}
   let rows = '';
@@ -969,9 +905,15 @@ function render(orders) {{
     const done   = o.status === 'entregue';
     const tBadge = o.tipo==='genomma' ? "<span class='tg tg-g'>🏢 Genomma</span>" : "<span class='tg tg-t'>🤝 Terceirizado</span>";
     const sBadge = done
-      ? "<span class='tg tg-e'>✅ Entregue" + (o.entregue_em ? '<br><small style=\\"font-weight:400;opacity:.75;font-size:.68rem\\">' + o.entregue_em + '</small>' : '') + "</span>"
+      ? "<span class='tg tg-e'>✅ Entregue" + (o.entregue_em ? '<br><small style=\"font-weight:400;opacity:.75;font-size:.68rem\">' + o.entregue_em + '</small>' : '') + "</span>"
       : "<span class='tg tg-p'>⏳ Pendente</span>";
     const cLink  = o.comprovante ? `<a href="/uploads/${{o.comprovante}}" target="_blank" style="color:#4A1B7A;font-weight:600;text-decoration:none;">📎 Ver</a>` : '—';
+    const nfCell = o.nota_fiscal
+      ? `<a href="/uploads/${{o.nota_fiscal}}" target="_blank" style="color:#27AE60;font-weight:600;text-decoration:none;">📄 Ver NF</a>`
+      : `<label style="cursor:pointer;background:#EAF7EE;color:#27AE60;border:1px solid #27AE60;border-radius:6px;padding:3px 8px;font-size:.78rem;font-weight:600;white-space:nowrap;">
+           📎 Anexar NF
+           <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF('${{o.id}}',this)">
+         </label>`;
     const newSt  = done ? 'pendente' : 'entregue';
     const btnLbl = done ? '↩ Desfazer' : '✅ Marcar entregue';
     const btnCls = done ? 'done' : 'pend';
@@ -984,6 +926,7 @@ function render(orders) {{
     const tail = `
       <td style="text-align:center;font-weight:700;color:#1A5FB4;">${{fmtBRL(o.valor_total)}}</td>
       <td style="text-align:center">${{cLink}}</td>
+      <td style="text-align:center">${{nfCell}}</td>
       <td style="text-align:center">${{sBadge}}</td>
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
       <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>`;
@@ -1011,6 +954,7 @@ function render(orders) {{
     <th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:center">Preço Unit.</th>
     <th style="text-align:center">Valor Total</th>
     <th style="text-align:center">Comprovante</th>
+    <th style="text-align:center">Nota Fiscal</th>
     <th style="text-align:center">Status</th><th style="text-align:center">Entrega</th>
     <th style="text-align:center">Excluir</th>
   </tr></thead><tbody>${{rows}}</tbody></table>`;
@@ -1040,23 +984,45 @@ async function excluir(id) {{
   }} catch(e) {{ alert('Erro de conexão.'); }}
 }}
 
+async function anexarNF(id, input) {{
+  const file = input.files[0];
+  if (!file) return;
+  const label = input.parentElement;
+  label.textContent = '⏳ Enviando...';
+  const fd = new FormData();
+  fd.append('nota_fiscal', file);
+  try {{
+    const r = await fetch(`/api/orders/${{id}}/nota_fiscal`, {{method:'POST', body:fd}});
+    if (r.ok) {{
+      await loadOrders();
+    }} else {{
+      const d = await r.json();
+      alert('Erro: ' + (d.error||'Falha no upload.'));
+      label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\'' + id + '\',this)">';
+    }}
+  }} catch(e) {{
+    alert('Erro de conexão.');
+    label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\'' + id + '\',this)">';
+  }}
+}}
+
 loadOrders();
 setInterval(loadOrders, 30000);
 </script>
 </body></html>"""
     return Response(html, mimetype='text/html')
 
-# ── Uploads ───────────────────────────────────────────────────────────────────
+# ── Uploads ───────────────────────────────────────────────────────────────
 @app.get('/uploads/<filename>')
 def serve_upload(filename):
     return send_from_directory(str(UPLOAD), filename)
 
-# ── Frontend ──────────────────────────────────────────────────────────────────
+# ── Frontend ──────────────────────────────────────────────────────────────
 @app.get('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-# ── Email ─────────────────────────────────────────────────────────────────────
+# ── Email ─────────────────────────────────────────────────────────────────
 def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
     if not SMTP_USER or not SMTP_PASS: return
     tipo_label = '🏢 Genomma' if tipo == 'genomma' else '🤝 Terceirizado(a)'
@@ -1112,17 +1078,13 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
         s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
         s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
 
-# ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
+# ── Inicialização do estoque (compatível com gunicorn) ────────────────────
 init_stock()
 
-# ── Start ─────────────────────────────────────────────────────────────────────
+# ── Start ─────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     log.info(f'\n🚀 Lojinha            → http://localhost:{PORT}')
     log.info(f'🔧 Painel de pedidos  → http://localhost:{PORT}/admin')
     log.info(f'📧 Destino do email   → {DEST_EMAIL}')
     log.info(f'📬 SMTP               → {"configurado ("+SMTP_USER+")" if SMTP_USER else "não configurado — pedidos salvos em data/orders.json"}\n')
     app.run(host='0.0.0.0', port=PORT, debug=False)
-
-
-# -- Inicia scheduler de relatorio diario ao subir o servidor ------------------
-threading.Thread(target=_daily_report_scheduler, daemon=True).start()
