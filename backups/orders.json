@@ -1,24 +1,5 @@
 [
   {
-    "id": "20260629033148173",
-    "data_hora": "29/06/2026 03:31:48",
-    "nome": "Teste Notificacao ntfy",
-    "email": "teste@genommalab.com",
-    "tipo": "genomma",
-    "items": [
-      {
-        "produto_code": "1031087",
-        "produto_name": "Asepxia Barra Detox 80g",
-        "quantidade": 1,
-        "preco_unit": 9.71,
-        "valor_total": 9.71
-      }
-    ],
-    "valor_total": 9.71,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260629031146932",
     "data_hora": "29/06/2026 03:11:46",
     "nome": "maycon Dias",
