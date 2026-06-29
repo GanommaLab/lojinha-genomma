@@ -1,45 +1,5 @@
 [
   {
-    "id": "20260628222935003",
-    "data_hora": "28/06/2026 22:29:35",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1031046",
-        "produto_name": "Asepxia Máscara Peel off Carvão Detox",
-        "quantidade": 1,
-        "preco_unit": 10.52,
-        "valor_total": 10.52
-      },
-      {
-        "produto_code": "1031078",
-        "produto_name": "Asepxia Sérum Corretor Pele Oleosa 30mL",
-        "quantidade": 1,
-        "preco_unit": 12.01,
-        "valor_total": 12.01
-      },
-      {
-        "produto_code": "600119",
-        "produto_name": "Asepxia Gel Secativo",
-        "quantidade": 1,
-        "preco_unit": 15.21,
-        "valor_total": 15.21
-      },
-      {
-        "produto_code": "1109200",
-        "produto_name": "Cicatricure Creme FPS 30 Diurno 50g",
-        "quantidade": 3,
-        "preco_unit": 34.09,
-        "valor_total": 102.27
-      }
-    ],
-    "valor_total": 140.01,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260628222449036",
     "data_hora": "28/06/2026 22:24:49",
     "nome": "maycon Dias",
