@@ -250,6 +250,73 @@ def _ntfy_order(nome, produtos, valor):
     except Exception as e:
         log.warning(f'ntfy: {e}')
 
+
+# -- Alerta de estoque critico ---------------------------------------------------
+STOCK_LOW_THRESHOLD = 5
+
+def _ntfy_stock_alert(product_name, current_stock):
+    try:
+        msg = ('Estoque critico: ' + str(product_name) + ' | Restam ' + str(current_stock) + ' un.').encode('utf-8')
+        req = urllib.request.Request(
+            'https://ntfy.sh/genomma-lojinha-gl2024',
+            data=msg,
+            headers={
+                'Title': 'Alerta de Estoque - Lojinha Genomma',
+                'Priority': 'high',
+                'Tags': 'warning,package'
+            }
+        )
+        urllib.request.urlopen(req, timeout=5)
+    except Exception as exc:
+        log.warning(f'ntfy stock alert: {exc}')
+
+def _check_stock_alerts(changed_codes):
+    with LOCK:
+        for pcode in changed_codes:
+            p = stock_data.get(pcode)
+            if p and p.get('stock', 0) < STOCK_LOW_THRESHOLD:
+                threading.Thread(target=_ntfy_stock_alert, args=(p['name'], p['stock']), daemon=True).start()
+
+# -- Relatorio diario -----------------------------------------------------------
+def _send_daily_report():
+    try:
+        orders_list = load_orders()
+        total       = len(orders_list)
+        pendentes   = sum(1 for o in orders_list if str(o.get('status','')).lower() in ('pendente','pending','aguardando'))
+        entregues   = sum(1 for o in orders_list if str(o.get('status','')).lower() in ('entregue','delivered','concluido'))
+        val_pend    = sum(float(o.get('valor_total', o.get('total', 0))) for o in orders_list
+                         if str(o.get('status','')).lower() in ('pendente','pending','aguardando'))
+        with LOCK:
+            criticos = [f"{p['name']} ({p['stock']})" for p in stock_data.values() if p.get('stock',0) < STOCK_LOW_THRESHOLD]
+        hoje    = datetime.now().strftime('%d/%m/%Y')
+        est_txt = (', '.join(criticos[:5]) + (f' +{len(criticos)-5} outros' if len(criticos) > 5 else '')) if criticos else 'nenhum'
+        msg = (
+            f'Relatorio Lojinha Genomma {hoje}\n'
+            f'Pedidos: {total} total / {pendentes} pendentes / {entregues} entregues\n'
+            f'Valor pendente: R$ {val_pend:,.2f}\n'
+            f'Estoque critico (<{STOCK_LOW_THRESHOLD}): {est_txt}'
+        ).encode('utf-8')
+        req = urllib.request.Request(
+            'https://ntfy.sh/genomma-lojinha-gl2024',
+            data=msg,
+            headers={'Title': f'Relatorio Diario {hoje}', 'Priority': 'default', 'Tags': 'bar_chart'}
+        )
+        urllib.request.urlopen(req, timeout=5)
+        log.info('Relatorio diario enviado.')
+    except Exception as exc:
+        log.warning(f'Relatorio diario: {exc}')
+
+def _daily_report_scheduler():
+    import time as _t
+    from datetime import timedelta
+    while True:
+        now    = datetime.now()
+        target = now.replace(hour=8, minute=0, second=0, microsecond=0)
+        if now >= target:
+            target += timedelta(days=1)
+        _t.sleep((target - now).total_seconds())
+        _send_daily_report()
+
 def write_orders(orders):
     content = json.dumps(orders, ensure_ascii=False, indent=2)
     ORDERS.write_text(content, 'utf-8')
@@ -338,6 +405,8 @@ def api_order():
             write_orders(orders)
         nomes = ', '.join(i['produto_name'] for i in order_items)
         threading.Thread(target=_ntfy_order, args=(nome, nomes, total_valor), daemon=True).start()
+        changed_codes = [i['produto_code'] for i in order_items]
+        threading.Thread(target=_check_stock_alerts, args=(changed_codes,), daemon=True).start()
         log.info(f'📝 Pedido {order["id"]} — {nome} / {len(order_items)} itens: {nomes}')
         return jsonify({'success': True, 'message': 'Pedido finalizado!',
                         'itens': len(order_items), 'total': total_valor})
@@ -391,6 +460,7 @@ def api_order():
         orders.insert(0, order)
         write_orders(orders)
     threading.Thread(target=_ntfy_order, args=(nome, snap['name'] + ' x' + str(qty), valor_total), daemon=True).start()
+        threading.Thread(target=_check_stock_alerts, args=([pcode],), daemon=True).start()
     log.info(f'📝 Pedido {order["id"]} — {nome} / {snap["name"]} x{qty}')
 
     def try_email():
@@ -1052,3 +1122,7 @@ if __name__ == '__main__':
     log.info(f'📧 Destino do email   → {DEST_EMAIL}')
     log.info(f'📬 SMTP               → {"configurado ("+SMTP_USER+")" if SMTP_USER else "não configurado — pedidos salvos em data/orders.json"}\n')
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+# -- Inicia scheduler de relatorio diario ao subir o servidor ------------------
+threading.Thread(target=_daily_report_scheduler, daemon=True).start()
