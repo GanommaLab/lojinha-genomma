@@ -1,31 +1,5 @@
 [
   {
-    "id": "20260628223221743",
-    "data_hora": "28/06/2026 22:32:21",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1031046",
-        "produto_name": "Asepxia Máscara Peel off Carvão Detox",
-        "quantidade": 1,
-        "preco_unit": 10.52,
-        "valor_total": 10.52
-      },
-      {
-        "produto_code": "600119",
-        "produto_name": "Asepxia Gel Secativo",
-        "quantidade": 3,
-        "preco_unit": 15.21,
-        "valor_total": 45.63
-      }
-    ],
-    "valor_total": 56.15,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260628222935003",
     "data_hora": "28/06/2026 22:29:35",
     "nome": "maycon Dias",
