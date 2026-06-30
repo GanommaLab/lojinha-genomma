@@ -24,31 +24,5 @@
     "valor_total": 34.25,
     "comprovante": "",
     "status": "pendente"
-  },
-  {
-    "id": "20260630013444480",
-    "data_hora": "30/06/2026 01:34:44",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1031079",
-        "produto_name": "Asepxia Protetor Solar Gen 40g",
-        "quantidade": 3,
-        "preco_unit": 12.68,
-        "valor_total": 38.04
-      },
-      {
-        "produto_code": "1108900",
-        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
-        "quantidade": 1,
-        "preco_unit": 30.69,
-        "valor_total": 30.69
-      }
-    ],
-    "valor_total": 68.73,
-    "comprovante": "",
-    "status": "pendente"
   }
 ]
