@@ -16,7 +16,8 @@
     ],
     "valor_total": 15.83,
     "comprovante": "",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260629235257215_20260630_002059_teste_genomma.pdf"
   },
   {
     "id": "20260629235211185",
