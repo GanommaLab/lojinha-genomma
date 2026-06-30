@@ -40,7 +40,7 @@ UPLOAD.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 log = logging.getLogger(__name__)
 
-# ── Config ────────────────────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
 SMTP_HOST  = 'smtp.gmail.com'
 SMTP_PORT  = 587
 SMTP_USER  = ''
@@ -72,7 +72,7 @@ GITHUB_OWNER  = os.getenv('GITHUB_OWNER',  GITHUB_OWNER)
 GITHUB_REPO   = os.getenv('GITHUB_REPO',   GITHUB_REPO)
 GITHUB_BRANCH = os.getenv('GITHUB_BRANCH', GITHUB_BRANCH)
 
-# ── Backup GitHub ─────────────────────────────────────────────────────────
+# ── Backup GitHub ─────────────────────────────────────────────────────────────
 def _gh_request(method, path, body=None):
     """Chama a API REST do GitHub. Retorna dict ou None em caso de erro."""
     if not GITHUB_TOKEN:
@@ -131,7 +131,7 @@ def _gh_restore(filename):
             log.warning(f'⚠️  Erro ao decodificar backup: {e}')
     return None
 
-# ── Autenticação Admin ────────────────────────────────────────────────────
+# ── Autenticação Admin ────────────────────────────────────────────────────────
 def _check_auth(username, password):
     return username == ADMIN_USER and password == ADMIN_PASS
 
@@ -148,7 +148,7 @@ def require_admin(f):
         return f(*args, **kwargs)
     return decorated
 
-# ── Estoque ───────────────────────────────────────────────────────────────
+# ── Estoque ───────────────────────────────────────────────────────────────────
 def load_from_excel():
     excel = _find_excel()
     log.info(f'📊 Lendo planilha Excel: {excel.name}')
@@ -216,7 +216,7 @@ def save_stock():
     STOCK.write_text(content, 'utf-8')
     threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
 
-# ── Pedidos ───────────────────────────────────────────────────────────────
+# ── Pedidos ───────────────────────────────────────────────────────────────────
 def load_orders():
     # 1) arquivo local (container ainda vivo)
     if ORDERS.exists():
@@ -238,7 +238,7 @@ def write_orders(orders):
     ORDERS.write_text(content, 'utf-8')
     threading.Thread(target=_gh_backup, args=('orders.json', content), daemon=True).start()
 
-# ── API: produtos ─────────────────────────────────────────────────────────
+# ── API: produtos ─────────────────────────────────────────────────────────────
 @app.get('/api/products')
 def api_products():
     with LOCK:
@@ -246,7 +246,7 @@ def api_products():
     lst.sort(key=lambda x: x['name'].lower())
     return jsonify(lst)
 
-# ── API: pedido ───────────────────────────────────────────────────────────
+# ── API: pedido ───────────────────────────────────────────────────────────────
 @app.post('/api/order')
 def api_order():
     nome  = request.form.get('nome','').strip()
@@ -258,7 +258,7 @@ def api_order():
     if not all([nome, email, tipo]):
         return jsonify({'error':'Preencha todos os campos obrigatórios.'}), 400
 
-    # ── Pedido multi-item (novo formato) ──────────────────────────────────
+    # ── Pedido multi-item (novo formato) ──────────────────────────────────────
     if items_json:
         try:
             raw_items = json.loads(items_json)
@@ -324,7 +324,7 @@ def api_order():
         return jsonify({'success': True, 'message': 'Pedido finalizado!',
                         'itens': len(order_items), 'total': total_valor})
 
-    # ── Pedido item único (backward compat) ───────────────────────────────
+    # ── Pedido item único (backward compat) ───────────────────────────────────
     pcode = request.form.get('produto_code','').strip()
     qstr  = request.form.get('quantidade','0')
     if not all([pcode, qstr]):
@@ -381,13 +381,13 @@ def api_order():
 
     return jsonify({'success':True,'message':'Pedido finalizado!','produto':snap['name'],'quantidade':qty})
 
-# ── API: listar pedidos ───────────────────────────────────────────────────
+# ── API: listar pedidos ────────────────────────────────────────────────────────
 @app.get('/api/orders')
 @require_admin
 def api_orders():
     return jsonify(load_orders())
 
-# ── API: atualizar status ─────────────────────────────────────────────────
+# ── API: atualizar status ──────────────────────────────────────────────────────
 @app.post('/api/orders/<order_id>/status')
 @require_admin
 def api_status(order_id):
@@ -410,7 +410,7 @@ def api_status(order_id):
         write_orders(orders)
     return jsonify({'ok':True,'status':new_status})
 
-# ── API: anexar nota fiscal ───────────────────────────────────────────────
+# ── API: anexar nota fiscal ───────────────────────────────────────────────────
 @app.post('/api/orders/<order_id>/nota_fiscal')
 @require_admin
 def api_nota_fiscal(order_id):
@@ -435,7 +435,7 @@ def api_nota_fiscal(order_id):
     log.info(f'📄 Nota fiscal anexada ao pedido {order_id}: {fname}')
     return jsonify({'ok': True, 'nota_fiscal': fname})
 
-# ── API: excluir pedido ───────────────────────────────────────────────────
+# ── API: excluir pedido ───────────────────────────────────────────────────────────────────────────
 @app.delete('/api/orders/<order_id>')
 @require_admin
 def api_delete_order(order_id):
@@ -471,7 +471,7 @@ def api_delete_order(order_id):
             save_stock()
     return jsonify({'ok': True})
 
-# ── API: inventário ───────────────────────────────────────────────────────
+# ── API: inventário ───────────────────────────────────────────────────────────────────────────────
 @app.get('/api/inventario')
 @require_admin
 def api_inventario():
@@ -507,7 +507,7 @@ def api_inventario():
     items.sort(key=lambda x: x['name'].lower())
     return jsonify(items)
 
-# ── Página Inventário ─────────────────────────────────────────────────────
+# ── Página Inventário ────────────────────────────────────────────────────────────────────────────
 @app.get('/inventario')
 @require_admin
 def inventario():
@@ -707,10 +707,10 @@ function exportCSV() {
 
 load();
 </script>
-</body></html>"""
+</body></html>""";
     return Response(html, mimetype='text/html')
 
-# ── Página Admin ──────────────────────────────────────────────────────────
+# ── Página Admin ──────────────────────────────────────────────────────────────────────────────────
 @app.get('/admin')
 @require_admin
 def admin():
@@ -897,7 +897,7 @@ function render(orders) {{
   const wrap = document.getElementById('tbl-wrap');
   document.getElementById('tbl-count').textContent = orders.length + ' registro(s)';
   if (!orders.length) {{
-    wrap.innerHTML = "<div class='empty'><span>🚫</span>Nenhum pedido encontrado.</div>";
+    wrap.innerHTML = "<div class='empty'><span>🚭</span>Nenhum pedido encontrado.</div>";
     return;
   }}
   let rows = '';
@@ -905,7 +905,7 @@ function render(orders) {{
     const done   = o.status === 'entregue';
     const tBadge = o.tipo==='genomma' ? "<span class='tg tg-g'>🏢 Genomma</span>" : "<span class='tg tg-t'>🤝 Terceirizado</span>";
     const sBadge = done
-      ? "<span class='tg tg-e'>✅ Entregue" + (o.entregue_em ? '<br><small style=\"font-weight:400;opacity:.75;font-size:.68rem\">' + o.entregue_em + '</small>' : '') + "</span>"
+      ? "<span class='tg tg-e'>✅ Entregue" + (o.entregue_em ? '<br><small style=\\"font-weight:400;opacity:.75;font-size:.68rem\\">' + o.entregue_em + '</small>' : '') + "</span>"
       : "<span class='tg tg-p'>⏳ Pendente</span>";
     const cLink  = o.comprovante ? `<a href="/uploads/${{o.comprovante}}" target="_blank" style="color:#4A1B7A;font-weight:600;text-decoration:none;">📎 Ver</a>` : '—';
     const nfCell = o.nota_fiscal
@@ -998,11 +998,11 @@ async function anexarNF(id, input) {{
     }} else {{
       const d = await r.json();
       alert('Erro: ' + (d.error||'Falha no upload.'));
-      label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\'' + id + '\',this)">';
+      label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
     }}
   }} catch(e) {{
     alert('Erro de conexão.');
-    label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\'' + id + '\',this)">';
+    label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
   }}
 }}
 
@@ -1012,17 +1012,17 @@ setInterval(loadOrders, 30000);
 </body></html>"""
     return Response(html, mimetype='text/html')
 
-# ── Uploads ───────────────────────────────────────────────────────────────
+# ── Uploads ──────────────────────────────────────────────────────────────────
 @app.get('/uploads/<filename>')
 def serve_upload(filename):
     return send_from_directory(str(UPLOAD), filename)
 
-# ── Frontend ──────────────────────────────────────────────────────────────
+# ── Frontend ──────────────────────────────────────────────────────────────────
 @app.get('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-# ── Email ─────────────────────────────────────────────────────────────────
+# ── Email ─────────────────────────────────────────────────────────────────────
 def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
     if not SMTP_USER or not SMTP_PASS: return
     tipo_label = '🏢 Genomma' if tipo == 'genomma' else '🤝 Terceirizado(a)'
@@ -1078,10 +1078,10 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
         s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
         s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
 
-# ── Inicialização do estoque (compatível com gunicorn) ────────────────────
+# ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
 
-# ── Start ─────────────────────────────────────────────────────────────────
+# ── Start ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     log.info(f'\n🚀 Lojinha            → http://localhost:{PORT}')
     log.info(f'🔧 Painel de pedidos  → http://localhost:{PORT}/admin')
