@@ -435,7 +435,7 @@ def api_nota_fiscal(order_id):
     log.info(f'📄 Nota fiscal anexada ao pedido {order_id}: {fname}')
     return jsonify({'ok': True, 'nota_fiscal': fname})
 
-# ── API: excluir pedido ───────────────────────────────────────────────────────────────────────────
+# ── API: excluir pedido ───────────────────────────────────────────────────────
 @app.delete('/api/orders/<order_id>')
 @require_admin
 def api_delete_order(order_id):
@@ -471,7 +471,7 @@ def api_delete_order(order_id):
             save_stock()
     return jsonify({'ok': True})
 
-# ── API: inventário ───────────────────────────────────────────────────────────────────────────────
+# ── API: inventário ───────────────────────────────────────────────────────────
 @app.get('/api/inventario')
 @require_admin
 def api_inventario():
@@ -507,7 +507,7 @@ def api_inventario():
     items.sort(key=lambda x: x['name'].lower())
     return jsonify(items)
 
-# ── Página Inventário ────────────────────────────────────────────────────────────────────────────
+# ── Página Inventário ──────────────────────────────────────────────────────────
 @app.get('/inventario')
 @require_admin
 def inventario():
@@ -687,14 +687,14 @@ function calcDif(i) {
 
 function exportCSV() {
   const now = new Date().toLocaleDateString('pt-BR');
-  let csv = '\uFEFF'; // BOM para Excel reconhecer UTF-8
-  csv += 'Código,Produto,Est. Inicial,Vendido,Est. Sistema,Contagem Física,Diferença\n';
+  let csv = '\\uFEFF'; // BOM para Excel reconhecer UTF-8
+  csv += 'Código,Produto,Est. Inicial,Vendido,Est. Sistema,Contagem Física,Diferença\\n';
   invData.forEach((p, i) => {
     const fisEl = document.getElementById('fis-'+i);
     const fis   = fisEl && fisEl.value !== '' ? parseInt(fisEl.value, 10) : '';
     const dif   = fis !== '' ? fis - p.atual : '';
     const name  = '"' + p.name.replace(/"/g, '""') + '"';
-    csv += `${p.code},${name},${p.inicial},${p.vendido},${p.atual},${fis},${dif}\n`;
+    csv += `${p.code},${name},${p.inicial},${p.vendido},${p.atual},${fis},${dif}\\n`;
   });
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url  = URL.createObjectURL(blob);
@@ -707,10 +707,80 @@ function exportCSV() {
 
 load();
 </script>
-</body></html>""";
+</body></html>"""
     return Response(html, mimetype='text/html')
 
-# ── Página Admin ──────────────────────────────────────────────────────────────────────────────────
+# ── Relatório de vendas ───────────────────────────────────────────────────────
+@app.get('/api/relatorio')
+@require_admin
+def api_relatorio():
+    de_str  = request.args.get('de',  '')
+    ate_str = request.args.get('ate', '')
+    orders  = load_orders()
+
+    def order_date(o):
+        dh = o.get('data_hora', '')
+        if not dh: return ''
+        parts = dh.split(' ')[0].split('/')
+        return f'{parts[2]}-{parts[1]}-{parts[0]}' if len(parts) == 3 else ''
+
+    filtered = [o for o in orders if
+                (not de_str  or order_date(o) >= de_str) and
+                (not ate_str or order_date(o) <= ate_str)]
+
+    def order_qty(o):
+        if o.get('items'):
+            return sum(int(i.get('quantidade') or 0) for i in o['items'])
+        return int(o.get('quantidade') or 0)
+
+    total_pedidos = len(filtered)
+    valor_total   = sum(float(o.get('valor_total') or 0) for o in filtered)
+    ticket_medio  = valor_total / total_pedidos if total_pedidos else 0
+    entregues     = sum(1 for o in filtered if o.get('status') == 'entregue')
+    pendentes     = total_pedidos - entregues
+    unidades      = sum(order_qty(o) for o in filtered)
+
+    vol_map, val_map = {}, {}
+    for o in filtered:
+        items = o.get('items') or [{'produto_name': o.get('produto_name','?'),
+                                     'quantidade':   o.get('quantidade', 0),
+                                     'valor_total':  o.get('valor_total', 0)}]
+        for it in items:
+            nm  = it.get('produto_name', '?')
+            qty = int(it.get('quantidade') or 0)
+            vt  = float(it.get('valor_total') or 0)
+            vol_map[nm] = vol_map.get(nm, 0)   + qty
+            val_map[nm] = val_map.get(nm, 0.0) + vt
+
+    por_volume = sorted(vol_map.items(), key=lambda x: x[1], reverse=True)[:10]
+    por_valor  = sorted(val_map.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    dia_map = {}
+    for o in filtered:
+        d = order_date(o)
+        if not d: continue
+        v = float(o.get('valor_total') or 0)
+        if d not in dia_map:
+            dia_map[d] = {'dia': d, 'valor': 0.0, 'pedidos': 0}
+        dia_map[d]['valor']   += v
+        dia_map[d]['pedidos'] += 1
+    por_dia = sorted(dia_map.values(), key=lambda x: x['dia'])
+
+    return jsonify({
+        'kpis': {
+            'total_pedidos': total_pedidos,
+            'valor_total':   round(valor_total, 2),
+            'ticket_medio':  round(ticket_medio, 2),
+            'unidades':      unidades,
+            'entregues':     entregues,
+            'pendentes':     pendentes,
+        },
+        'por_volume': [{'nome': k, 'qty': v}           for k, v in por_volume],
+        'por_valor':  [{'nome': k, 'valor': round(v,2)} for k, v in por_valor],
+        'por_dia':    por_dia,
+    })
+
+# ── Página Admin ──────────────────────────────────────────────────────────────
 @app.get('/admin')
 @require_admin
 def admin():
@@ -720,6 +790,7 @@ def admin():
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — Lojinha Genomma</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:'Segoe UI',system-ui,sans-serif;background:#F3EDF9;min-height:100vh}}
@@ -781,6 +852,37 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
   tbody tr{{display:block;padding:12px;border-bottom:2px solid #F0E8FB}}
   td{{display:block;padding:2px 0}}
 }}
+/* ── Modal relatório ── */
+.rel-overlay{{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto}}
+.rel-overlay.open{{display:flex}}
+.rel-panel{{background:white;border-radius:18px;width:100%;max-width:920px;box-shadow:0 12px 48px rgba(0,0,0,.3);animation:slideDown .22s ease}}
+@keyframes slideDown{{from{{opacity:0;transform:translateY(-24px)}}to{{opacity:1;transform:translateY(0)}}}}
+.rel-hdr{{background:linear-gradient(135deg,#4A1B7A,#1A5FB4);border-radius:18px 18px 0 0;padding:20px 26px;display:flex;align-items:center;justify-content:space-between}}
+.rel-hdr h2{{color:white;font-size:1.2rem;font-weight:800;margin:0}}
+.rel-close{{background:rgba(255,255,255,.2);border:none;color:white;font-size:1.2rem;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s}}
+.rel-close:hover{{background:rgba(255,255,255,.35)}}
+.rel-body{{padding:22px 26px}}
+.rel-filters{{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:22px;background:#F8F3FF;border-radius:12px;padding:16px}}
+.rel-filters label{{font-size:.72rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}}
+.rel-filters input{{border:2px solid rgba(74,27,122,.18);border-radius:8px;padding:7px 11px;font-size:.85rem;color:#333;outline:none}}
+.rel-filters input:focus{{border-color:#7B3FAD}}
+.rel-kpis{{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}}
+.rel-kpi{{background:#F8F3FF;border-radius:12px;padding:14px 16px;border-left:4px solid #7B3FAD;text-align:center}}
+.rel-kpi.green{{border-color:#27AE60;background:#F0FFF4}}
+.rel-kpi.blue{{border-color:#1A5FB4;background:#EEF4FF}}
+.rel-kpi.orange{{border-color:#E67E22;background:#FFF8F0}}
+.rel-kpi .kv{{font-size:1.5rem;font-weight:800;color:#4A1B7A}}
+.rel-kpi.green .kv{{color:#27AE60}}
+.rel-kpi.blue .kv{{color:#1A5FB4}}
+.rel-kpi.orange .kv{{color:#E67E22}}
+.rel-kpi .kl{{font-size:.72rem;color:#999;margin-top:2px}}
+.rel-charts{{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}}
+@media(max-width:640px){{.rel-charts{{grid-template-columns:1fr}}}}
+.rel-chart-box{{background:#F8F3FF;border-radius:12px;padding:16px}}
+.rel-chart-box h3{{font-size:.82rem;font-weight:700;color:#7B3FAD;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px}}
+.rel-day-box{{background:#F8F3FF;border-radius:12px;padding:16px;margin-bottom:4px}}
+.rel-day-box h3{{font-size:.82rem;font-weight:700;color:#7B3FAD;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px}}
+.rel-empty{{text-align:center;padding:40px;color:#bbb;font-size:.95rem}}
 </style>
 </head>
 <body>
@@ -789,6 +891,7 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span class="badge" id="hdr-count">📦 {total} pedido(s)</span>
     <button class="rbtn" onclick="loadOrders()">↻ Atualizar</button>
+    <button class="rbtn" onclick="openRelatorio()" style="background:rgba(255,183,0,.85);color:#2d1a00;">📈 Relatório</button>
     <a href="/inventario" class="rbtn" style="text-decoration:none;background:rgba(39,174,96,.35)">📊 Inventário</a>
     <a href="/" class="rbtn" style="text-decoration:none">🛍️ Lojinha</a>
   </div>
@@ -834,6 +937,29 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
       <span class="count-lbl" id="tbl-count"></span>
     </div>
     <div id="tbl-wrap" style="overflow-x:auto"></div>
+  </div>
+</div>
+
+<!-- ── Modal Relatório ──────────────────────────────────────── -->
+<div class="rel-overlay" id="rel-overlay" onclick="overlayClick(event)">
+  <div class="rel-panel">
+    <div class="rel-hdr">
+      <h2>📈 Relatório de Vendas</h2>
+      <button class="rel-close" onclick="closeRelatorio()">✕</button>
+    </div>
+    <div class="rel-body">
+      <div class="rel-filters">
+        <div><label>De</label><input type="date" id="rel-de"></div>
+        <div><label>Até</label><input type="date" id="rel-ate"></div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-primary" onclick="carregarRelatorio()" style="height:36px">📊 Gerar</button>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-ghost" onclick="limparRelFiltro()" style="height:36px">✕ Limpar</button>
+        </div>
+      </div>
+      <div id="rel-content"><div class="rel-empty">Selecione um período e clique em <b>Gerar</b>.</div></div>
+    </div>
   </div>
 </div>
 
@@ -1006,23 +1132,192 @@ async function anexarNF(id, input) {{
   }}
 }}
 
+// ── Relatório ──────────────────────────────────────────────────────────────────
+let _chartVol = null, _chartVal = null, _chartDia = null;
+
+function openRelatorio() {{
+  // default: last 30 days
+  const today = new Date();
+  const from  = new Date(today); from.setDate(today.getDate()-30);
+  const fmt = d => d.toISOString().slice(0,10);
+  if (!document.getElementById('rel-de').value)  document.getElementById('rel-de').value  = fmt(from);
+  if (!document.getElementById('rel-ate').value) document.getElementById('rel-ate').value = fmt(today);
+  document.getElementById('rel-overlay').classList.add('open');
+  carregarRelatorio();
+}}
+
+function closeRelatorio() {{
+  document.getElementById('rel-overlay').classList.remove('open');
+}}
+
+function overlayClick(e) {{
+  if (e.target === document.getElementById('rel-overlay')) closeRelatorio();
+}}
+
+function limparRelFiltro() {{
+  document.getElementById('rel-de').value  = '';
+  document.getElementById('rel-ate').value = '';
+  document.getElementById('rel-content').innerHTML = '<div class="rel-empty">Selecione um período e clique em <b>Gerar</b>.</div>';
+  if (_chartVol) {{ _chartVol.destroy(); _chartVol = null; }}
+  if (_chartVal) {{ _chartVal.destroy(); _chartVal = null; }}
+  if (_chartDia) {{ _chartDia.destroy(); _chartDia = null; }}
+}}
+
+function fmtBRLRel(v) {{
+  return 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}});
+}}
+
+async function carregarRelatorio() {{
+  const de  = document.getElementById('rel-de').value;
+  const ate = document.getElementById('rel-ate').value;
+  const box = document.getElementById('rel-content');
+  box.innerHTML = '<div class="rel-empty">⏳ Carregando...</div>';
+  if (_chartVol) {{ _chartVol.destroy(); _chartVol = null; }}
+  if (_chartVal) {{ _chartVal.destroy(); _chartVal = null; }}
+  if (_chartDia) {{ _chartDia.destroy(); _chartDia = null; }}
+  try {{
+    const qs  = new URLSearchParams();
+    if (de)  qs.set('de',  de);
+    if (ate) qs.set('ate', ate);
+    const r   = await fetch('/api/relatorio?' + qs.toString());
+    const data = await r.json();
+    renderRelatorio(data);
+  }} catch(e) {{
+    box.innerHTML = '<div class="rel-empty">❌ Erro ao carregar relatório.</div>';
+  }}
+}}
+
+function renderRelatorio(data) {{
+  const k = data.kpis;
+  const box = document.getElementById('rel-content');
+
+  if (k.total_pedidos === 0) {{
+    box.innerHTML = '<div class="rel-empty">🚭 Nenhum pedido no período selecionado.</div>';
+    return;
+  }}
+
+  const entregPct = k.total_pedidos ? Math.round(k.entregues/k.total_pedidos*100) : 0;
+
+  box.innerHTML = `
+    <div class="rel-kpis">
+      <div class="rel-kpi blue">
+        <div class="kv">${{k.total_pedidos}}</div>
+        <div class="kl">Total de Pedidos</div>
+      </div>
+      <div class="rel-kpi blue">
+        <div class="kv" style="font-size:1.1rem">${{fmtBRLRel(k.valor_total)}}</div>
+        <div class="kl">💰 Valor Total</div>
+      </div>
+      <div class="rel-kpi">
+        <div class="kv" style="font-size:1.1rem">${{fmtBRLRel(k.ticket_medio)}}</div>
+        <div class="kl">🎫 Ticket Médio</div>
+      </div>
+      <div class="rel-kpi orange">
+        <div class="kv">${{k.unidades}}</div>
+        <div class="kl">📦 Unidades Vendidas</div>
+      </div>
+      <div class="rel-kpi green">
+        <div class="kv">${{k.entregues}}</div>
+        <div class="kl">✅ Entregues (${{entregPct}}%)</div>
+      </div>
+      <div class="rel-kpi" style="border-color:#E67E22;background:#FFF8F0">
+        <div class="kv" style="color:#E67E22">${{k.pendentes}}</div>
+        <div class="kl">⏳ Pendentes</div>
+      </div>
+    </div>
+    <div class="rel-charts">
+      <div class="rel-chart-box">
+        <h3>🏆 Top Produtos — Volume (un.)</h3>
+        <canvas id="chart-vol" height="220"></canvas>
+      </div>
+      <div class="rel-chart-box">
+        <h3>💰 Top Produtos — Valor (R$)</h3>
+        <canvas id="chart-val" height="220"></canvas>
+      </div>
+    </div>
+    ${{data.por_dia.length > 1 ? '<div class="rel-day-box"><h3>📅 Vendas por Dia (R$)</h3><canvas id="chart-dia" height="140"></canvas></div>' : ''}}
+  `;
+
+  const PURP  = 'rgba(74,27,122,';
+  const BLUE  = 'rgba(26,95,180,';
+  const GREEN = 'rgba(39,174,96,';
+
+  const volLabels = data.por_volume.map(x => x.nome.length>22 ? x.nome.slice(0,20)+'…' : x.nome);
+  const volData   = data.por_volume.map(x => x.qty);
+  _chartVol = new Chart(document.getElementById('chart-vol'), {{
+    type: 'bar',
+    data: {{
+      labels: volLabels,
+      datasets: [{{ label: 'Unidades', data: volData,
+        backgroundColor: volData.map((_,i) => PURP+(i===0?'1)':i===1?'.8)':'.6)')),
+        borderRadius: 6, borderSkipped: false }}]
+    }},
+    options: {{
+      indexAxis: 'y', responsive: true, plugins: {{ legend: {{ display:false }},
+        tooltip: {{ callbacks: {{ label: ctx => ' '+ctx.raw+' un.' }} }} }},
+      scales: {{ x: {{ grid: {{ color:'rgba(0,0,0,.05)' }}, ticks: {{ font:{{size:11}} }} }},
+                 y: {{ ticks: {{ font:{{size:11}} }} }} }}
+    }}
+  }});
+
+  const valLabels = data.por_valor.map(x => x.nome.length>22 ? x.nome.slice(0,20)+'…' : x.nome);
+  const valData   = data.por_valor.map(x => x.valor);
+  _chartVal = new Chart(document.getElementById('chart-val'), {{
+    type: 'bar',
+    data: {{
+      labels: valLabels,
+      datasets: [{{ label: 'Valor', data: valData,
+        backgroundColor: valData.map((_,i) => BLUE+(i===0?'1)':i===1?'.8)':'.6)')),
+        borderRadius: 6, borderSkipped: false }}]
+    }},
+    options: {{
+      indexAxis: 'y', responsive: true, plugins: {{ legend: {{ display:false }},
+        tooltip: {{ callbacks: {{ label: ctx => ' R$ '+parseFloat(ctx.raw).toLocaleString('pt-BR',{{minimumFractionDigits:2}}) }} }} }},
+      scales: {{ x: {{ grid: {{ color:'rgba(0,0,0,.05)' }},
+                       ticks: {{ font:{{size:11}}, callback: v => 'R$'+v.toLocaleString('pt-BR') }} }},
+                 y: {{ ticks: {{ font:{{size:11}} }} }} }}
+    }}
+  }});
+
+  if (data.por_dia.length > 1) {{
+    const diaLabels = data.por_dia.map(x => x.dia.split('-').reverse().join('/'));
+    const diaValor  = data.por_dia.map(x => x.valor);
+    _chartDia = new Chart(document.getElementById('chart-dia'), {{
+      type: 'line',
+      data: {{
+        labels: diaLabels,
+        datasets: [{{ label: 'Valor (R$)', data: diaValor, fill: true,
+          backgroundColor: 'rgba(39,174,96,.12)', borderColor: GREEN+'1)',
+          pointBackgroundColor: GREEN+'1)', tension: 0.35, borderWidth: 2.5 }}]
+      }},
+      options: {{
+        responsive: true, plugins: {{ legend: {{ display:false }},
+          tooltip: {{ callbacks: {{ label: ctx => ' R$ '+parseFloat(ctx.raw).toLocaleString('pt-BR',{{minimumFractionDigits:2}}) }} }} }},
+        scales: {{ x: {{ grid: {{ color:'rgba(0,0,0,.04)' }}, ticks: {{ font:{{size:11}}, maxRotation:45 }} }},
+                   y: {{ grid: {{ color:'rgba(0,0,0,.04)' }},
+                         ticks: {{ font:{{size:11}}, callback: v => 'R$'+v.toLocaleString('pt-BR') }} }} }}
+      }}
+    }});
+  }}
+}}
+
 loadOrders();
 setInterval(loadOrders, 30000);
 </script>
 </body></html>"""
     return Response(html, mimetype='text/html')
 
-# ── Uploads ──────────────────────────────────────────────────────────────────
+# ── Uploads ──────────────────────────────────────────────────────────────────────
 @app.get('/uploads/<filename>')
 def serve_upload(filename):
     return send_from_directory(str(UPLOAD), filename)
 
-# ── Frontend ──────────────────────────────────────────────────────────────────
+# ── Frontend ──────────────────────────────────────────────────────────────────────
 @app.get('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-# ── Email ─────────────────────────────────────────────────────────────────────
+# ── Email ─────────────────────────────────────────────────────────────────────────
 def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
     if not SMTP_USER or not SMTP_PASS: return
     tipo_label = '🏢 Genomma' if tipo == 'genomma' else '🤝 Terceirizado(a)'
@@ -1081,7 +1376,7 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
 # ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
 
-# ── Start ─────────────────────────────────────────────────────────────────────
+# ── Start ─────────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     log.info(f'\n🚀 Lojinha            → http://localhost:{PORT}')
     log.info(f'🔧 Painel de pedidos  → http://localhost:{PORT}/admin')
