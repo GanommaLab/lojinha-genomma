@@ -1,25 +1,5 @@
 [
   {
-    "id": "20260629235257215",
-    "data_hora": "29/06/2026 23:52:57",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1031068",
-        "produto_name": "Asepxia Sab Líq Limpeza Profunda 150 mL",
-        "quantidade": 1,
-        "preco_unit": 15.83,
-        "valor_total": 15.83
-      }
-    ],
-    "valor_total": 15.83,
-    "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260629235257215_20260630_002059_teste_genomma.pdf"
-  },
-  {
     "id": "20260629235211185",
     "data_hora": "29/06/2026 23:52:11",
     "nome": "maycon Dias",
