@@ -19,40 +19,6 @@
     "status": "pendente"
   },
   {
-    "id": "20260704160633472",
-    "data_hora": "04/07/2026 16:06:33",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "genomma",
-    "items": [
-      {
-        "produto_code": "1110500",
-        "produto_name": "Cicatricure Gel 60g - Horizontal",
-        "quantidade": 2,
-        "preco_unit": 30.69,
-        "valor_total": 61.38
-      },
-      {
-        "produto_code": "1110800",
-        "produto_name": "Cicatricure Porcelana Peeling Facial 30ml",
-        "quantidade": 1,
-        "preco_unit": 30.97,
-        "valor_total": 30.97
-      },
-      {
-        "produto_code": "1108800",
-        "produto_name": "Cicatricure Sérum Clareador Facial 30mL",
-        "quantidade": 1,
-        "preco_unit": 51.0,
-        "valor_total": 51.0
-      }
-    ],
-    "valor_total": 143.35,
-    "comprovante": "20260704_160633_VALIDADOR_APB2025.pdf",
-    "status": "entregue",
-    "entregue_em": "04/07/2026 16:08"
-  },
-  {
     "id": "20260703144715945",
     "data_hora": "03/07/2026 14:47:15",
     "nome": "Adriana Santos da Silva",
