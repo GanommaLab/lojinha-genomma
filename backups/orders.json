@@ -1,24 +1,5 @@
 [
   {
-    "id": "20260702195130985",
-    "data_hora": "02/07/2026 19:51:30",
-    "nome": "Adriana Santos da Silva",
-    "email": "adrianasantos@contractor.genommalab.com",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "600182",
-        "produto_name": "Cicatricure Maternity Creme Corporal Antiestrias",
-        "quantidade": 2,
-        "preco_unit": 0.0,
-        "valor_total": 0.0
-      }
-    ],
-    "valor_total": 0.0,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260630140819102",
     "data_hora": "30/06/2026 14:08:19",
     "nome": "Kate de Sousa Silva",
