@@ -1,31 +1,5 @@
 [
   {
-    "id": "20260703144715945",
-    "data_hora": "03/07/2026 14:47:15",
-    "nome": "Adriana Santos da Silva",
-    "email": "adrianasantos@contractor.genommalab.com",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1109600",
-        "produto_name": "Cicatricure Maternity Corporal 250mL",
-        "quantidade": 1,
-        "preco_unit": 37.86,
-        "valor_total": 37.86
-      },
-      {
-        "produto_code": "4043300",
-        "produto_name": "Tío Nacho Kit Reconstrutor SH 415 mL + Cond 200 mL",
-        "quantidade": 1,
-        "preco_unit": 26.52,
-        "valor_total": 26.52
-      }
-    ],
-    "valor_total": 64.38,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260702195130985",
     "data_hora": "02/07/2026 19:51:30",
     "nome": "Adriana Santos da Silva",
