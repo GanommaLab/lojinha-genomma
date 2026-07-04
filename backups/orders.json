@@ -49,7 +49,8 @@
     ],
     "valor_total": 143.35,
     "comprovante": "20260704_160633_VALIDADOR_APB2025.pdf",
-    "status": "pendente"
+    "status": "entregue",
+    "entregue_em": "04/07/2026 16:08"
   },
   {
     "id": "20260703144715945",
