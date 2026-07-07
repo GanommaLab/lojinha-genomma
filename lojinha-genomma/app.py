@@ -151,15 +151,45 @@ def require_admin(f):
     return decorated
 
 # ── Estoque ───────────────────────────────────────────────────────────────────
+def _detect_estoque_columns(ws):
+    """Detecta dinamicamente a linha de cabeçalho e as colunas de código/nome/quantidade
+    da aba 'Estoque'. O layout exportado do ERP já mudou uma vez (nº de linhas de
+    cabeçalho e posição das colunas), então evitamos depender de índices fixos."""
+    header_row, col_code, col_name, col_qty = None, None, None, None
+    for i, row in enumerate(ws.iter_rows(min_row=1, max_row=10, values_only=True), start=1):
+        cells = [str(c).strip().lower() if c is not None else '' for c in row]
+        for j, c in enumerate(cells):
+            if col_code is None and c in ('item', 'código', 'codigo'):
+                col_code = j
+            elif col_name is None and 'descri' in c:
+                col_name = j
+            elif col_qty is None and c in ('qtd liquida', 'qtd líquida'):
+                col_qty = j
+        if col_code is not None and col_qty is not None:
+            header_row = i
+            break
+        col_code = col_name = col_qty = None  # reseta e tenta a próxima linha
+
+    if header_row is None:
+        # Fallback para o layout antigo (2 linhas de cabeçalho, dados a partir da 3,
+        # código na coluna A, nome na B, quantidade na coluna N/índice 13)
+        log.warning('⚠️  Cabeçalho da aba "Estoque" não reconhecido automaticamente; usando layout padrão (linha 3 / coluna 14).')
+        return 2, 0, 1, 13
+    if col_name is None:
+        col_name = col_code + 1
+    return header_row, col_code, col_name, col_qty
+
 def load_from_excel():
     excel = _find_excel()
     log.info(f'📊 Lendo planilha Excel: {excel.name}')
     wb = openpyxl.load_workbook(str(excel), read_only=True, data_only=True)
 
-    # ── Lê preços da aba "Tabela de Venda" (cabeçalho na linha 4, dados a partir da 5)
+    # ── Lê preços da aba "Tabela de Venda(s)" (cabeçalho na linha 4, dados a partir da 5)
+    # Nome da aba já variou entre "Tabela de Venda" e "Tabela de Vendas" — aceita ambos.
     prices = {}
-    if 'Tabela de Venda' in wb.sheetnames:
-        ws_tv = wb['Tabela de Venda']
+    price_sheet = next((s for s in wb.sheetnames if s.strip().lower().startswith('tabela de venda')), None)
+    if price_sheet:
+        ws_tv = wb[price_sheet]
         for row in ws_tv.iter_rows(min_row=5, values_only=True):
             if not row[0]: continue
             try:
@@ -167,16 +197,19 @@ def load_from_excel():
                 price = round(float(row[2]), 2) if row[2] is not None else 0.0
                 prices[code] = price
             except: pass
-        log.info(f'💲 {len(prices)} preços carregados da aba "Tabela de Venda".')
+        log.info(f'💲 {len(prices)} preços carregados da aba "{price_sheet}".')
+    else:
+        log.warning('⚠️  Aba de preços ("Tabela de Venda(s)") não encontrada.')
 
     # ── Lê estoque da aba "Estoque"
     ws = wb['Estoque']
+    header_row, col_code, col_name, col_qty = _detect_estoque_columns(ws)
     products = {}
-    for row in ws.iter_rows(min_row=3, values_only=True):
-        if not row[0]: continue
-        code = str(row[0]).strip()
-        name = str(row[1]).strip() if row[1] else ''
-        try: qtd = float(row[13]) if row[13] is not None else 0
+    for row in ws.iter_rows(min_row=header_row + 1, values_only=True):
+        if col_code >= len(row) or not row[col_code]: continue
+        code = str(row[col_code]).strip()
+        name = str(row[col_name]).strip() if col_name < len(row) and row[col_name] else ''
+        try: qtd = float(row[col_qty]) if col_qty < len(row) and row[col_qty] is not None else 0
         except: qtd = 0
         if qtd > 0:
             if code not in products:
