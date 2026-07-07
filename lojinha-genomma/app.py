@@ -508,6 +508,26 @@ def api_delete_order(order_id):
             save_stock()
     return jsonify({'ok': True})
 
+# ── API: resincronizar estoque a partir da planilha ────────────────────────────
+@app.post('/api/resync-estoque')
+@require_admin
+def api_resync_estoque():
+    """Recarrega o estoque diretamente da planilha Excel atual, substituindo os
+    valores em uso agora. Use depois de atualizar a planilha no repositório."""
+    global stock_data
+    with LOCK:
+        antes = len(stock_data)
+        try:
+            novo = load_from_excel()
+        except Exception as e:
+            log.warning(f'⚠️  Falha ao resincronizar estoque da planilha: {e}')
+            return jsonify({'error': f'Falha ao ler a planilha: {e}'}), 500
+        stock_data = novo
+        save_stock()
+        depois = len(stock_data)
+    log.info(f'🔄 Estoque resincronizado manualmente pelo admin: {antes} → {depois} produtos.')
+    return jsonify({'ok': True, 'produtos_antes': antes, 'produtos_depois': depois})
+
 # ── API: inventário ───────────────────────────────────────────────────────────
 @app.get('/api/inventario')
 @require_admin
@@ -608,6 +628,7 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <button class="rbtn green" onclick="exportCSV()">⬇️ Exportar CSV</button>
     <button class="rbtn blue"  onclick="window.print()">🖨️ Imprimir</button>
+    <button class="rbtn" id="btn-resync" style="background:rgba(255,152,0,.9)" onclick="resyncEstoque()">🔄 Resincronizar Planilha</button>
     <a href="/admin" class="rbtn">← Painel de Pedidos</a>
   </div>
 </header>
@@ -719,6 +740,29 @@ function calcDif(i) {
   } else {
     dif.innerHTML = `<span class="dif-zero">✓ 0</span>`;
     row.className = '';
+  }
+}
+
+async function resyncEstoque() {
+  const btn = document.getElementById('btn-resync');
+  if (!confirm('Isso vai recarregar o estoque diretamente da planilha Excel atual, substituindo os valores em uso agora (pedidos já registrados não são afetados). Deseja continuar?')) return;
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Sincronizando...';
+  try {
+    const r = await fetch('/api/resync-estoque', { method: 'POST' });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      alert('✅ Estoque resincronizado! ' + data.produtos_depois + ' produtos carregados da planilha (antes: ' + data.produtos_antes + ').');
+      await load();
+    } else {
+      alert('❌ Erro ao resincronizar: ' + (data.error || 'desconhecido'));
+    }
+  } catch (e) {
+    alert('❌ Erro ao resincronizar: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
   }
 }
 
