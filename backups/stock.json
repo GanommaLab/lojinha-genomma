@@ -1,0 +1,422 @@
+{
+  "101111": {
+    "code": "101111",
+    "name": "Pointts Antiverrugas 80 ml",
+    "stock": 5,
+    "price": 115.2
+  },
+  "1031045": {
+    "code": "1031045",
+    "name": "Asepxia Limpeza Esfoliante Carvão Detox",
+    "stock": 18,
+    "price": 15.83
+  },
+  "1031046": {
+    "code": "1031046",
+    "name": "Asepxia Máscara Peel off Carvão Detox",
+    "stock": 7,
+    "price": 10.52
+  },
+  "1031068": {
+    "code": "1031068",
+    "name": "Asepxia Sab Líq Limpeza Profunda 150 mL",
+    "stock": 6,
+    "price": 15.83
+  },
+  "1031069": {
+    "code": "1031069",
+    "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
+    "stock": 30,
+    "price": 26.39
+  },
+  "1031070": {
+    "code": "1031070",
+    "name": "Asepxia Sabonete Líquido Detox 150 mL",
+    "stock": 14,
+    "price": 15.83
+  },
+  "1031082": {
+    "code": "1031082",
+    "name": "Asepxia Barra Esfoliante 80g",
+    "stock": 12,
+    "price": 8.0
+  },
+  "1031083": {
+    "code": "1031083",
+    "name": "Asepxia Barra Neutro 80g",
+    "stock": 12,
+    "price": 8.0
+  },
+  "1031084": {
+    "code": "1031084",
+    "name": "Asepxia Barra Enxofre 80g",
+    "stock": 14,
+    "price": 8.0
+  },
+  "1031085": {
+    "code": "1031085",
+    "name": "Asepxia Barra Suavizante/Cremoso 80g",
+    "stock": 13,
+    "price": 8.0
+  },
+  "1031086": {
+    "code": "1031086",
+    "name": "Asepxia Barra Forte 80g",
+    "stock": 10,
+    "price": 8.0
+  },
+  "1031087": {
+    "code": "1031087",
+    "name": "Asepxia Barra Detox 80g",
+    "stock": 12,
+    "price": 9.71
+  },
+  "1108800": {
+    "code": "1108800",
+    "name": "Cicatricure Sérum Clareador Facial 30mL",
+    "stock": 9,
+    "price": 51.0
+  },
+  "1108900": {
+    "code": "1108900",
+    "name": "Cicatricure Creme Contorno dos Olhos 15g",
+    "stock": 19,
+    "price": 30.69
+  },
+  "1109100": {
+    "code": "1109100",
+    "name": "Cicatricure Creme para Rugas 50g",
+    "stock": 15,
+    "price": 29.13
+  },
+  "1109200": {
+    "code": "1109200",
+    "name": "Cicatricure Creme FPS 30 Diurno 50g",
+    "stock": 13,
+    "price": 34.09
+  },
+  "1109300": {
+    "code": "1109300",
+    "name": "Cicatricure Creme Corporal 250g",
+    "stock": 15,
+    "price": 18.24
+  },
+  "1109600": {
+    "code": "1109600",
+    "name": "Cicatricure Maternity Corporal 250mL",
+    "stock": 30,
+    "price": 37.86
+  },
+  "1109700": {
+    "code": "1109700",
+    "name": "Cicatricure Água Micelar 200 mL",
+    "stock": 15,
+    "price": 13.72
+  },
+  "1110000": {
+    "code": "1110000",
+    "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - clara",
+    "stock": 9,
+    "price": 30.05
+  },
+  "1110100": {
+    "code": "1110100",
+    "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - média",
+    "stock": 10,
+    "price": 30.05
+  },
+  "1110400": {
+    "code": "1110400",
+    "name": "Cicatricure Gel 30g - Horizontal",
+    "stock": 5,
+    "price": 15.82
+  },
+  "1110500": {
+    "code": "1110500",
+    "name": "Cicatricure Gel 60g - Horizontal",
+    "stock": 6,
+    "price": 30.69
+  },
+  "1110700": {
+    "code": "1110700",
+    "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
+    "stock": 1,
+    "price": 12.09
+  },
+  "1110800": {
+    "code": "1110800",
+    "name": "Cicatricure Porcelana Peeling Facial 30ml",
+    "stock": 1,
+    "price": 30.97
+  },
+  "1111400": {
+    "code": "1111400",
+    "name": "Cicatricure Regeneplast 30g",
+    "stock": 17,
+    "price": 17.68
+  },
+  "1111500": {
+    "code": "1111500",
+    "name": "Cicatricure Neuro-zen 50g",
+    "stock": 20,
+    "price": 46.58
+  },
+  "1131008": {
+    "code": "1131008",
+    "name": "Cicatricure Gold Lift Noite 50 g",
+    "stock": 9,
+    "price": 58.98
+  },
+  "1131009": {
+    "code": "1131009",
+    "name": "Cicatricure Gold Lift Dia 50 g",
+    "stock": 12,
+    "price": 58.98
+  },
+  "1131072": {
+    "code": "1131072",
+    "name": "Cicatricure Prot Solar FPS50 Matte 40g",
+    "stock": 17,
+    "price": 30.05
+  },
+  "2100100": {
+    "code": "2100100",
+    "name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+    "stock": 10,
+    "price": 17.01
+  },
+  "2100200": {
+    "code": "2100200",
+    "name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
+    "stock": 12,
+    "price": 17.01
+  },
+  "2310800": {
+    "code": "2310800",
+    "name": "LakesiaPÉS Creme Antifúngico 20g",
+    "stock": 18,
+    "price": 22.61
+  },
+  "2310900": {
+    "code": "2310900",
+    "name": "LakesiaMedical Esmalte 3g",
+    "stock": 16,
+    "price": 0.0
+  },
+  "4041000": {
+    "code": "4041000",
+    "name": "Tío Nacho Engrossador Shampoo 415 mL",
+    "stock": 11,
+    "price": 22.1
+  },
+  "4041001": {
+    "code": "4041001",
+    "name": "Tío Nacho Engrossador Condicionador 415 mL",
+    "stock": 12,
+    "price": 19.92
+  },
+  "4041010": {
+    "code": "4041010",
+    "name": "Tío Nacho Clareador Shampoo 415 mL",
+    "stock": 10,
+    "price": 22.1
+  },
+  "4041011": {
+    "code": "4041011",
+    "name": "Tío Nacho Clareador Condicionador 415 mL",
+    "stock": 10,
+    "price": 19.92
+  },
+  "4041020": {
+    "code": "4041020",
+    "name": "Tío Nacho Anti-idade Shampoo 415 mL",
+    "stock": 16,
+    "price": 22.1
+  },
+  "4041021": {
+    "code": "4041021",
+    "name": "Tío Nacho Anti-idade Condicionador 415 mL",
+    "stock": 12,
+    "price": 19.92
+  },
+  "4041040": {
+    "code": "4041040",
+    "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+    "stock": 15,
+    "price": 22.1
+  },
+  "4041041": {
+    "code": "4041041",
+    "name": "Tío Nacho Reconstrutor Condicionador 415 mL",
+    "stock": 15,
+    "price": 19.92
+  },
+  "4041050": {
+    "code": "4041050",
+    "name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
+    "stock": 9,
+    "price": 22.1
+  },
+  "4042000": {
+    "code": "4042000",
+    "name": "Tío Nacho Engrossador Shampoo 200 mL",
+    "stock": 1,
+    "price": 13.77
+  },
+  "4042010": {
+    "code": "4042010",
+    "name": "Tío Nacho Clareador Shampoo 200 mL",
+    "stock": 1,
+    "price": 13.77
+  },
+  "4043000": {
+    "code": "4043000",
+    "name": "Tío Nacho Engrossador Spray 120 mL",
+    "stock": 6,
+    "price": 16.22
+  },
+  "4043040": {
+    "code": "4043040",
+    "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+    "stock": 15,
+    "price": 19.02
+  },
+  "4043600": {
+    "code": "4043600",
+    "name": "Tío Nacho Shampoo Antiqueda Engrossador 950 mL",
+    "stock": 1,
+    "price": 43.23
+  },
+  "4043800": {
+    "code": "4043800",
+    "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
+    "stock": 1,
+    "price": 43.23
+  },
+  "4043900": {
+    "code": "4043900",
+    "name": "Tío Nacho Ginseng Shampoo 415 mL",
+    "stock": 14,
+    "price": 22.1
+  },
+  "4044000": {
+    "code": "4044000",
+    "name": "Tío Nacho Ginseng Condicionador 415 mL",
+    "stock": 8,
+    "price": 19.92
+  },
+  "4044100": {
+    "code": "4044100",
+    "name": "Tío Nacho Anticaspa Shampoo 415 mL",
+    "stock": 5,
+    "price": 22.61
+  },
+  "4044200": {
+    "code": "4044200",
+    "name": "Tío Nacho Anticaspa 2 em 1 Shampoo 415 mL",
+    "stock": 6,
+    "price": 22.61
+  },
+  "4044300": {
+    "code": "4044300",
+    "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
+    "stock": 5,
+    "price": 22.61
+  },
+  "4044400": {
+    "code": "4044400",
+    "name": "Tío Nacho Condicionador Antigrisalho 415 mL",
+    "stock": 11,
+    "price": 20.89
+  },
+  "4406000": {
+    "code": "4406000",
+    "name": "Liris Carmelose Sódica 10 mL 5mg/mL",
+    "stock": 10,
+    "price": 27.01
+  },
+  "4406100": {
+    "code": "4406100",
+    "name": "Liris Calm 10 mL",
+    "stock": 10,
+    "price": 28.9
+  },
+  "4406200": {
+    "code": "4406200",
+    "name": "Liris Power 10 mL",
+    "stock": 10,
+    "price": 37.69
+  },
+  "5100100": {
+    "code": "5100100",
+    "name": "Expulsatox Adulto XPE 100mL",
+    "stock": 6,
+    "price": 18.84
+  },
+  "5100200": {
+    "code": "5100200",
+    "name": "Expulsatox Infantil XPE 100mL",
+    "stock": 6,
+    "price": 18.84
+  },
+  "5300100": {
+    "code": "5300100",
+    "name": "Renovaflora Probiótico 10 caps",
+    "stock": 50,
+    "price": 0.0
+  },
+  "600083": {
+    "code": "600083",
+    "name": "Goicoechea Diabetx BR",
+    "stock": 9,
+    "price": 23.59
+  },
+  "600089": {
+    "code": "600089",
+    "name": "Goicoechea Creme Arnica e Camomila 350g",
+    "stock": 17,
+    "price": 21.65
+  },
+  "600090": {
+    "code": "600090",
+    "name": "Goicoechea Creme Centella Asiática 350g",
+    "stock": 6,
+    "price": 21.65
+  },
+  "600119": {
+    "code": "600119",
+    "name": "Asepxia Gel Secativo",
+    "stock": 15,
+    "price": 15.21
+  },
+  "600125": {
+    "code": "600125",
+    "name": "Lomecan Creme 3 dias 20g",
+    "stock": 5,
+    "price": 38.01
+  },
+  "600146": {
+    "code": "600146",
+    "name": "LaKesia Sérum Fortalecedor 7ml",
+    "stock": 14,
+    "price": 22.65
+  },
+  "600151": {
+    "code": "600151",
+    "name": "Proctan - UQ",
+    "stock": 10,
+    "price": 39.58
+  },
+  "600170": {
+    "code": "600170",
+    "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
+    "stock": 24,
+    "price": 23.46
+  },
+  "91114": {
+    "code": "91114",
+    "name": "LaKesia Antimicótico 30 mL",
+    "stock": 15,
+    "price": 31.41
+  }
+}
