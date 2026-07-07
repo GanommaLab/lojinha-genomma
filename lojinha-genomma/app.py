@@ -509,11 +509,35 @@ def api_delete_order(order_id):
     return jsonify({'ok': True})
 
 # ── API: resincronizar estoque a partir da planilha ────────────────────────────
+def _pedidos_pendentes_por_produto():
+    """Soma, por código de produto, a quantidade de todos os pedidos que ainda NÃO
+    estão marcados como 'entregue' (ou seja, pendentes). Usado para alertar quando
+    um resync traria da planilha menos unidades do que já está reservado/comprometido."""
+    pend = {}
+    for o in load_orders():
+        if o.get('status') == 'entregue':
+            continue
+        if 'items' in o:
+            for item in o['items']:
+                pc  = item.get('produto_code')
+                qty = int(item.get('quantidade', 0) or 0)
+                if pc:
+                    pend[pc] = pend.get(pc, 0) + qty
+        else:
+            pc  = o.get('produto_code')
+            qty = int(o.get('quantidade', 0) or 0)
+            if pc:
+                pend[pc] = pend.get(pc, 0) + qty
+    return pend
+
 @app.post('/api/resync-estoque')
 @require_admin
 def api_resync_estoque():
     """Recarrega o estoque diretamente da planilha Excel atual, substituindo os
-    valores em uso agora. Use depois de atualizar a planilha no repositório."""
+    valores em uso agora. Use depois de atualizar a planilha no repositório.
+    Não altera nada relacionado a pedidos: apenas verifica se algum produto tem
+    pedidos pendentes (ainda não entregues) em quantidade maior do que a planilha
+    informa, e retorna isso como alerta para revisão manual."""
     global stock_data
     with LOCK:
         antes = len(stock_data)
@@ -522,11 +546,31 @@ def api_resync_estoque():
         except Exception as e:
             log.warning(f'⚠️  Falha ao resincronizar estoque da planilha: {e}')
             return jsonify({'error': f'Falha ao ler a planilha: {e}'}), 500
+
+        pendentes = _pedidos_pendentes_por_produto()
+        alertas = []
+        for code, qtd_pend in pendentes.items():
+            produto = novo.get(code)
+            estoque_planilha = produto['stock'] if produto else 0
+            if qtd_pend > estoque_planilha:
+                nome = (produto['name'] if produto else None) or stock_data.get(code, {}).get('name') or code
+                alertas.append({
+                    'code': code,
+                    'name': nome,
+                    'estoque_planilha': estoque_planilha,
+                    'pendentes': qtd_pend,
+                    'deficit': qtd_pend - estoque_planilha,
+                })
+        alertas.sort(key=lambda a: a['deficit'], reverse=True)
+
         stock_data = novo
         save_stock()
         depois = len(stock_data)
+
+    if alertas:
+        log.warning(f'⚠️  Resync: {len(alertas)} produto(s) com pedidos pendentes acima do estoque da planilha.')
     log.info(f'🔄 Estoque resincronizado manualmente pelo admin: {antes} → {depois} produtos.')
-    return jsonify({'ok': True, 'produtos_antes': antes, 'produtos_depois': depois})
+    return jsonify({'ok': True, 'produtos_antes': antes, 'produtos_depois': depois, 'alertas': alertas})
 
 # ── API: inventário ───────────────────────────────────────────────────────────
 @app.get('/api/inventario')
@@ -753,7 +797,16 @@ async function resyncEstoque() {
     const r = await fetch('/api/resync-estoque', { method: 'POST' });
     const data = await r.json();
     if (r.ok && data.ok) {
-      alert('✅ Estoque resincronizado! ' + data.produtos_depois + ' produtos carregados da planilha (antes: ' + data.produtos_antes + ').');
+      let msg = '✅ Estoque resincronizado! ' + data.produtos_depois + ' produtos carregados da planilha (antes: ' + data.produtos_antes + ').';
+      const alertas = data.alertas || [];
+      if (alertas.length) {
+        msg += '\n\n⚠️ ATENÇÃO: ' + alertas.length + ' produto(s) têm pedidos PENDENTES (ainda não entregues) em quantidade maior do que a planilha informa. A planilha pode estar desatualizada, ou esses pedidos precisam ser revistos antes de confiar no estoque:';
+        alertas.slice(0, 20).forEach(a => {
+          msg += '\n• ' + a.name + ' (' + a.code + '): pendente ' + a.pendentes + ' un. / planilha tem ' + a.estoque_planilha + ' un. (faltam ' + a.deficit + ')';
+        });
+        if (alertas.length > 20) msg += '\n... e mais ' + (alertas.length - 20) + ' produto(s).';
+      }
+      alert(msg);
       await load();
     } else {
       alert('❌ Erro ao resincronizar: ' + (data.error || 'desconhecido'));
