@@ -512,6 +512,7 @@ def api_orders():
 def api_status(order_id):
     data       = request.get_json(force=True)
     new_status = data.get('status','pendente')
+    order_snapshot = None
     with LOCK:
         orders = load_orders()
         found  = False
@@ -523,10 +524,13 @@ def api_status(order_id):
                 else:
                     o.pop('entregue_em', None)
                 found = True
+                order_snapshot = dict(o)
                 break
         if not found:
             return jsonify({'error':'Pedido não encontrado'}), 404
         write_orders(orders)
+    if new_status == 'entregue' and order_snapshot and order_snapshot.get('nota_fiscal'):
+        threading.Thread(target=_send_nf_email, args=(order_snapshot,), daemon=True).start()
     return jsonify({'ok':True,'status':new_status})
 
 # ── API: anexar nota fiscal ───────────────────────────────────────────────────
@@ -1686,6 +1690,110 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
         s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
         s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
+
+# ── Email de Nota Fiscal (pedido entregue) ─────────────────────────────────────
+NF_EMAIL_RECIPIENTS = [
+    'vinicius.vaz@contractor.genommalab.com',
+    'micaella.santos@genommalab.com',
+    'vanessa.migliatti@genommalab.com',
+]
+
+def _send_nf_email(order):
+    """Quando um pedido é marcado como entregue e já tem Nota Fiscal anexada,
+    envia a NF por email para os destinatários fixos abaixo. Não bloqueia a
+    requisição se falhar (roda em thread separada)."""
+    if not SMTP_USER or not SMTP_PASS:
+        return
+    nf_name = order.get('nota_fiscal')
+    if not nf_name:
+        return
+
+    nf_path = UPLOAD / nf_name
+    if not nf_path.exists():
+        data = _gh_restore_bytes(f'backups/uploads/{nf_name}')
+        if not data:
+            log.warning(f'⚠️  NF {nf_name} não encontrada (local nem backup) — email não enviado.')
+            return
+        try:
+            nf_path.parent.mkdir(parents=True, exist_ok=True)
+            nf_path.write_bytes(data)
+        except Exception as e:
+            log.warning(f'⚠️  Falha ao restaurar NF para envio de email: {e}')
+            return
+
+    nome = order.get('nome', '')
+    tipo_label = '🏢 Genomma' if order.get('tipo') == 'genomma' else '🤝 Terceirizado(a)'
+    dh = order.get('data_hora', '')
+    entregue_em = order.get('entregue_em', '')
+
+    if order.get('items'):
+        produtos_html = ''.join(
+            f'<tr><td style="padding:6px 0;color:#666;">{it.get("produto_name","")}</td>'
+            f'<td style="padding:6px 0;text-align:center;font-weight:bold;color:#27AE60;">{it.get("quantidade",0)} un.</td>'
+            f'<td style="padding:6px 0;text-align:right;">R$ {float(it.get("valor_total",0)):.2f}</td></tr>'
+            for it in order['items']
+        )
+    else:
+        produtos_html = (
+            f'<tr><td style="padding:6px 0;color:#666;">{order.get("produto_name","")}</td>'
+            f'<td style="padding:6px 0;text-align:center;font-weight:bold;color:#27AE60;">{order.get("quantidade",0)} un.</td>'
+            f'<td style="padding:6px 0;text-align:right;">R$ {float(order.get("valor_total",0)):.2f}</td></tr>'
+        )
+
+    msg = MIMEMultipart('mixed')
+    msg['Subject']  = f'Lojinha — Nota Fiscal {nome}'
+    msg['From']     = f'"Lojinha Genomma" <{SMTP_USER}>'
+    msg['To']       = ', '.join(NF_EMAIL_RECIPIENTS)
+
+    html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;">
+<div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
+  <div style="background:linear-gradient(135deg,#4A1B7A,#1A5FB4);padding:28px;text-align:center;">
+    <h1 style="color:white;margin:0;font-size:22px;">✅ Pedido Entregue — Nota Fiscal</h1>
+    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;">{entregue_em or dh}</p>
+  </div>
+  <div style="padding:28px;">
+    <h2 style="color:#4A1B7A;border-bottom:2px solid #f0e6f6;padding-bottom:10px;">👤 Comprador</h2>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:7px 0;color:#666;width:140px;"><b>Nome:</b></td><td>{nome}</td></tr>
+      <tr><td style="padding:7px 0;color:#666;"><b>E-mail:</b></td><td>{order.get('email','')}</td></tr>
+      <tr><td style="padding:7px 0;color:#666;"><b>Vínculo:</b></td><td>{tipo_label}</td></tr>
+      <tr><td style="padding:7px 0;color:#666;"><b>Pedido em:</b></td><td>{dh}</td></tr>
+    </table>
+    <h2 style="color:#4A1B7A;border-bottom:2px solid #f0e6f6;padding-bottom:10px;margin-top:22px;">📦 Produtos</h2>
+    <table style="width:100%;border-collapse:collapse;">
+      {produtos_html}
+    </table>
+    <p style="margin-top:14px;font-size:16px;font-weight:bold;color:#27AE60;">💰 Valor total: R$ {float(order.get('valor_total',0)):.2f}</p>
+    <div style="background:#f8f3ff;border-left:4px solid #4A1B7A;padding:13px;border-radius:4px;margin-top:22px;">
+      <p style="margin:0;color:#4A1B7A;"><b>📎 Nota fiscal em anexo.</b></p>
+    </div>
+  </div>
+  <div style="background:#f5f5f5;padding:14px;text-align:center;">
+    <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab</p>
+  </div>
+</div></body></html>"""
+    msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+    try:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(nf_path.read_bytes())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment', filename=nf_name)
+        msg.attach(part)
+    except Exception as e:
+        log.warning(f'⚠️  Falha ao anexar NF ao email: {e}')
+        return
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
+            s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
+            s.sendmail(SMTP_USER, NF_EMAIL_RECIPIENTS, msg.as_string())
+        log.info(f'📧 Email de NF enviado para {", ".join(NF_EMAIL_RECIPIENTS)} — pedido {order.get("id")}')
+    except Exception as e:
+        log.warning(f'⚠️  Falha ao enviar email de NF: {e}')
+
+
 
 # ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
