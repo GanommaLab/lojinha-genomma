@@ -1273,6 +1273,7 @@ function render(orders) {{
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
       <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>`;
     let mid = '';
+    let codeCol = '';
     if (o.items && o.items.length) {{
       const miniRows = o.items.map(it =>
         `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #EDE3F5;flex-wrap:wrap;">
@@ -1283,17 +1284,22 @@ function render(orders) {{
         </div>`
       ).join('');
       mid = `<td colspan="3" style="padding:6px 8px;">${{miniRows}}</td>`;
+      const codeRows = o.items.map(it =>
+        `<div style="padding:3px 0;border-bottom:1px solid #EDE3F5;font-size:.8rem;color:#666;white-space:nowrap;">${{it.produto_code||''}}</div>`
+      ).join('');
+      codeCol = `<td style="font-size:.8rem;color:#666;">${{codeRows}}</td>`;
     }} else {{
       mid = `
         <td style="max-width:180px;font-size:.82rem;">${{o.produto_name||''}}</td>
         <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{o.quantidade||''}}</td>
         <td style="text-align:center;font-size:.82rem;color:#555;">${{fmtBRL(o.preco_unit)}}</td>`;
+      codeCol = `<td style="font-size:.82rem;color:#666;white-space:nowrap;">${{o.produto_code||''}}</td>`;
     }}
-    rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">${{base}}${{mid}}${{tail}}</tr>`;
+    rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">${{base}}${{codeCol}}${{mid}}${{tail}}</tr>`;
   }});
   wrap.innerHTML = `<table><thead><tr>
     <th>Data/Hora</th><th>Nome</th><th>E-mail</th><th>Tipo</th>
-    <th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:center">Preço Unit.</th>
+    <th>Código</th><th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:center">Preço Unit.</th>
     <th style="text-align:center">Valor Total</th>
     <th style="text-align:center">Comprovante</th>
     <th style="text-align:center">Nota Fiscal</th>
@@ -1317,7 +1323,7 @@ async function toggle(id, newStatus) {{
 
 async function excluir(id) {{
   const row = document.getElementById(`row-${{id}}`);
-  const prod = row ? row.querySelector('td:nth-child(5)').innerText : '';
+  const prod = row ? row.querySelector('td:nth-child(6)').innerText : '';
   if (!confirm(`Excluir este pedido?\n\n${{prod}}\n\nO estoque será restaurado automaticamente.`)) return;
   try {{
     const r = await fetch(`/api/orders/${{id}}`, {{method: 'DELETE'}});
