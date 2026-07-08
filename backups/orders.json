@@ -23,8 +23,9 @@
     ],
     "valor_total": 74.59,
     "comprovante": "20260708_184617_IMG_0872.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708184617284_20260708_204615_Aline.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260708184617284_20260708_204615_Aline.pdf",
+    "entregue_em": "08/07/2026 20:46"
   },
   {
     "id": "20260708181909427",
@@ -50,8 +51,9 @@
     ],
     "valor_total": 34.02,
     "comprovante": "20260708_181909_Screenshot_20260708_151835_Ita.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708181909427_20260708_204620_micaela.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260708181909427_20260708_204620_micaela.pdf",
+    "entregue_em": "08/07/2026 20:46"
   },
   {
     "id": "20260708180708355",
