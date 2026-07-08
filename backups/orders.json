@@ -84,8 +84,9 @@
     ],
     "valor_total": 79.88,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708180708355_20260708_204624_vanessa.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260708180708355_20260708_204624_vanessa.pdf",
+    "entregue_em": "08/07/2026 20:46"
   },
   {
     "id": "20260708162709839",
