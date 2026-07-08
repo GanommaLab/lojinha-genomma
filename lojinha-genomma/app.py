@@ -882,11 +882,11 @@ async function resyncEstoque() {
       let msg = '✅ Estoque resincronizado! ' + data.produtos_depois + ' produtos carregados da planilha (antes: ' + data.produtos_antes + ').';
       const alertas = data.alertas || [];
       if (alertas.length) {
-        msg += '\n\n⚠️ ATENÇÃO: ' + alertas.length + ' produto(s) têm pedidos PENDENTES (ainda não entregues) em quantidade maior do que a planilha informa. A planilha pode estar desatualizada, ou esses pedidos precisam ser revistos antes de confiar no estoque:';
+        msg += '\\n\\n⚠️ ATENÇÃO: ' + alertas.length + ' produto(s) têm pedidos PENDENTES (ainda não entregues) em quantidade maior do que a planilha informa. A planilha pode estar desatualizada, ou esses pedidos precisam ser revistos antes de confiar no estoque:';
         alertas.slice(0, 20).forEach(a => {
-          msg += '\n• ' + a.name + ' (' + a.code + '): pendente ' + a.pendentes + ' un. / planilha tem ' + a.estoque_planilha + ' un. (faltam ' + a.deficit + ')';
+          msg += '\\n• ' + a.name + ' (' + a.code + '): pendente ' + a.pendentes + ' un. / planilha tem ' + a.estoque_planilha + ' un. (faltam ' + a.deficit + ')';
         });
-        if (alertas.length > 20) msg += '\n... e mais ' + (alertas.length - 20) + ' produto(s).';
+        if (alertas.length > 20) msg += '\\n... e mais ' + (alertas.length - 20) + ' produto(s).';
       }
       alert(msg);
       await load();
