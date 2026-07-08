@@ -3,7 +3,7 @@
     "code": "101111",
     "name": "Pointts Antiverrugas 80 ml",
     "stock": 5,
-    "price": 115.2
+    "price": 132.48
   },
   "1031045": {
     "code": "1031045",
@@ -27,7 +27,7 @@
     "code": "1031069",
     "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
     "stock": 30,
-    "price": 26.39
+    "price": 10.56
   },
   "1031070": {
     "code": "1031070",
@@ -81,73 +81,73 @@
     "code": "1108900",
     "name": "Cicatricure Creme Contorno dos Olhos 15g",
     "stock": 19,
-    "price": 30.69
+    "price": 32.15
   },
   "1109100": {
     "code": "1109100",
     "name": "Cicatricure Creme para Rugas 50g",
     "stock": 15,
-    "price": 29.13
+    "price": 30.51
   },
   "1109200": {
     "code": "1109200",
     "name": "Cicatricure Creme FPS 30 Diurno 50g",
     "stock": 13,
-    "price": 34.09
+    "price": 35.55
   },
   "1109300": {
     "code": "1109300",
     "name": "Cicatricure Creme Corporal 250g",
     "stock": 15,
-    "price": 18.24
+    "price": 19.09
   },
   "1109600": {
     "code": "1109600",
     "name": "Cicatricure Maternity Corporal 250mL",
-    "stock": 29,
-    "price": 37.86
+    "stock": 30,
+    "price": 39.78
   },
   "1109700": {
     "code": "1109700",
     "name": "Cicatricure Água Micelar 200 mL",
     "stock": 15,
-    "price": 13.72
+    "price": 14.7
   },
   "1110000": {
     "code": "1110000",
     "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - clara",
     "stock": 9,
-    "price": 30.05
+    "price": 34.42
   },
   "1110100": {
     "code": "1110100",
     "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - média",
-    "stock": 3,
-    "price": 30.05
+    "stock": 10,
+    "price": 34.42
   },
   "1110400": {
     "code": "1110400",
     "name": "Cicatricure Gel 30g - Horizontal",
     "stock": 5,
-    "price": 15.82
+    "price": 17.1
   },
   "1110500": {
     "code": "1110500",
     "name": "Cicatricure Gel 60g - Horizontal",
     "stock": 6,
-    "price": 30.69
+    "price": 32.15
   },
   "1110700": {
     "code": "1110700",
     "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
     "stock": 1,
-    "price": 12.09
+    "price": 8.63
   },
   "1110800": {
     "code": "1110800",
     "name": "Cicatricure Porcelana Peeling Facial 30ml",
     "stock": 1,
-    "price": 30.97
+    "price": 22.12
   },
   "1111400": {
     "code": "1111400",
@@ -177,7 +177,7 @@
     "code": "1131072",
     "name": "Cicatricure Prot Solar FPS50 Matte 40g",
     "stock": 17,
-    "price": 30.05
+    "price": 34.42
   },
   "2100100": {
     "code": "2100100",
@@ -195,157 +195,157 @@
     "code": "2310800",
     "name": "LakesiaPÉS Creme Antifúngico 20g",
     "stock": 18,
-    "price": 22.61
+    "price": 25.13
   },
   "2310900": {
     "code": "2310900",
     "name": "LakesiaMedical Esmalte 3g",
     "stock": 16,
-    "price": 0.0
+    "price": 79.79
   },
   "4041000": {
     "code": "4041000",
     "name": "Tío Nacho Engrossador Shampoo 415 mL",
     "stock": 11,
-    "price": 22.1
+    "price": 23.59
   },
   "4041001": {
     "code": "4041001",
     "name": "Tío Nacho Engrossador Condicionador 415 mL",
     "stock": 12,
-    "price": 19.92
+    "price": 21.78
   },
   "4041010": {
     "code": "4041010",
     "name": "Tío Nacho Clareador Shampoo 415 mL",
     "stock": 10,
-    "price": 22.1
+    "price": 23.59
   },
   "4041011": {
     "code": "4041011",
     "name": "Tío Nacho Clareador Condicionador 415 mL",
     "stock": 10,
-    "price": 19.92
+    "price": 21.78
   },
   "4041020": {
     "code": "4041020",
     "name": "Tío Nacho Anti-idade Shampoo 415 mL",
     "stock": 16,
-    "price": 22.1
+    "price": 22.61
   },
   "4041021": {
     "code": "4041021",
     "name": "Tío Nacho Anti-idade Condicionador 415 mL",
     "stock": 12,
-    "price": 19.92
+    "price": 20.89
   },
   "4041040": {
     "code": "4041040",
     "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
-    "stock": 14,
-    "price": 22.1
+    "stock": 15,
+    "price": 23.59
   },
   "4041041": {
     "code": "4041041",
     "name": "Tío Nacho Reconstrutor Condicionador 415 mL",
-    "stock": 14,
-    "price": 19.92
+    "stock": 15,
+    "price": 21.78
   },
   "4041050": {
     "code": "4041050",
     "name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
     "stock": 9,
-    "price": 22.1
+    "price": 23.59
   },
   "4042000": {
     "code": "4042000",
     "name": "Tío Nacho Engrossador Shampoo 200 mL",
     "stock": 1,
-    "price": 13.77
+    "price": 13.64
   },
   "4042010": {
     "code": "4042010",
     "name": "Tío Nacho Clareador Shampoo 200 mL",
     "stock": 1,
-    "price": 13.77
+    "price": 13.2
   },
   "4043000": {
     "code": "4043000",
     "name": "Tío Nacho Engrossador Spray 120 mL",
     "stock": 6,
-    "price": 16.22
+    "price": 21.13
   },
   "4043040": {
     "code": "4043040",
     "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
     "stock": 15,
-    "price": 19.02
+    "price": 16.17
   },
   "4043600": {
     "code": "4043600",
     "name": "Tío Nacho Shampoo Antiqueda Engrossador 950 mL",
     "stock": 1,
-    "price": 43.23
+    "price": 44.85
   },
   "4043800": {
     "code": "4043800",
     "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
     "stock": 1,
-    "price": 43.23
+    "price": 44.85
   },
   "4043900": {
     "code": "4043900",
     "name": "Tío Nacho Ginseng Shampoo 415 mL",
     "stock": 14,
-    "price": 22.1
+    "price": 13.56
   },
   "4044000": {
     "code": "4044000",
     "name": "Tío Nacho Ginseng Condicionador 415 mL",
     "stock": 8,
-    "price": 19.92
+    "price": 20.89
   },
   "4044100": {
     "code": "4044100",
     "name": "Tío Nacho Anticaspa Shampoo 415 mL",
     "stock": 5,
-    "price": 22.61
+    "price": 23.59
   },
   "4044200": {
     "code": "4044200",
     "name": "Tío Nacho Anticaspa 2 em 1 Shampoo 415 mL",
     "stock": 6,
-    "price": 22.61
+    "price": 0.0
   },
   "4044300": {
     "code": "4044300",
     "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
     "stock": 5,
-    "price": 22.61
+    "price": 23.59
   },
   "4044400": {
     "code": "4044400",
     "name": "Tío Nacho Condicionador Antigrisalho 415 mL",
     "stock": 11,
-    "price": 20.89
+    "price": 21.78
   },
   "4406000": {
     "code": "4406000",
     "name": "Liris Carmelose Sódica 10 mL 5mg/mL",
     "stock": 10,
-    "price": 27.01
+    "price": 30.15
   },
   "4406100": {
     "code": "4406100",
     "name": "Liris Calm 10 mL",
     "stock": 10,
-    "price": 28.9
+    "price": 31.41
   },
   "4406200": {
     "code": "4406200",
     "name": "Liris Power 10 mL",
     "stock": 10,
-    "price": 37.69
+    "price": 39.58
   },
   "5100100": {
     "code": "5100100",
@@ -363,25 +363,25 @@
     "code": "5300100",
     "name": "Renovaflora Probiótico 10 caps",
     "stock": 50,
-    "price": 0.0
+    "price": 28.42
   },
   "600083": {
     "code": "600083",
     "name": "Goicoechea Diabetx BR",
     "stock": 9,
-    "price": 23.59
+    "price": 24.49
   },
   "600089": {
     "code": "600089",
     "name": "Goicoechea Creme Arnica e Camomila 350g",
     "stock": 17,
-    "price": 21.65
+    "price": 22.95
   },
   "600090": {
     "code": "600090",
     "name": "Goicoechea Creme Centella Asiática 350g",
     "stock": 6,
-    "price": 21.65
+    "price": 22.95
   },
   "600119": {
     "code": "600119",
@@ -393,30 +393,30 @@
     "code": "600125",
     "name": "Lomecan Creme 3 dias 20g",
     "stock": 5,
-    "price": 38.01
+    "price": 40.32
   },
   "600146": {
     "code": "600146",
     "name": "LaKesia Sérum Fortalecedor 7ml",
     "stock": 14,
-    "price": 22.65
+    "price": 24.01
   },
   "600151": {
     "code": "600151",
     "name": "Proctan - UQ",
     "stock": 10,
-    "price": 39.58
+    "price": 40.84
   },
   "600170": {
     "code": "600170",
     "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
     "stock": 24,
-    "price": 23.46
+    "price": 24.86
   },
   "91114": {
     "code": "91114",
     "name": "LaKesia Antimicótico 30 mL",
     "stock": 15,
-    "price": 31.41
+    "price": 37.69
   }
 }
