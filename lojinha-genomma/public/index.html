@@ -98,11 +98,11 @@
       background: rgba(255,255,255,0.08);
       transition: var(--transition);
     }
-    .step.active   .step-dot { border-color: white; color: white; background: rgba(255,255,255,0.2); box-shadow: 0 0 0 4px rgba(255,255,255,0.1); }
-    .step.done     .step-dot { border-color: var(--green); background: var(--green); color: white; }
+    .step.active .step-dot { border-color: white; color: white; background: rgba(255,255,255,0.2); box-shadow: 0 0 0 4px rgba(255,255,255,0.1); }
+    .step.done .step-dot { border-color: var(--green); background: var(--green); color: white; }
     .step-label { font-size: .68rem; color: rgba(255,255,255,0.55); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
     .step.active .step-label { color: white; }
-    .step.done   .step-label { color: #6EE7A0; }
+    .step.done .step-label { color: #6EE7A0; }
     .step-line {
       width: 60px; height: 2px;
       background: rgba(255,255,255,0.15);
@@ -175,6 +175,28 @@
     .product-row { display: flex; gap: 12px; align-items: flex-start; }
     .product-row .field:first-child { flex: 1; }
     .product-row .field:last-child { width: 130px; flex-shrink: 0; }
+
+    /* ── Product search combobox ─────────────────────────────────── */
+    .produto-search-wrap { position: relative; }
+    .produto-dropdown {
+      display: none;
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+      background: white; border: 2px solid var(--border); border-radius: 12px;
+      max-height: 240px; overflow-y: auto; z-index: 20;
+      box-shadow: 0 10px 30px rgba(74,27,122,0.18);
+    }
+    .produto-dropdown.show { display: block; }
+    .produto-dropdown-item {
+      padding: 10px 14px; cursor: pointer; font-size: .92rem; color: var(--text);
+      border-bottom: 1px solid var(--bg);
+    }
+    .produto-dropdown-item:last-child { border-bottom: none; }
+    .produto-dropdown-item:hover, .produto-dropdown-item.active {
+      background: var(--bg); color: var(--purple);
+    }
+    .produto-dropdown-empty {
+      padding: 12px 14px; font-size: .88rem; color: var(--muted); text-align: center;
+    }
 
     /* ── Stock badge ─────────────────────────────────────────────── */
     .stock-badge {
@@ -333,7 +355,7 @@
     }
     .alert.show { display: flex; align-items: center; gap: 8px; }
     .alert-error { background: #FFF0F0; color: #c0392b; border-color: #e74c3c; }
-    .alert-info  { background: #EDE3F5; color: var(--purple); border-color: var(--purple); }
+    .alert-info { background: #EDE3F5; color: var(--purple); border-color: var(--purple); }
 
     /* ── Spinner ─────────────────────────────────────────────────── */
     .spinner {
@@ -347,12 +369,25 @@
     /* ── Divider ─────────────────────────────────────────────────── */
     .divider { height: 1px; background: var(--bg); margin: 20px 0; }
 
+    /* ── Cart quantity stepper ────────────────────────────────────── */
+    .qty-stepper { display: flex; align-items: center; gap: 4px; }
+    .qty-stepper button {
+      width: 24px; height: 24px; border-radius: 6px; border: none;
+      background: #E0D4F0; color: var(--purple); font-weight: 700; cursor: pointer;
+      font-size: .9rem; line-height: 1; flex-shrink: 0;
+    }
+    .qty-stepper button:hover { background: #D1BEEA; }
+    .qty-stepper input {
+      width: 42px; text-align: center; border: 1px solid var(--border);
+      border-radius: 6px; font-size: .82rem; padding: 3px 2px;
+    }
+
     /* ── Animations ──────────────────────────────────────────────── */
     @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:none; } }
-    @keyframes fadeUp   { from { opacity:0; transform:translateY(24px);  } to { opacity:1; transform:none; } }
-    @keyframes popIn    { from { opacity:0; transform:scale(.8);         } to { opacity:1; transform:none; } }
-    @keyframes spin     { to   { transform: rotate(360deg); } }
-    @keyframes pulse    { 0%,100% { box-shadow: 0 12px 40px rgba(39,174,96,0.4); } 50% { box-shadow: 0 16px 60px rgba(39,174,96,0.65); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+    @keyframes popIn { from { opacity:0; transform:scale(.8); } to { opacity:1; transform:none; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { box-shadow: 0 12px 40px rgba(39,174,96,0.4); } 50% { box-shadow: 0 16px 60px rgba(39,174,96,0.65); } }
 
     /* ── Responsive ──────────────────────────────────────────────── */
     @media (max-width: 500px) {
@@ -437,7 +472,11 @@
     <div class="product-row">
       <div class="field">
         <label>Produto <span class="req">*</span></label>
-        <select id="produto" onchange="onProductChange()">
+        <div class="produto-search-wrap">
+          <input type="text" id="produto-search" placeholder="🔍 Digite parte do nome do produto..." autocomplete="off" onfocus="showProdutoDropdown()" oninput="onProdutoSearchInput()" onkeydown="onProdutoSearchKeydown(event)" />
+          <div id="produto-dropdown" class="produto-dropdown"></div>
+        </div>
+        <select id="produto" onchange="onProductChange()" style="display:none">
           <option value="">⏳ Carregando produtos...</option>
         </select>
         <div class="field-error" id="err-produto">Selecione um produto.</div>
@@ -592,18 +631,26 @@
 
 <script>
 /* ── Estado global ──────────────────────────────────────────────── */
-let products    = [];
+let products = [];
 let selectedTipo = null;
-let orderData   = {};
-let cart        = [];
+let orderData = {};
+let cart = [];
 
 /* ── Inicialização ─────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
   loadProducts();
-  document.getElementById('nome').addEventListener('input',  clearErr('err-nome'));
+  document.getElementById('nome').addEventListener('input', clearErr('err-nome'));
   document.getElementById('email').addEventListener('input', clearErr('err-email'));
   document.getElementById('produto').addEventListener('change', clearErr('err-produto'));
   document.getElementById('quantidade').addEventListener('input', clearErr('err-quantidade'));
+  document.getElementById('produto-dropdown').addEventListener('click', (e) => {
+    const item = e.target.closest('.produto-dropdown-item');
+    if (item && item.dataset.code) selectProduto(item.dataset.code);
+  });
+  document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.produto-search-wrap');
+    if (wrap && !wrap.contains(e.target)) hideProdutoDropdown();
+  });
 });
 
 async function loadProducts() {
@@ -616,9 +663,9 @@ async function loadProducts() {
       const opt = document.createElement('option');
       opt.value = p.code;
       opt.dataset.stock = p.stock;
-      opt.dataset.name  = p.name;
+      opt.dataset.name = p.name;
       opt.dataset.price = p.price || 0;
-      opt.textContent   = p.name;
+      opt.textContent = p.name;
       sel.appendChild(opt);
     });
   } catch(e) {
@@ -632,12 +679,12 @@ function fmtBRL(v) {
 }
 
 function onProductChange() {
-  const sel   = document.getElementById('produto');
-  const opt   = sel.selectedOptions[0];
+  const sel = document.getElementById('produto');
+  const opt = sel.selectedOptions[0];
   const badge = document.getElementById('stock-info');
   const priceBox = document.getElementById('price-info');
   if (opt && opt.value) {
-    const qty   = parseInt(opt.dataset.stock);
+    const qty = parseInt(opt.dataset.stock);
     const price = parseFloat(opt.dataset.price) || 0;
     badge.style.display = 'inline-flex';
     document.getElementById('stock-qty').textContent = qty.toLocaleString('pt-BR');
@@ -658,9 +705,9 @@ function onProductChange() {
 }
 
 function updateTotal() {
-  const sel   = document.getElementById('produto');
-  const opt   = sel.selectedOptions[0];
-  const qty   = parseInt(document.getElementById('quantidade').value) || 0;
+  const sel = document.getElementById('produto');
+  const opt = sel.selectedOptions[0];
+  const qty = parseInt(document.getElementById('quantidade').value) || 0;
   const totalBox = document.getElementById('total-info');
   if (opt && opt.value && qty > 0) {
     const price = parseFloat(opt.dataset.price) || 0;
@@ -675,6 +722,56 @@ function updateTotal() {
   }
 }
 
+/* ── Busca de produto (combobox) ───────────────────────────────── */
+function normalizeTxt(s) {
+  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function onProdutoSearchInput() {
+  showProdutoDropdown();
+}
+
+function showProdutoDropdown() {
+  const input = document.getElementById('produto-search');
+  const term = normalizeTxt(input.value);
+  const dropdown = document.getElementById('produto-dropdown');
+  const matches = term
+    ? products.filter(p => normalizeTxt(p.name).includes(term))
+    : products;
+  if (!matches.length) {
+    dropdown.innerHTML = '<div class="produto-dropdown-empty">Nenhum produto encontrado</div>';
+  } else {
+    dropdown.innerHTML = matches.slice(0, 50).map(p => `
+      <div class="produto-dropdown-item" data-code="${p.code}">${p.name}</div>
+    `).join('');
+  }
+  dropdown.classList.add('show');
+}
+
+function hideProdutoDropdown() {
+  document.getElementById('produto-dropdown').classList.remove('show');
+}
+
+function selectProduto(code) {
+  const sel = document.getElementById('produto');
+  sel.value = code;
+  const opt = sel.selectedOptions[0];
+  document.getElementById('produto-search').value = opt ? opt.dataset.name : '';
+  hideProdutoDropdown();
+  clearErr('err-produto')();
+  onProductChange();
+}
+
+function onProdutoSearchKeydown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const first = document.querySelector('#produto-dropdown .produto-dropdown-item');
+    if (first) selectProduto(first.dataset.code);
+  } else if (e.key === 'Escape') {
+    hideProdutoDropdown();
+  }
+}
+
 /* ── Navegação ─────────────────────────────────────────────────── */
 function setStep(n) {
   for (let i = 1; i <= 4; i++) {
@@ -682,7 +779,7 @@ function setStep(n) {
     const step = document.getElementById(`step-${i}`);
     card.classList.toggle('active', i === n);
     step.classList.remove('active','done');
-    if (i < n)  step.classList.add('done');
+    if (i < n) step.classList.add('done');
     if (i === n) step.classList.add('active');
   }
   for (let i = 1; i <= 3; i++) {
@@ -695,13 +792,13 @@ function setStep(n) {
 function goToStep1() { setStep(1); }
 
 function goToStep2() {
-  const nome  = document.getElementById('nome').value.trim();
+  const nome = document.getElementById('nome').value.trim();
   const email = document.getElementById('email').value.trim();
   let ok = true;
   if (!nome || nome.split(' ').length < 2) { showErr('err-nome'); ok = false; }
   if (!isValidEmail(email)) { showErr('err-email'); ok = false; }
   if (!ok) return;
-  orderData.nome  = nome;
+  orderData.nome = nome;
   orderData.email = email;
   setStep(2);
 }
@@ -714,7 +811,7 @@ function goToStep3() {
   hideAlert('alert-product');
 
   const total = cart.reduce((s, i) => s + i.valor_total, 0);
-  document.getElementById('sum-nome').textContent  = orderData.nome;
+  document.getElementById('sum-nome').textContent = orderData.nome;
   document.getElementById('sum-email').textContent = orderData.email;
   document.getElementById('sum-total').textContent = fmtBRL(total);
 
@@ -755,7 +852,7 @@ function onFileChange(e) {
   const file = e.target.files[0];
   const zone = document.getElementById('upload-zone');
   const fname = document.getElementById('upload-filename');
-  const icon  = document.getElementById('upload-icon');
+  const icon = document.getElementById('upload-icon');
   if (file) {
     zone.classList.add('has-file');
     icon.textContent = '✅';
@@ -792,10 +889,10 @@ async function finalizarPedido() {
   btn.disabled = true;
 
   const fd = new FormData();
-  fd.append('nome',           orderData.nome);
-  fd.append('email',          orderData.email);
+  fd.append('nome', orderData.nome);
+  fd.append('email', orderData.email);
   fd.append('tipo_comprador', selectedTipo);
-  fd.append('items_json',     JSON.stringify(cart));
+  fd.append('items_json', JSON.stringify(cart));
 
   if (selectedTipo === 'genomma') {
     const file = document.getElementById('comprovante').files[0];
@@ -814,9 +911,9 @@ async function finalizarPedido() {
 
     // Sucesso — preencher tela final
     const total = cart.reduce((s, i) => s + i.valor_total, 0);
-    document.getElementById('final-nome').textContent  = orderData.nome;
+    document.getElementById('final-nome').textContent = orderData.nome;
     document.getElementById('final-email').textContent = orderData.email;
-    document.getElementById('final-tipo').textContent  = selectedTipo === 'genomma' ? '🏢 Genomma' : '🤝 Terceirizado(a)';
+    document.getElementById('final-tipo').textContent = selectedTipo === 'genomma' ? '🏢 Genomma' : '🤝 Terceirizado(a)';
     document.getElementById('final-total').textContent = fmtBRL(total);
 
     document.getElementById('final-items-wrap').innerHTML = cart.map(item =>
@@ -851,17 +948,18 @@ async function finalizarPedido() {
 
 /* ── Novo pedido ────────────────────────────────────────────────── */
 function novosPedido() {
-  orderData    = {};
+  orderData = {};
   selectedTipo = null;
-  cart         = [];
+  cart = [];
   renderCart();
-  document.getElementById('nome').value       = '';
-  document.getElementById('email').value      = '';
-  document.getElementById('produto').value    = '';
+  document.getElementById('nome').value = '';
+  document.getElementById('email').value = '';
+  document.getElementById('produto').value = '';
+  document.getElementById('produto-search').value = '';
   document.getElementById('quantidade').value = '1';
-  document.getElementById('stock-info').style.display  = 'none';
-  document.getElementById('price-info').style.display  = 'none';
-  document.getElementById('total-info').style.display  = 'none';
+  document.getElementById('stock-info').style.display = 'none';
+  document.getElementById('price-info').style.display = 'none';
+  document.getElementById('total-info').style.display = 'none';
   document.getElementById('comprovante').value = '';
   document.getElementById('upload-zone').classList.remove('has-file');
   document.getElementById('upload-icon').textContent = '📎';
@@ -873,13 +971,18 @@ function novosPedido() {
 /* ── Carrinho ────────────────────────────────────────────────────── */
 function round2(v) { return Math.round(v * 100) / 100; }
 
+function getProductStock(code) {
+  const p = products.find(p => p.code === code);
+  return p ? parseInt(p.stock) : Infinity;
+}
+
 function addToCart() {
   const sel = document.getElementById('produto');
   const qty = parseInt(document.getElementById('quantidade').value) || 0;
   const opt = sel.selectedOptions[0];
   let ok = true;
-  if (!sel.value)  { showErr('err-produto');    ok = false; }
-  if (qty < 1)     { showErr('err-quantidade'); ok = false; }
+  if (!sel.value) { showErr('err-produto'); ok = false; }
+  if (qty < 1) { showErr('err-quantidade'); ok = false; }
   if (opt && qty > parseInt(opt.dataset.stock)) {
     showErr('err-quantidade'); ok = false;
     setAlert('alert-product', `⚠️ Quantidade maior que o estoque disponível (${opt.dataset.stock} unidades).`);
@@ -902,14 +1005,15 @@ function addToCart() {
     cart.push({
       produto_code: sel.value,
       produto_name: opt.dataset.name,
-      quantidade:   qty,
-      preco_unit:   parseFloat(opt.dataset.price) || 0,
-      valor_total:  round2((parseFloat(opt.dataset.price) || 0) * qty)
+      quantidade: qty,
+      preco_unit: parseFloat(opt.dataset.price) || 0,
+      valor_total: round2((parseFloat(opt.dataset.price) || 0) * qty)
     });
   }
 
   // Limpar seleção
   sel.value = '';
+  document.getElementById('produto-search').value = '';
   document.getElementById('quantidade').value = '1';
   document.getElementById('stock-info').style.display = 'none';
   document.getElementById('price-info').style.display = 'none';
@@ -923,30 +1027,57 @@ function removeFromCart(idx) {
   renderCart();
 }
 
+function setCartQty(idx, value) {
+  const item = cart[idx];
+  if (!item) return;
+  let qty = parseInt(value);
+  if (isNaN(qty) || qty < 1) qty = 1;
+  const max = getProductStock(item.produto_code);
+  if (qty > max) {
+    qty = max;
+    setAlert('alert-product', `⚠️ Quantidade ajustada para o máximo disponível em estoque (${max} unidades).`);
+  } else {
+    hideAlert('alert-product');
+  }
+  item.quantidade = qty;
+  item.valor_total = round2(item.preco_unit * qty);
+  renderCart();
+}
+
+function changeCartQty(idx, delta) {
+  const item = cart[idx];
+  if (!item) return;
+  setCartQty(idx, item.quantidade + delta);
+}
+
 function renderCart() {
-  const section  = document.getElementById('cart-section');
-  const listEl   = document.getElementById('cart-list');
+  const section = document.getElementById('cart-section');
+  const listEl = document.getElementById('cart-list');
   const btnFazer = document.getElementById('btn-fazer-pedido');
 
   if (!cart.length) {
-    section.style.display  = 'none';
+    section.style.display = 'none';
     btnFazer.style.display = 'none';
     return;
   }
 
-  section.style.display  = 'block';
+  section.style.display = 'block';
   btnFazer.style.display = '';
 
-  const total  = cart.reduce((s, i) => s + i.valor_total, 0);
+  const total = cart.reduce((s, i) => s + i.valor_total, 0);
   const nItens = cart.reduce((s, i) => s + i.quantidade, 0);
   document.getElementById('cart-total-val').textContent = fmtBRL(total);
   btnFazer.querySelector('.btn-text').textContent =
-    `🛒 Fazer Pedido  (${cart.length} produto${cart.length > 1 ? 's' : ''} · ${nItens} un.)`;
+    `🛒 Fazer Pedido (${cart.length} produto${cart.length > 1 ? 's' : ''} · ${nItens} un.)`;
 
   listEl.innerHTML = cart.map((item, i) => `
     <div style="display:flex;align-items:center;background:#F3EEF9;border-radius:8px;padding:8px 10px;margin-bottom:6px;gap:8px;flex-wrap:wrap;">
       <div style="flex:1;min-width:100px;font-size:.83rem;font-weight:600;color:#4A1B7A;">${item.produto_name}</div>
-      <div style="font-size:.8rem;color:#666;white-space:nowrap;">${item.quantidade} un.</div>
+      <div class="qty-stepper">
+        <button type="button" onclick="changeCartQty(${i}, -1)">−</button>
+        <input type="number" min="1" value="${item.quantidade}" onchange="setCartQty(${i}, this.value)" />
+        <button type="button" onclick="changeCartQty(${i}, 1)">+</button>
+      </div>
       ${item.preco_unit > 0 ? `<div style="font-size:.8rem;color:#888;white-space:nowrap;">${fmtBRL(item.preco_unit)}/un</div>` : ''}
       ${item.valor_total > 0 ? `<div style="font-size:.85rem;font-weight:700;color:#1A5FB4;white-space:nowrap;">${fmtBRL(item.valor_total)}</div>` : ''}
       <button onclick="removeFromCart(${i})" style="background:#E74C3C;color:white;border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-size:.78rem;flex-shrink:0;">✕</button>
@@ -958,10 +1089,10 @@ function renderCart() {
 function isValidEmail(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && v.includes('.');
 }
-function showErr(id)  { const el = document.getElementById(id); if(el){ el.classList.add('show'); el.style.display=''; } }
+function showErr(id) { const el = document.getElementById(id); if(el){ el.classList.add('show'); el.style.display=''; } }
 function clearErr(id) { return () => { const el = document.getElementById(id); if(el){ el.classList.remove('show'); el.style.display='none'; } }; }
-function setAlert(id, msg)  { const el = document.getElementById(id); if(el){ el.textContent=msg; el.classList.add('show'); el.style.display='flex'; } }
-function hideAlert(id)      { const el = document.getElementById(id); if(el){ el.classList.remove('show'); el.style.display='none'; } }
+function setAlert(id, msg) { const el = document.getElementById(id); if(el){ el.textContent=msg; el.classList.add('show'); el.style.display='flex'; } }
+function hideAlert(id) { const el = document.getElementById(id); if(el){ el.classList.remove('show'); el.style.display='none'; } }
 </script>
 </body>
 </html>
