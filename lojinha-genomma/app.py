@@ -1,7 +1,7 @@
 """
 Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 """
-import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64
+import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64, time
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -115,21 +115,54 @@ def _gh_request(method, path, body=None):
         log.warning(f'⚠️  GitHub API erro: {e}')
         return None
 
+def _gh_put_with_retry(path, encoded_content, message, max_attempts=3):
+    """Grava um arquivo no GitHub via Contents API, tentando de novo se o
+    GitHub recusar com HTTP 409 (conflito de SHA por escrita concorrente).
+    Sem isso, um conflito passageiro fazia o backup falhar silenciosamente
+    e o dado nunca chegava a ser salvo no repositório."""
+    if not GITHUB_TOKEN:
+        return False
+    url     = f'https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{path}'
+    headers = {
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Content-Type':  'application/json',
+        'Accept':        'application/vnd.github.v3+json',
+        'User-Agent':    'lojinha-genomma',
+    }
+    for attempt in range(1, max_attempts + 1):
+        existing = _gh_request('GET', path)
+        payload  = {
+            'message': message,
+            'content': encoded_content,
+            'branch':  GITHUB_BRANCH,
+        }
+        if existing and 'sha' in existing:
+            payload['sha'] = existing['sha']
+        data = json.dumps(payload).encode()
+        req  = urllib.request.Request(url, data=data, headers=headers, method='PUT')
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                resp.read()
+            return True
+        except urllib.error.HTTPError as e:
+            if e.code == 409 and attempt < max_attempts:
+                log.warning(f'⚠️  Conflito (409) ao gravar {path} no GitHub, tentando de novo ({attempt}/{max_attempts})...')
+                time.sleep(0.6 * attempt)
+                continue
+            log.warning(f'⚠️  GitHub API PUT {path}: HTTP {e.code}')
+            return False
+        except Exception as e:
+            log.warning(f'⚠️  GitHub API erro ao gravar {path}: {e}')
+            return False
+    return False
+
 def _gh_backup(filename, content_str):
     """Salva arquivo na pasta backups/ do repositório GitHub."""
     if not GITHUB_TOKEN:
         return
-    path     = f'backups/{filename}'
-    encoded  = base64.b64encode(content_str.encode('utf-8')).decode()
-    existing = _gh_request('GET', path)
-    payload  = {
-        'message': f'backup: {filename}',
-        'content': encoded,
-        'branch':  GITHUB_BRANCH,
-    }
-    if existing and 'sha' in existing:
-        payload['sha'] = existing['sha']
-    if _gh_request('PUT', path, payload):
+    path    = f'backups/{filename}'
+    encoded = base64.b64encode(content_str.encode('utf-8')).decode()
+    if _gh_put_with_retry(path, encoded, f'backup: {filename}'):
         log.info(f'☁️  Backup GitHub OK → backups/{filename}')
     else:
         log.warning(f'⚠️  Backup GitHub falhou: backups/{filename}')
@@ -155,16 +188,8 @@ def _gh_backup_bytes(path, content_bytes):
     depois de ficar inativo."""
     if not GITHUB_TOKEN:
         return
-    encoded  = base64.b64encode(content_bytes).decode()
-    existing = _gh_request('GET', path)
-    payload  = {
-        'message': f'backup: {path}',
-        'content': encoded,
-        'branch':  GITHUB_BRANCH,
-    }
-    if existing and 'sha' in existing:
-        payload['sha'] = existing['sha']
-    if _gh_request('PUT', path, payload):
+    encoded = base64.b64encode(content_bytes).decode()
+    if _gh_put_with_retry(path, encoded, f'backup: {path}'):
         log.info(f'☁️  Backup GitHub OK → {path}')
     else:
         log.warning(f'⚠️  Backup GitHub falhou: {path}')
@@ -195,7 +220,7 @@ def _save_upload(file, dest_path):
     except Exception as e:
         log.warning(f'⚠️  Não foi possível ler upload para backup: {e}')
         return
-    threading.Thread(target=_gh_backup_bytes, args=(f'backups/uploads/{dest_path.name}', data), daemon=True).start()
+    _gh_backup_bytes(f'backups/uploads/{dest_path.name}', data)  # síncrono: espera o backup terminar antes de responder, para não perder o arquivo se o servidor reiniciar logo em seguida
 
 # ── Autenticação Admin ────────────────────────────────────────────────────────
 def _check_auth(username, password):
