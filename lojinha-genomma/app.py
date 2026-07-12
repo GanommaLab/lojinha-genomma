@@ -1306,7 +1306,7 @@ function render(orders) {{
       <td style="text-align:center">${{nfCell}}</td>
       <td style="text-align:center">${{sBadge}}</td>
       <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
-      <td style="text-align:center"><button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button></td>`;
+      <td style="text-align:center">${{done ? '' : `<button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button>`}}</td>`;
     let mid = '';
     let codeCol = '';
     if (o.items && o.items.length) {{
