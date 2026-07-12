@@ -30,8 +30,7 @@
     ],
     "valor_total": 61.54,
     "comprovante": "20260708_235156_DOC-20260708-WA0009.pdf",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708235156439_20260712_175415_teste_final_sincrono.pdf"
+    "status": "pendente"
   },
   {
     "id": "20260708184617284",
@@ -44,8 +43,8 @@
         "produto_code": "1108800",
         "produto_name": "Cicatricure Sérum Clareador Facial 30mL",
         "quantidade": 1,
-        "preco_unit": 51.0,
-        "valor_total": 51.0
+        "preco_unit": 51,
+        "valor_total": 51
       },
       {
         "produto_code": "4041010",
