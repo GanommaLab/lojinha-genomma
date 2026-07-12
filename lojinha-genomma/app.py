@@ -1280,7 +1280,13 @@ function render(orders) {{
       : "<span class='tg tg-p'>⏳ Pendente</span>";
     const cLink  = o.comprovante ? `<a href="/uploads/${{o.comprovante}}" target="_blank" style="color:#4A1B7A;font-weight:600;text-decoration:none;">📎 Ver</a>` : '—';
     const nfCell = o.nota_fiscal
-      ? `<a href="/uploads/${{o.nota_fiscal}}" target="_blank" style="color:#27AE60;font-weight:600;text-decoration:none;">📄 Ver NF</a>`
+      ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+           <a href="/uploads/${{o.nota_fiscal}}" target="_blank" style="color:#27AE60;font-weight:600;text-decoration:none;">📄 Ver NF</a>
+           <label style="cursor:pointer;background:#FFF4E0;color:#B8860B;border:1px solid #B8860B;border-radius:6px;padding:2px 6px;font-size:.72rem;font-weight:600;white-space:nowrap;">
+             🔄 Alterar
+             <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF('${{o.id}}',this)">
+           </label>
+         </div>`
       : `<label style="cursor:pointer;background:#EAF7EE;color:#27AE60;border:1px solid #27AE60;border-radius:6px;padding:3px 8px;font-size:.78rem;font-weight:600;white-space:nowrap;">
            📎 Anexar NF
            <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF('${{o.id}}',this)">
@@ -1375,11 +1381,11 @@ async function anexarNF(id, input) {{
     }} else {{
       const d = await r.json();
       alert('Erro: ' + (d.error||'Falha no upload.'));
-      label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
+      label.innerHTML = '📎 Tentar novamente <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
     }}
   }} catch(e) {{
     alert('Erro de conexão.');
-    label.innerHTML = '📎 Anexar NF <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
+    label.innerHTML = '📎 Tentar novamente <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
   }}
 }}
 
