@@ -84,9 +84,8 @@
     ],
     "valor_total": 34.02,
     "comprovante": "20260708_181909_Screenshot_20260708_151835_Ita.jpg",
-    "status": "entregue",
-    "nota_fiscal": "nf_20260708181909427_20260713_133655_Aline.pdf",
-    "entregue_em": "08/07/2026 20:46"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260708181909427_20260713_133655_Aline.pdf"
   },
   {
     "id": "20260708180708355",
