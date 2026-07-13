@@ -387,7 +387,8 @@
     "code": "5100200",
     "name": "Expulsatox Infantil XPE 100mL",
     "stock": 6,
-    "price": 18.84
+    "price": 18.84,
+    "image": "produto_5100200.jpg"
   },
   "5300100": {
     "code": "5300100",
