@@ -366,7 +366,8 @@
     "code": "4406000",
     "name": "Liris Carmelose Sódica 10 mL 5mg/mL",
     "stock": 10,
-    "price": 30.15
+    "price": 30.15,
+    "image": "produto_4406000.jpg"
   },
   "4406100": {
     "code": "4406100",
