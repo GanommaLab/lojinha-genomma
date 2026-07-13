@@ -224,6 +224,51 @@ def _save_upload(file, dest_path):
         return
     _gh_backup_bytes(f'backups/uploads/{dest_path.name}', data)  # síncrono: espera o backup terminar antes de responder, para não perder o arquivo se o servidor reiniciar logo em seguida
 
+def _log_new_order(order):
+    """Grava o pedido também num arquivo de log à parte (backups/pedidos_log.json),
+    que só cresce e nunca é sobrescrito — serve de registro independente de todo
+    pedido já criado, para permitir detectar e recuperar pedidos que sumiram de
+    orders.json (ex.: perdidos por reinício do servidor antes do backup principal
+    terminar)."""
+    if not GITHUB_TOKEN:
+        return
+    try:
+        existing = _gh_restore('pedidos_log.json')
+        log_orders = json.loads(existing) if existing else []
+    except Exception:
+        log_orders = []
+    if any(o.get('id') == order.get('id') for o in log_orders):
+        return  # já registrado (nova tentativa da mesma requisição)
+    log_orders.append(order)
+    _gh_backup('pedidos_log.json', json.dumps(log_orders, ensure_ascii=False, indent=2))
+
+def reconcile_orders_with_log():
+    """Compara backups/pedidos_log.json com os pedidos atuais e recria, com os
+    dados originais, qualquer pedido presente no log mas ausente de orders.json.
+    Retorna a lista de pedidos recuperados (vazia se nenhum estiver faltando)."""
+    if not GITHUB_TOKEN:
+        return []
+    try:
+        raw = _gh_restore('pedidos_log.json')
+        log_orders = json.loads(raw) if raw else []
+    except Exception as e:
+        log.warning(f'⚠️  Não foi possível ler o log de auditoria de pedidos: {e}')
+        return []
+    if not log_orders:
+        return []
+    with LOCK:
+        orders = load_orders()
+        existing_ids = {o.get('id') for o in orders}
+        missing = [o for o in log_orders if o.get('id') not in existing_ids]
+        if missing:
+            orders.extend(missing)
+            orders.sort(key=lambda o: o.get('id', ''), reverse=True)
+            write_orders(orders)
+    if missing:
+        nomes = ', '.join(f'{o.get("nome","?")} ({o.get("id")})' for o in missing)
+        log.warning(f'♻️  {len(missing)} pedido(s) recuperado(s) do log de auditoria: {nomes}')
+    return missing
+
 # ── Autenticação Admin ────────────────────────────────────────────────────────
 def _check_auth(username, password):
     return username == ADMIN_USER and password == ADMIN_PASS
@@ -463,6 +508,7 @@ def api_order():
             orders = load_orders()
             orders.insert(0, order)
             write_orders(orders)
+        _log_new_order(order)
         nomes = ', '.join(i['produto_name'] for i in order_items)
         log.info(f'📝 Pedido {order["id"]} — {nome} / {len(order_items)} itens: {nomes}')
         threading.Thread(target=_send_teams_notification, args=(order,), daemon=True).start()
@@ -517,6 +563,7 @@ def api_order():
         orders = load_orders()
         orders.insert(0, order)
         write_orders(orders)
+    _log_new_order(order)
     log.info(f'📝 Pedido {order["id"]} — {nome} / {snap["name"]} x{qty}')
 
     def try_email():
@@ -532,6 +579,13 @@ def api_order():
 @require_admin
 def api_orders():
     return jsonify(load_orders())
+
+# ── API: verificar/recuperar pedidos sumidos (log de auditoria) ───────────────
+@app.post('/api/orders/reconcile')
+@require_admin
+def api_orders_reconcile():
+    recovered = reconcile_orders_with_log()
+    return jsonify({'recovered': len(recovered), 'orders': recovered})
 
 # ── API: atualizar status ──────────────────────────────────────────────────────
 @app.post('/api/orders/<order_id>/status')
@@ -1138,6 +1192,7 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span class="badge" id="hdr-count">📦 {total} pedido(s)</span>
     <button class="rbtn" onclick="loadOrders()">↻ Atualizar</button>
+    <button class="rbtn" onclick="verificarPedidos()" style="background:rgba(255,255,255,.18)">🔎 Verificar pedidos</button>
     <button class="rbtn" onclick="openRelatorio()" style="background:rgba(255,183,0,.85);color:#2d1a00;">📈 Relatório</button>
     <a href="/inventario" class="rbtn" style="text-decoration:none;background:rgba(39,174,96,.35)">📊 Inventário</a>
     <a href="/" class="rbtn" style="text-decoration:none">🛍️ Lojinha</a>
@@ -1220,6 +1275,20 @@ async function loadOrders() {{
     document.getElementById('hdr-count').textContent = '📦 ' + allOrders.length + ' pedido(s)';
     applyFilter();
   }} catch(e) {{ console.error(e); }}
+}}
+
+async function verificarPedidos() {{
+  if (!confirm('Verificar se algum pedido sumiu (comparando com o log de auditoria) e recriar automaticamente?')) return;
+  try {{
+    const r = await fetch('/api/orders/reconcile', {{method:'POST'}});
+    const d = await r.json();
+    if (d.recovered > 0) {{
+      alert('♻️ ' + d.recovered + ' pedido(s) recuperado(s):\n\n' + d.orders.map(o=>'• '+o.nome+' ('+o.id+')').join('\n'));
+      await loadOrders();
+    }} else {{
+      alert('✅ Nenhuma diferença encontrada. Todos os pedidos do log estão presentes.');
+    }}
+  }} catch(e) {{ alert('Erro de conexão ao verificar pedidos.'); }}
 }}
 
 function orderQty(o) {{
@@ -1853,6 +1922,17 @@ def _send_nf_email(order):
 
 # ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
+
+# ── Reconciliação de pedidos (compatível com gunicorn) ────────────────────────
+# Roda sempre que o processo inicia — momento em que /tmp acabou de ser apagado —
+# para detectar e recuperar automaticamente pedidos presentes no log de auditoria
+# (backups/pedidos_log.json) mas ausentes de orders.json.
+try:
+    _recuperados_no_boot = reconcile_orders_with_log()
+    if _recuperados_no_boot:
+        log.info(f'♻️  {len(_recuperados_no_boot)} pedido(s) recuperado(s) automaticamente na inicialização.')
+except Exception as e:
+    log.warning(f'⚠️  Falha ao verificar pedidos no log de auditoria na inicialização: {e}')
 
 # ── Start ─────────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
