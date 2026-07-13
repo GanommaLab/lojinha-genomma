@@ -1283,7 +1283,7 @@ async function verificarPedidos() {{
     const r = await fetch('/api/orders/reconcile', {{method:'POST'}});
     const d = await r.json();
     if (d.recovered > 0) {{
-      alert('♻️ ' + d.recovered + ' pedido(s) recuperado(s):\n\n' + d.orders.map(o=>'• '+o.nome+' ('+o.id+')').join('\n'));
+      alert('♻️ ' + d.recovered + ' pedido(s) recuperado(s):\\n\\n' + d.orders.map(o=>'• '+o.nome+' ('+o.id+')').join('\\n'));
       await loadOrders();
     }} else {{
       alert('✅ Nenhuma diferença encontrada. Todos os pedidos do log estão presentes.');
