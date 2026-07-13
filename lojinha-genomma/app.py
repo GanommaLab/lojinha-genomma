@@ -435,6 +435,28 @@ def api_products():
     lst.sort(key=lambda x: x['name'].lower())
     return jsonify(lst)
 
+# ── API: imagem do produto ─────────────────────────────────────────────────────
+@app.post('/api/products/<code>/image')
+@require_admin
+def api_upload_product_image(code):
+    with LOCK:
+        product = stock_data.get(code)
+    if not product:
+        return jsonify({'error': 'Produto não encontrado.'}), 404
+    file = request.files.get('imagem')
+    if not file or not file.filename:
+        return jsonify({'error': 'Nenhuma imagem enviada.'}), 400
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ('.jpg', '.jpeg', '.png', '.webp'):
+        return jsonify({'error': 'Formato inválido. Use JPG, PNG ou WEBP.'}), 400
+    fname = f'produto_{code}{ext}'
+    _save_upload(file, UPLOAD / fname)
+    with LOCK:
+        stock_data[code]['image'] = fname
+        save_stock()
+    log.info(f'🖼️  Imagem do produto {code} atualizada: {fname}')
+    return jsonify({'ok': True, 'image': fname})
+
 # ── API: pedido ───────────────────────────────────────────────────────────────
 @app.post('/api/order')
 def api_order():
@@ -768,6 +790,7 @@ def api_inventario():
             items.append({
                 'code':    code,
                 'name':    p['name'],
+                'image':   p.get('image', ''),
                 'inicial': initial,
                 'vendido': sold,
                 'atual':   current,
@@ -826,6 +849,8 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
 .dif-zero{color:#999}
 .info-box{background:#EDE7F6;border-left:4px solid #7B3FAD;padding:13px 16px;border-radius:8px;margin-bottom:18px;font-size:.85rem;color:#4A1B7A}
 .info-box strong{display:block;margin-bottom:4px}
+.prod-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #EDE3F5;display:block}
+.prod-thumb-empty{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F8F3FF;color:#B39DDB;font-size:1.1rem;cursor:pointer;border:1px dashed #D1C4E9}
 @media print{
   header .rbtn{display:none}
   .info-box{border:1px solid #ccc}
@@ -869,6 +894,7 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
         <thead><tr>
           <th>#</th>
           <th>Código</th>
+          <th>Imagem</th>
           <th>Produto</th>
           <th class="num">Est. Inicial</th>
           <th class="num">Vendido</th>
@@ -877,7 +903,7 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
           <th class="num">Diferença</th>
         </tr></thead>
         <tbody id="inv-body">
-          <tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa">Carregando...</td></tr>
+          <tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">Carregando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -908,7 +934,7 @@ function render() {
   document.getElementById('st-atual').textContent = totAtual;
 
   if (!invData.length) {
-    body.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:40px;color:#aaa'>Nenhum produto encontrado.</td></tr>";
+    body.innerHTML = "<tr><td colspan='9' style='text-align:center;padding:40px;color:#aaa'>Nenhum produto encontrado.</td></tr>";
     return;
   }
 
@@ -917,9 +943,13 @@ function render() {
     const chip = hasSold
       ? `<span class='chip chip-sold'>-${p.vendido} vendido${p.vendido>1?'s':''}</span>`
       : `<span class='chip chip-ok'>sem saída</span>`;
+    const thumb = p.image
+      ? `<img src="/uploads/${p.image}" class="prod-thumb" onclick="document.getElementById('imgup-${i}').click()" title="Clique para trocar a imagem">`
+      : `<div class="prod-thumb-empty" onclick="document.getElementById('imgup-${i}').click()" title="Clique para adicionar uma imagem">📷</div>`;
     return `<tr id="row-${i}">
       <td style="color:#bbb;font-size:.76rem">${i+1}</td>
       <td class="code">${p.code}</td>
+      <td>${thumb}<input type="file" id="imgup-${i}" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="uploadImagem('${p.code}', ${i}, this)"></td>
       <td style="font-weight:600;max-width:280px">${p.name}</td>
       <td class="num" style="color:#888">${p.inicial}</td>
       <td class="num">${chip}</td>
@@ -928,6 +958,25 @@ function render() {
       <td class="num" id="dif-${i}" style="color:#ccc;font-size:1rem">—</td>
     </tr>`;
   }).join('');
+}
+
+async function uploadImagem(code, i, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('imagem', file);
+  try {
+    const r = await fetch(`/api/products/${code}/image`, { method: 'POST', body: fd });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      invData[i].image = data.image;
+      render();
+    } else {
+      alert('❌ Erro ao enviar imagem: ' + (data.error || 'desconhecido'));
+    }
+  } catch (e) {
+    alert('❌ Erro ao enviar imagem: ' + e.message);
+  }
 }
 
 function calcDif(i) {
