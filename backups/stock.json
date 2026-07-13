@@ -212,7 +212,8 @@
     "code": "2100100",
     "name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
     "stock": 10,
-    "price": 17.01
+    "price": 17.01,
+    "image": "produto_2100100.jpg"
   },
   "2100200": {
     "code": "2100200",
