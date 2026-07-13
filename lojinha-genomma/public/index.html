@@ -487,6 +487,9 @@
           <span style="font-weight:600">💲 Preço unitário:</span>
           <span id="price-unit" style="font-weight:800;margin-left:4px;">—</span>
         </div>
+        <div id="produto-image-card" style="display:none;margin-top:10px;text-align:center">
+          <img id="produto-image" src="" alt="Imagem do produto" style="max-width:260px;width:100%;border-radius:14px;box-shadow:0 4px 18px rgba(74,27,122,.18);border:1px solid #EDE3F5">
+        </div>
       </div>
 
       <div class="field">
@@ -665,6 +668,7 @@ async function loadProducts() {
       opt.dataset.stock = p.stock;
       opt.dataset.name = p.name;
       opt.dataset.price = p.price || 0;
+      opt.dataset.image = p.image || '';
       opt.textContent = p.name;
       sel.appendChild(opt);
     });
@@ -683,6 +687,8 @@ function onProductChange() {
   const opt = sel.selectedOptions[0];
   const badge = document.getElementById('stock-info');
   const priceBox = document.getElementById('price-info');
+  const imageCard = document.getElementById('produto-image-card');
+  const imageEl = document.getElementById('produto-image');
   if (opt && opt.value) {
     const qty = parseInt(opt.dataset.stock);
     const price = parseFloat(opt.dataset.price) || 0;
@@ -696,10 +702,17 @@ function onProductChange() {
     } else {
       priceBox.style.display = 'none';
     }
+    if (opt.dataset.image) {
+      imageEl.src = '/uploads/' + opt.dataset.image;
+      imageCard.style.display = 'block';
+    } else {
+      imageCard.style.display = 'none';
+    }
     updateTotal();
   } else {
     badge.style.display = 'none';
     priceBox.style.display = 'none';
+    imageCard.style.display = 'none';
     document.getElementById('total-info').style.display = 'none';
   }
 }
@@ -959,6 +972,7 @@ function novosPedido() {
   document.getElementById('quantidade').value = '1';
   document.getElementById('stock-info').style.display = 'none';
   document.getElementById('price-info').style.display = 'none';
+  document.getElementById('produto-image-card').style.display = 'none';
   document.getElementById('total-info').style.display = 'none';
   document.getElementById('comprovante').value = '';
   document.getElementById('upload-zone').classList.remove('has-file');
@@ -1017,6 +1031,7 @@ function addToCart() {
   document.getElementById('quantidade').value = '1';
   document.getElementById('stock-info').style.display = 'none';
   document.getElementById('price-info').style.display = 'none';
+  document.getElementById('produto-image-card').style.display = 'none';
   document.getElementById('total-info').style.display = 'none';
 
   renderCart();
