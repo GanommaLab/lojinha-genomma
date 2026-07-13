@@ -140,7 +140,8 @@
     ],
     "valor_total": 210.35,
     "comprovante": "20260708_162709_1783527997487.pdf",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708162709839_20260713_160318_NF_5883.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260708162709839_20260713_160318_NF_5883.pdf",
+    "entregue_em": "13/07/2026 16:03"
   }
 ]
