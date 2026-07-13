@@ -393,7 +393,8 @@
     "code": "600119",
     "name": "Asepxia Gel Secativo",
     "stock": 15,
-    "price": 15.21
+    "price": 15.21,
+    "image": "produto_600119.jpg"
   },
   "600125": {
     "code": "600125",
