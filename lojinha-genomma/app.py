@@ -398,12 +398,12 @@ def init_stock():
     stock_data = load_from_excel()
     content    = json.dumps(stock_data, ensure_ascii=False, indent=2)
     STOCK.write_text(content, 'utf-8')
-    threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
+    _gh_backup('stock.json', content)  # sincrono: mesmo motivo do write_orders/_save_upload
 
 def save_stock():
     content = json.dumps(stock_data, ensure_ascii=False, indent=2)
     STOCK.write_text(content, 'utf-8')
-    threading.Thread(target=_gh_backup, args=('stock.json', content), daemon=True).start()
+    _gh_backup('stock.json', content)  # sincrono: espera o backup do GitHub terminar antes de responder, para nao perder a baixa de estoque se o servidor reiniciar logo em seguida (mesmo motivo do write_orders/_save_upload)
 
 # ── Pedidos ───────────────────────────────────────────────────────────────────
 def load_orders():
