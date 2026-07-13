@@ -380,7 +380,7 @@ def load_orders():
 def write_orders(orders):
     content = json.dumps(orders, ensure_ascii=False, indent=2)
     ORDERS.write_text(content, 'utf-8')
-    threading.Thread(target=_gh_backup, args=('orders.json', content), daemon=True).start()
+    _gh_backup('orders.json', content)  # sincrono: espera o backup do GitHub terminar antes de responder, para nao perder o pedido se o servidor reiniciar logo em seguida (mesmo motivo do _save_upload)
 
 # ── API: produtos ─────────────────────────────────────────────────────────────
 @app.get('/api/products')
