@@ -1,5 +1,45 @@
 [
   {
+    "id": "20260713194406087",
+    "data_hora": "13/07/2026 19:44:06",
+    "nome": "Thales Malaquias Ferreira",
+    "email": "thales.ferreira@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "4043040",
+        "produto_name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+        "quantidade": 1,
+        "preco_unit": 16.17,
+        "valor_total": 16.17
+      },
+      {
+        "produto_code": "4041000",
+        "produto_name": "Tío Nacho Engrossador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4041001",
+        "produto_name": "Tío Nacho Engrossador Condicionador 415 mL",
+        "quantidade": 1,
+        "preco_unit": 21.78,
+        "valor_total": 21.78
+      },
+      {
+        "produto_code": "600090",
+        "produto_name": "Goicoechea Creme Centella Asiática 350g",
+        "quantidade": 1,
+        "preco_unit": 22.95,
+        "valor_total": 22.95
+      }
+    ],
+    "valor_total": 84.49,
+    "comprovante": "20260713_194404_Compra_-_lojinha_Genomma.png",
+    "status": "pendente"
+  },
+  {
     "id": "20260713160817055",
     "data_hora": "13/07/2026 16:08:17",
     "nome": "Lorena Almeida Guimarães",
