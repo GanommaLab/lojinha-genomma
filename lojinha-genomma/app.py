@@ -60,6 +60,7 @@ SMTP_HOST  = 'smtp.gmail.com'
 SMTP_PORT  = 587
 SMTP_USER  = ''
 SMTP_PASS  = ''
+BREVO_API_KEY = ''
 DEST_EMAIL = 'maycon.silva@contractor.genommalab.com'
 PORT       = 3000
 ADMIN_USER    = 'admin'
@@ -81,6 +82,7 @@ SMTP_HOST  = os.getenv('SMTP_HOST', SMTP_HOST)
 SMTP_PORT  = int(os.getenv('SMTP_PORT', str(SMTP_PORT)))
 SMTP_USER  = os.getenv('SMTP_USER', SMTP_USER)
 SMTP_PASS  = os.getenv('SMTP_PASS', SMTP_PASS)
+BREVO_API_KEY = os.getenv('BREVO_API_KEY', BREVO_API_KEY)
 PORT       = int(os.getenv('PORT', str(PORT)))
 ADMIN_PASS    = os.getenv('ADMIN_PASS',    ADMIN_PASS)
 GITHUB_TOKEN  = os.getenv('GITHUB_TOKEN',  GITHUB_TOKEN)
@@ -1667,15 +1669,52 @@ def _send_teams_notification(order):
         log.warning(f'⚠️  Falha ao enviar notificação Teams: {e}')
 
 # ── Email ─────────────────────────────────────────────────────────────────────────
+def _brevo_send(to, subject, html, reply_to=None, attachment=None):
+    """Envia um email via API HTTP da Brevo (https://api.brevo.com/v3/smtp/email).
+    Usa HTTPS na porta 443 em vez de SMTP (portas 25/465/587), que o Render
+    bloqueia em web services do plano free desde set/2025 — por isso o envio
+    direto por smtplib parava de funcionar mesmo com usuário/senha corretos.
+    `to` é uma lista de emails; `attachment` (opcional) é uma lista de dicts
+    {'content': <base64>, 'name': <nome do arquivo>}."""
+    if not BREVO_API_KEY or not SMTP_USER:
+        return False
+    payload = {
+        'sender': {'email': SMTP_USER, 'name': 'Lojinha Genomma'},
+        'to': [{'email': addr} for addr in to],
+        'subject': subject,
+        'htmlContent': html,
+    }
+    if reply_to:
+        payload['replyTo'] = {'email': reply_to}
+    if attachment:
+        payload['attachment'] = attachment
+    req = urllib.request.Request(
+        'https://api.brevo.com/v3/smtp/email',
+        data=json.dumps(payload).encode(),
+        headers={
+            'api-key': BREVO_API_KEY,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        method='POST',
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            resp.read()
+        return True
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors='replace')
+        log.warning(f'⚠️  Brevo API HTTP {e.code}: {body}')
+        return False
+    except Exception as e:
+        log.warning(f'⚠️  Falha ao enviar email via Brevo: {e}')
+        return False
+
+# ── Email ─────────────────────────────────────────────────────────────────────────
 def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
-    if not SMTP_USER or not SMTP_PASS: return
+    if not SMTP_USER or not BREVO_API_KEY: return
     tipo_label = '🏢 Genomma' if tipo == 'genomma' else '🤝 Terceirizado(a)'
     dh = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = f'🛍️ Novo Pedido — {nome}'
-    msg['From']    = f'"Lojinha Genomma" <{SMTP_USER}>'
-    msg['To']      = DEST_EMAIL
-    msg['Reply-To']= email
     html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;">
 <div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
@@ -1705,24 +1744,19 @@ def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
     <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab · {dh}</p>
   </div>
 </div></body></html>"""
-    msg.attach(MIMEText(html, 'html', 'utf-8'))
+    attachment = None
     if attach_path and Path(attach_path).exists():
-        with open(str(attach_path),'rb') as f:
-            part = MIMEBase('application','octet-stream')
-            part.set_payload(f.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition','attachment',filename=attach_name or 'comprovante')
-        full = MIMEMultipart('mixed')
-        for k in ('Subject','From','To','Reply-To'): full[k] = msg[k]
-        full.attach(msg); full.attach(part)
-        send_msg = full
-    else:
-        send_msg = msg
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
-        s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
-        s.sendmail(SMTP_USER, [DEST_EMAIL], send_msg.as_string())
+        with open(str(attach_path), 'rb') as f:
+            attachment = [{'content': base64.b64encode(f.read()).decode(), 'name': attach_name or 'comprovante'}]
+    _brevo_send(
+        to=[DEST_EMAIL],
+        subject=f'🛍️ Novo Pedido — {nome}',
+        html=html,
+        reply_to=email,
+        attachment=attachment,
+    )
 
-# ── Email de Nota Fiscal (pedido entregue) ─────────────────────────────────────
+# ── Email de Nota Fiscal (pedido entregue) ──────────────────────────────────────
 NF_EMAIL_RECIPIENTS = [
     'vinicius.vaz@contractor.genommalab.com',
     'micaella.santos@genommalab.com',
@@ -1731,9 +1765,9 @@ NF_EMAIL_RECIPIENTS = [
 
 def _send_nf_email(order):
     """Quando um pedido é marcado como entregue e já tem Nota Fiscal anexada,
-    envia a NF por email para os destinatários fixos abaixo. Não bloqueia a
-    requisição se falhar (roda em thread separada)."""
-    if not SMTP_USER or not SMTP_PASS:
+    envia a NF por email para os destinatários fixos abaixo, via API HTTP da
+    Brevo (não bloqueia a requisição se falhar, roda em thread separada)."""
+    if not SMTP_USER or not BREVO_API_KEY:
         return
     nf_name = order.get('nota_fiscal')
     if not nf_name:
@@ -1771,11 +1805,6 @@ def _send_nf_email(order):
             f'<td style="padding:6px 0;text-align:right;">R$ {float(order.get("valor_total",0)):.2f}</td></tr>'
         )
 
-    msg = MIMEMultipart('mixed')
-    msg['Subject']  = f'Lojinha — Nota Fiscal {nome}'
-    msg['From']     = f'"Lojinha Genomma" <{SMTP_USER}>'
-    msg['To']       = ', '.join(NF_EMAIL_RECIPIENTS)
-
     html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;">
 <div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
@@ -1804,25 +1833,21 @@ def _send_nf_email(order):
     <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab</p>
   </div>
 </div></body></html>"""
-    msg.attach(MIMEText(html, 'html', 'utf-8'))
 
     try:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(nf_path.read_bytes())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment', filename=nf_name)
-        msg.attach(part)
+        nf_bytes = nf_path.read_bytes()
     except Exception as e:
         log.warning(f'⚠️  Falha ao anexar NF ao email: {e}')
         return
 
-    try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
-            s.ehlo(); s.starttls(); s.login(SMTP_USER, SMTP_PASS)
-            s.sendmail(SMTP_USER, NF_EMAIL_RECIPIENTS, msg.as_string())
-        log.info(f'📧 Email de NF enviado para {", ".join(NF_EMAIL_RECIPIENTS)} — pedido {order.get("id")}')
-    except Exception as e:
-        log.warning(f'⚠️  Falha ao enviar email de NF: {e}')
+    ok = _brevo_send(
+        to=NF_EMAIL_RECIPIENTS,
+        subject=f'Lojinha — Nota Fiscal {nome}',
+        html=html,
+        attachment=[{'content': base64.b64encode(nf_bytes).decode(), 'name': nf_name}],
+    )
+    if ok:
+        log.info(f'📧 Email de NF enviado (via Brevo) para {", ".join(NF_EMAIL_RECIPIENTS)} — pedido {order.get("id")}')
 
 
 
