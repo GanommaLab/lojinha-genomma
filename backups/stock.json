@@ -402,7 +402,8 @@
     "code": "600083",
     "name": "Goicoechea Diabetx BR",
     "stock": 9,
-    "price": 24.49
+    "price": 24.49,
+    "image": "produto_600083.jpg"
   },
   "600089": {
     "code": "600089",
