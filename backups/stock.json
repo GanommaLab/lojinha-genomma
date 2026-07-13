@@ -300,7 +300,8 @@
     "code": "4042000",
     "name": "Tío Nacho Engrossador Shampoo 200 mL",
     "stock": 1,
-    "price": 13.64
+    "price": 13.64,
+    "image": "produto_4042000.jpg"
   },
   "4042010": {
     "code": "4042010",
