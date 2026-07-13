@@ -450,7 +450,8 @@
     "code": "600151",
     "name": "Proctan - UQ",
     "stock": 10,
-    "price": 40.84
+    "price": 40.84,
+    "image": "produto_600151.jpg"
   },
   "600170": {
     "code": "600170",
