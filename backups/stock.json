@@ -93,21 +93,21 @@
   "1108900": {
     "code": "1108900",
     "name": "Cicatricure Creme Contorno dos Olhos 15g",
-    "stock": 17,
+    "stock": 15,
     "price": 32.15,
     "image": "produto_1108900.jpg"
   },
   "1109100": {
     "code": "1109100",
     "name": "Cicatricure Creme para Rugas 50g",
-    "stock": 15,
+    "stock": 14,
     "price": 30.51,
     "image": "produto_1109100.jpg"
   },
   "1109200": {
     "code": "1109200",
     "name": "Cicatricure Creme FPS 30 Diurno 50g",
-    "stock": 13,
+    "stock": 12,
     "price": 35.55,
     "image": "produto_1109200.jpg"
   },
@@ -128,14 +128,14 @@
   "1109700": {
     "code": "1109700",
     "name": "Cicatricure Água Micelar 200 mL",
-    "stock": 11,
+    "stock": 10,
     "price": 14.7,
     "image": "produto_1109700.jpg"
   },
   "1110000": {
     "code": "1110000",
     "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - clara",
-    "stock": 9,
+    "stock": 8,
     "price": 34.42,
     "image": "produto_1110000.jpg"
   },
@@ -156,7 +156,7 @@
   "1110500": {
     "code": "1110500",
     "name": "Cicatricure Gel 60g - Horizontal",
-    "stock": 6,
+    "stock": 5,
     "price": 32.15,
     "image": "produto_1110500.jpg"
   },
@@ -191,14 +191,14 @@
   "1131008": {
     "code": "1131008",
     "name": "Cicatricure Gold Lift Noite 50 g",
-    "stock": 8,
+    "stock": 7,
     "price": 58.98,
     "image": "produto_1131008.jpg"
   },
   "1131009": {
     "code": "1131009",
     "name": "Cicatricure Gold Lift Dia 50 g",
-    "stock": 11,
+    "stock": 10,
     "price": 58.98,
     "image": "produto_1131009.jpg"
   },
@@ -429,14 +429,14 @@
   "600083": {
     "code": "600083",
     "name": "Goicoechea Diabetx BR",
-    "stock": 9,
+    "stock": 8,
     "price": 24.49,
     "image": "produto_600083.jpg"
   },
   "600089": {
     "code": "600089",
     "name": "Goicoechea Creme Arnica e Camomila 350g",
-    "stock": 16,
+    "stock": 15,
     "price": 22.95,
     "image": "produto_600089.jpg"
   },
@@ -478,7 +478,7 @@
   "600170": {
     "code": "600170",
     "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
-    "stock": 23,
+    "stock": 22,
     "price": 24.86,
     "image": "produto_600170.jpg"
   },
