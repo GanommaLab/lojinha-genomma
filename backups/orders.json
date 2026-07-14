@@ -186,8 +186,9 @@
     ],
     "valor_total": 34.42,
     "comprovante": "20260713_160814_IMG_5745.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260713160817055_20260714_194751_lorena.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260713160817055_20260714_194751_lorena.pdf",
+    "entregue_em": "14/07/2026 19:48"
   },
   {
     "id": "20260708235156439",
