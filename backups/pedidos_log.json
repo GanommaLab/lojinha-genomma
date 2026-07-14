@@ -187,5 +187,73 @@
     "valor_total": 23.59,
     "comprovante": "20260714_190525_989ea5cd-6051-4bcc-89df-19488ea5b103.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20260714211637432",
+    "data_hora": "14/07/2026 21:16:37",
+    "nome": "Rubens Silva",
+    "email": "maycon351@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "4041020",
+        "produto_name": "Tío Nacho Anti-idade Shampoo 415 mL",
+        "quantidade": 2,
+        "preco_unit": 22.61,
+        "valor_total": 45.22
+      },
+      {
+        "produto_code": "4044300",
+        "produto_name": "Tío Nacho Shampoo Antigrisalho 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4041010",
+        "produto_name": "Tío Nacho Clareador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4043800",
+        "produto_name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
+        "quantidade": 1,
+        "preco_unit": 44.85,
+        "valor_total": 44.85
+      },
+      {
+        "produto_code": "4042000",
+        "produto_name": "Tío Nacho Engrossador Shampoo 200 mL",
+        "quantidade": 1,
+        "preco_unit": 13.64,
+        "valor_total": 13.64
+      },
+      {
+        "produto_code": "1031070",
+        "produto_name": "Asepxia Sabonete Líquido Detox 150 mL",
+        "quantidade": 2,
+        "preco_unit": 15.83,
+        "valor_total": 31.66
+      },
+      {
+        "produto_code": "1031046",
+        "produto_name": "Asepxia Máscara Peel off Carvão Detox",
+        "quantidade": 1,
+        "preco_unit": 10.52,
+        "valor_total": 10.52
+      },
+      {
+        "produto_code": "1108900",
+        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
+        "quantidade": 2,
+        "preco_unit": 32.15,
+        "valor_total": 64.3
+      }
+    ],
+    "valor_total": 257.37,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
