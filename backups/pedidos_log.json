@@ -57,5 +57,38 @@
     "valor_total": 84.49,
     "comprovante": "20260713_194404_Compra_-_lojinha_Genomma.png",
     "status": "pendente"
+  },
+  {
+    "id": "20260714130606601",
+    "data_hora": "14/07/2026 13:06:06",
+    "nome": "Luana Borges Nogueira da Silva",
+    "email": "recepcaogenomma@gmail.com",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "600119",
+        "produto_name": "Asepxia Gel Secativo",
+        "quantidade": 1,
+        "preco_unit": 15.21,
+        "valor_total": 15.21
+      },
+      {
+        "produto_code": "600089",
+        "produto_name": "Goicoechea Creme Arnica e Camomila 350g",
+        "quantidade": 1,
+        "preco_unit": 22.95,
+        "valor_total": 22.95
+      },
+      {
+        "produto_code": "1109700",
+        "produto_name": "Cicatricure Água Micelar 200 mL",
+        "quantidade": 1,
+        "preco_unit": 14.7,
+        "valor_total": 14.7
+      }
+    ],
+    "valor_total": 52.86,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
