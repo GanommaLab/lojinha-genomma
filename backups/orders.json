@@ -1,5 +1,45 @@
 [
   {
+    "id": "20260714141857025",
+    "data_hora": "14/07/2026 14:18:57",
+    "nome": "Vanessa Migliatti",
+    "email": "vanessa.migliatti@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "4041041",
+        "produto_name": "Tío Nacho Reconstrutor Condicionador 415 mL",
+        "quantidade": 2,
+        "preco_unit": 21.78,
+        "valor_total": 43.56
+      },
+      {
+        "produto_code": "4041040",
+        "produto_name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+        "quantidade": 2,
+        "preco_unit": 23.59,
+        "valor_total": 47.18
+      },
+      {
+        "produto_code": "4043040",
+        "produto_name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+        "quantidade": 2,
+        "preco_unit": 16.17,
+        "valor_total": 32.34
+      },
+      {
+        "produto_code": "1110100",
+        "produto_name": "Cicatricure Protetor Solar FPS 50 com cor 40g - média",
+        "quantidade": 1,
+        "preco_unit": 34.42,
+        "valor_total": 34.42
+      }
+    ],
+    "valor_total": 157.5,
+    "comprovante": "20260714_141855_Lojinha_14072026.jpeg",
+    "status": "pendente"
+  },
+  {
     "id": "20260714130606601",
     "data_hora": "14/07/2026 13:06:06",
     "nome": "Luana Borges Nogueira da Silva",
