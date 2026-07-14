@@ -167,7 +167,8 @@
     ],
     "valor_total": 84.49,
     "comprovante": "20260713_194404_Compra_-_lojinha_Genomma.png",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260713194406087_20260714_194823_thales.pdf"
   },
   {
     "id": "20260713160817055",
