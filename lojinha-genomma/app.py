@@ -1148,7 +1148,7 @@ header{{background:linear-gradient(135deg,#4A1B7A,#1A5FB4);padding:22px 32px;dis
 header h1{{color:white;font-size:1.4rem;font-weight:800}}
 header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .badge{{background:rgba(255,255,255,.2);color:white;padding:5px 14px;border-radius:20px;font-size:.83rem;font-weight:700}}
-.container{{max-width:1250px;margin:0 auto;padding:24px 18px}}
+.container{{width:100%;margin:0 auto;padding:24px 32px}}
 /* stats */
 .stats{{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:20px}}
 .stat{{background:white;border-radius:13px;padding:15px 19px;flex:1;min-width:120px;box-shadow:0 2px 10px rgba(74,27,122,.09);border-left:4px solid #4A1B7A}}
@@ -1171,14 +1171,29 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .card-head{{padding:15px 20px;border-bottom:1px solid #F0E8FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}}
 .card-head h2{{font-size:.92rem;font-weight:700;color:#4A1B7A}}
 .count-lbl{{font-size:.78rem;color:#aaa}}
-/* tabela */
-table{{width:100%;border-collapse:collapse}}
-thead th{{background:#F8F3FF;padding:9px 12px;text-align:left;font-size:.7rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}}
-tbody tr{{border-bottom:4px solid #B39DDB;transition:background .13s}}
-tbody tr:hover{{background:#FAF5FF}}
-tbody tr.entregue{{background:#F0FFF4}}
-tbody tr.entregue:hover{{background:#E8FFF0}}
-td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
+/* pedidos (cards) */
+.pedido{{border-bottom:4px solid #B39DDB;padding:16px 20px;transition:background .13s}}
+.pedido:hover{{background:#FAF5FF}}
+.pedido.entregue{{background:#F0FFF4}}
+.pedido.entregue:hover{{background:#E8FFF0}}
+.pedido-top{{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:10px}}
+.pedido-info{{display:flex;gap:24px;flex-wrap:wrap;flex:1;min-width:220px}}
+.pf{{display:flex;flex-direction:column;gap:2px}}
+.pf-l{{font-size:.65rem;font-weight:700;color:#9B7FC7;text-transform:uppercase;letter-spacing:.4px}}
+.pf-v{{font-size:.86rem;color:#333}}
+.pf-v.strong{{font-weight:700;color:#222}}
+.pf-v.email{{color:#4A1B7A}}
+.pf-v.total{{font-weight:700;color:#1A5FB4;font-size:.95rem}}
+.pedido-actions{{display:flex;gap:10px;align-items:center;flex-wrap:wrap}}
+.pedido-produtos{{background:#FAF7FF;border-radius:8px;padding:4px 12px;margin-bottom:10px}}
+.produto-row{{display:flex;align-items:center;gap:12px;padding:5px 0;border-bottom:1px solid #EDE3F5;flex-wrap:wrap}}
+.produto-row:last-child{{border-bottom:none}}
+.produto-code{{font-size:.72rem;color:#999;min-width:60px;white-space:nowrap}}
+.produto-nome{{flex:1;min-width:160px;font-size:.84rem;color:#333}}
+.produto-qtd{{font-weight:700;color:#27AE60;font-size:.82rem;white-space:nowrap}}
+.produto-preco{{color:#888;font-size:.8rem;white-space:nowrap}}
+.produto-total{{font-weight:700;color:#1A5FB4;font-size:.82rem;white-space:nowrap}}
+.pedido-bottom{{display:flex;gap:28px;flex-wrap:wrap;align-items:center}}
 /* badges */
 .tg{{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}}
 .tg-g{{background:#E8F5E9;color:#2E7D32}}
@@ -1198,9 +1213,9 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
 .rbtn{{background:#4A1B7A;color:white;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600}}
 .rbtn:hover{{background:#6B2FA0}}
 @media(max-width:750px){{
-  thead{{display:none}} .stat .n{{font-size:1.3rem}}
-  tbody tr{{display:block;padding:12px;border-bottom:4px solid #B39DDB}}
-  td{{display:block;padding:2px 0}}
+  .stat .n{{font-size:1.3rem}}
+  .pedido-info{{gap:14px}}
+  .pedido{{padding:14px 16px}}
 }}
 /* ── Modal relatório ── */
 .rel-overlay{{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto}}
@@ -1415,52 +1430,51 @@ function render(orders) {{
     const btnLbl = done ? '↩ Desfazer' : '✅ Marcar entregue';
     const btnCls = done ? 'done' : 'pend';
     const fmtBRL = v => v != null && v > 0 ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}}) : '—';
-    const base = `
-      <td style="white-space:nowrap;color:#666;font-size:.78rem;">${{o.data_hora||''}}</td>
-      <td style="font-weight:600">${{o.nome||''}}</td>
-      <td style="color:#4A1B7A;font-size:.82rem;">${{o.email||''}}</td>
-      <td>${{tBadge}}</td>`;
-    const tail = `
-      <td style="text-align:center;font-weight:700;color:#1A5FB4;">${{fmtBRL(o.valor_total)}}</td>
-      <td style="text-align:center">${{cLink}}</td>
-      <td style="text-align:center">${{nfCell}}</td>
-      <td style="text-align:center">${{sBadge}}</td>
-      <td style="text-align:center"><button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button></td>
-      <td style="text-align:center">${{done ? '' : `<button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button>`}}</td>`;
-    let mid = '';
-    let codeCol = '';
+    let produtosHtml;
     if (o.items && o.items.length) {{
-      const miniRows = o.items.map(it =>
-        `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #EDE3F5;flex-wrap:wrap;">
-          <span style="flex:1;min-width:120px;font-size:.8rem;color:#333;">${{it.produto_name}}</span>
-          <span style="font-size:.8rem;font-weight:700;color:#27AE60;white-space:nowrap;">${{it.quantidade}} un.</span>
-          <span style="font-size:.8rem;color:#888;white-space:nowrap;">${{fmtBRL(it.preco_unit)}}/un</span>
-          <span style="font-size:.8rem;font-weight:700;color:#1A5FB4;white-space:nowrap;">${{fmtBRL(it.valor_total)}}</span>
+      produtosHtml = o.items.map(it => `
+        <div class="produto-row">
+          <span class="produto-code">${{it.produto_code||''}}</span>
+          <span class="produto-nome">${{it.produto_name}}</span>
+          <span class="produto-qtd">${{it.quantidade}} un.</span>
+          <span class="produto-preco">${{fmtBRL(it.preco_unit)}}/un</span>
+          <span class="produto-total">${{fmtBRL(it.valor_total)}}</span>
         </div>`
       ).join('');
-      mid = `<td colspan="3" style="padding:6px 8px;">${{miniRows}}</td>`;
-      const codeRows = o.items.map(it =>
-        `<div style="padding:3px 0;border-bottom:1px solid #EDE3F5;font-size:.8rem;color:#666;white-space:nowrap;">${{it.produto_code||''}}</div>`
-      ).join('');
-      codeCol = `<td style="font-size:.8rem;color:#666;">${{codeRows}}</td>`;
     }} else {{
-      mid = `
-        <td style="max-width:180px;font-size:.82rem;">${{o.produto_name||''}}</td>
-        <td style="text-align:center;font-weight:700;color:#27AE60;font-size:1rem;">${{o.quantidade||''}}</td>
-        <td style="text-align:center;font-size:.82rem;color:#555;">${{fmtBRL(o.preco_unit)}}</td>`;
-      codeCol = `<td style="font-size:.82rem;color:#666;white-space:nowrap;">${{o.produto_code||''}}</td>`;
+      produtosHtml = `
+        <div class="produto-row">
+          <span class="produto-code">${{o.produto_code||''}}</span>
+          <span class="produto-nome">${{o.produto_name||''}}</span>
+          <span class="produto-qtd">${{o.quantidade||''}} un.</span>
+          <span class="produto-preco">${{fmtBRL(o.preco_unit)}}/un</span>
+          <span class="produto-total">${{fmtBRL(o.valor_total)}}</span>
+        </div>`;
     }}
-    rows += `<tr class="${{done?'entregue':''}}" id="row-${{o.id}}">${{base}}${{codeCol}}${{mid}}${{tail}}</tr>`;
+
+    rows += `<div class="pedido ${{done?'entregue':''}}" id="row-${{o.id}}">
+      <div class="pedido-top">
+        <div class="pedido-info">
+          <div class="pf"><span class="pf-l">Data/Hora</span><span class="pf-v">${{o.data_hora||''}}</span></div>
+          <div class="pf"><span class="pf-l">Nome</span><span class="pf-v strong">${{o.nome||''}}</span></div>
+          <div class="pf"><span class="pf-l">E-mail</span><span class="pf-v email">${{o.email||''}}</span></div>
+          <div class="pf"><span class="pf-l">Tipo</span>${{tBadge}}</div>
+        </div>
+        <div class="pedido-actions">
+          ${{sBadge}}
+          <button class="btn-del ${{btnCls}}" onclick="toggle('${{o.id}}','${{newSt}}')">${{btnLbl}}</button>
+          ${{done ? '' : `<button class="btn-exc" onclick="excluir('${{o.id}}')">🗑️ Excluir</button>`}}
+        </div>
+      </div>
+      <div class="pedido-produtos">${{produtosHtml}}</div>
+      <div class="pedido-bottom">
+        <div class="pf"><span class="pf-l">Valor Total</span><span class="pf-v total">${{fmtBRL(o.valor_total)}}</span></div>
+        <div class="pf"><span class="pf-l">Comprovante</span><span class="pf-v">${{cLink}}</span></div>
+        <div class="pf"><span class="pf-l">Nota Fiscal</span><span class="pf-v">${{nfCell}}</span></div>
+      </div>
+    </div>`;
   }});
-  wrap.innerHTML = `<table><thead><tr>
-    <th>Data/Hora</th><th>Nome</th><th>E-mail</th><th>Tipo</th>
-    <th>Código</th><th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:center">Preço Unit.</th>
-    <th style="text-align:center">Valor Total</th>
-    <th style="text-align:center">Comprovante</th>
-    <th style="text-align:center">Nota Fiscal</th>
-    <th style="text-align:center">Status</th><th style="text-align:center">Entrega</th>
-    <th style="text-align:center">Excluir</th>
-  </tr></thead><tbody>${{rows}}</tbody></table>`;
+  wrap.innerHTML = rows;
 }}
 
 async function toggle(id, newStatus) {{
@@ -1477,8 +1491,10 @@ async function toggle(id, newStatus) {{
 }}
 
 async function excluir(id) {{
-  const row = document.getElementById(`row-${{id}}`);
-  const prod = row ? row.querySelector('td:nth-child(6)').innerText : '';
+  const o = allOrders.find(x => String(x.id) === String(id));
+  const prod = o ? (o.items && o.items.length
+    ? o.items.map(i=>`${{i.produto_name}} (${{i.quantidade}} un.)`).join('\n')
+    : (o.produto_name||'')) : '';
   if (!confirm(`Excluir este pedido?\n\n${{prod}}\n\nO estoque será restaurado automaticamente.`)) return;
   try {{
     const r = await fetch(`/api/orders/${{id}}`, {{method: 'DELETE'}});
