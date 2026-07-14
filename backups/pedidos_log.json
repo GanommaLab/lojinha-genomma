@@ -255,5 +255,31 @@
     "valor_total": 257.37,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20260714211950050",
+    "data_hora": "14/07/2026 21:19:50",
+    "nome": "Vinicius Silva",
+    "email": "maycon351@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "4041020",
+        "produto_name": "Tío Nacho Anti-idade Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 22.61,
+        "valor_total": 22.61
+      },
+      {
+        "produto_code": "1109700",
+        "produto_name": "Cicatricure Água Micelar 200 mL",
+        "quantidade": 1,
+        "preco_unit": 14.7,
+        "valor_total": 14.7
+      }
+    ],
+    "valor_total": 37.31,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
