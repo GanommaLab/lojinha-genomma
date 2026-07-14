@@ -16,7 +16,8 @@
     ],
     "valor_total": 23.59,
     "comprovante": "20260714_190525_989ea5cd-6051-4bcc-89df-19488ea5b103.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260714190526481_20260714_194853_Aline.pdf"
   },
   {
     "id": "20260714151137977",
