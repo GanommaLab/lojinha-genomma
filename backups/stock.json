@@ -16,7 +16,7 @@
   "1031046": {
     "code": "1031046",
     "name": "Asepxia Máscara Peel off Carvão Detox",
-    "stock": 7,
+    "stock": 6,
     "price": 10.52,
     "image": "produto_1031046.jpg"
   },
@@ -37,7 +37,7 @@
   "1031070": {
     "code": "1031070",
     "name": "Asepxia Sabonete Líquido Detox 150 mL",
-    "stock": 14,
+    "stock": 12,
     "price": 15.83,
     "image": "produto_1031070.jpg"
   },
@@ -93,7 +93,7 @@
   "1108900": {
     "code": "1108900",
     "name": "Cicatricure Creme Contorno dos Olhos 15g",
-    "stock": 19,
+    "stock": 17,
     "price": 32.15,
     "image": "produto_1108900.jpg"
   },
@@ -254,7 +254,7 @@
   "4041010": {
     "code": "4041010",
     "name": "Tío Nacho Clareador Shampoo 415 mL",
-    "stock": 10,
+    "stock": 9,
     "price": 23.59,
     "image": "produto_4041010.jpg"
   },
@@ -268,7 +268,7 @@
   "4041020": {
     "code": "4041020",
     "name": "Tío Nacho Anti-idade Shampoo 415 mL",
-    "stock": 16,
+    "stock": 14,
     "price": 22.61,
     "image": "produto_4041020.jpg"
   },
@@ -303,7 +303,7 @@
   "4042000": {
     "code": "4042000",
     "name": "Tío Nacho Engrossador Shampoo 200 mL",
-    "stock": 1,
+    "stock": 0,
     "price": 13.64,
     "image": "produto_4042000.jpg"
   },
@@ -338,7 +338,7 @@
   "4043800": {
     "code": "4043800",
     "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
-    "stock": 1,
+    "stock": 0,
     "price": 44.85,
     "image": "produto_4043800.jpg"
   },
@@ -373,7 +373,7 @@
   "4044300": {
     "code": "4044300",
     "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
-    "stock": 4,
+    "stock": 3,
     "price": 23.59,
     "image": "produto_4044300.jpg"
   },
