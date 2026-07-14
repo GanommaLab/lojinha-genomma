@@ -1493,7 +1493,7 @@ async function toggle(id, newStatus) {{
 async function excluir(id) {{
   const o = allOrders.find(x => String(x.id) === String(id));
   const prod = o ? (o.items && o.items.length
-    ? o.items.map(i=>`${{i.produto_name}} (${{i.quantidade}} un.)`).join('\n')
+    ? o.items.map(i=>`${{i.produto_name}} (${{i.quantidade}} un.)`).join('\\n')
     : (o.produto_name||'')) : '';
   if (!confirm(`Excluir este pedido?\n\n${{prod}}\n\nO estoque será restaurado automaticamente.`)) return;
   try {{
