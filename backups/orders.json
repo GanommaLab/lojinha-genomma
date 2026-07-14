@@ -1,5 +1,31 @@
 [
   {
+    "id": "20260714213800153",
+    "data_hora": "14/07/2026 21:38:00",
+    "nome": "Micaella Americo Torrecilha",
+    "email": "micaella.santos@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "4041010",
+        "produto_name": "Tío Nacho Clareador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4043000",
+        "produto_name": "Tío Nacho Engrossador Spray 120 mL",
+        "quantidade": 1,
+        "preco_unit": 21.13,
+        "valor_total": 21.13
+      }
+    ],
+    "valor_total": 44.72,
+    "comprovante": "20260714_213758_Screenshot_20260714_183729_Ita.jpg",
+    "status": "pendente"
+  },
+  {
     "id": "20260714213214926",
     "data_hora": "14/07/2026 21:32:14",
     "nome": "MICAELLA AMERICO TORRECILHA",
