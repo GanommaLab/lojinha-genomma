@@ -1174,7 +1174,7 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 /* tabela */
 table{{width:100%;border-collapse:collapse}}
 thead th{{background:#F8F3FF;padding:9px 12px;text-align:left;font-size:.7rem;font-weight:700;color:#7B3FAD;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}}
-tbody tr{{border-bottom:1px solid #FAF5FF;transition:background .13s}}
+tbody tr{{border-bottom:4px solid #B39DDB;transition:background .13s}}
 tbody tr:hover{{background:#FAF5FF}}
 tbody tr.entregue{{background:#F0FFF4}}
 tbody tr.entregue:hover{{background:#E8FFF0}}
@@ -1199,7 +1199,7 @@ td{{padding:10px 12px;font-size:.86rem;vertical-align:middle}}
 .rbtn:hover{{background:#6B2FA0}}
 @media(max-width:750px){{
   thead{{display:none}} .stat .n{{font-size:1.3rem}}
-  tbody tr{{display:block;padding:12px;border-bottom:2px solid #F0E8FB}}
+  tbody tr{{display:block;padding:12px;border-bottom:4px solid #B39DDB}}
   td{{display:block;padding:2px 0}}
 }}
 /* ── Modal relatório ── */
