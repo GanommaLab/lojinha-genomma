@@ -54,7 +54,8 @@
     ],
     "valor_total": 32.34,
     "comprovante": "20260714_150620_Comprovante_de_Pagamento_-14.07_-_Kate.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260714150621475_20260714_194845_kate.pdf"
   },
   {
     "id": "20260714141857025",
