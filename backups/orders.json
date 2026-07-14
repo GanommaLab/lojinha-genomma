@@ -233,8 +233,9 @@
     ],
     "valor_total": 61.54,
     "comprovante": "20260708_235156_DOC-20260708-WA0009.pdf",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260708235156439_20260714_195040_rafael.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260708235156439_20260714_195040_rafael.pdf",
+    "entregue_em": "14/07/2026 19:50"
   },
   {
     "id": "20260708184617284",
