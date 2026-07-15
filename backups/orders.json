@@ -146,8 +146,9 @@
     ],
     "valor_total": 44.72,
     "comprovante": "20260714_213758_Screenshot_20260714_183729_Ita.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260714213800153_20260715_204928_Mica_NF_5903.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260714213800153_20260715_204928_Mica_NF_5903.pdf",
+    "entregue_em": "15/07/2026 21:00"
   },
   {
     "id": "20260714213214926",
