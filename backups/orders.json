@@ -16,8 +16,9 @@
     ],
     "valor_total": 16.17,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260715200009556_20260715_205010_Everton_NF_5905.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260715200009556_20260715_205010_Everton_NF_5905.pdf",
+    "entregue_em": "15/07/2026 21:01"
   },
   {
     "id": "20260715195524783",
