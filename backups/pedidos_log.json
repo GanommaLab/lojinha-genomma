@@ -495,5 +495,24 @@
     "valor_total": 211.47,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20260715200009556",
+    "data_hora": "15/07/2026 20:00:09",
+    "nome": "EVERTON DOMINGUES",
+    "email": "evertondomingues@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "4043040",
+        "produto_name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+        "quantidade": 1,
+        "preco_unit": 16.17,
+        "valor_total": 16.17
+      }
+    ],
+    "valor_total": 16.17,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
