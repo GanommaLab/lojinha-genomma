@@ -431,7 +431,7 @@ def write_orders(orders):
 @app.get('/api/products')
 def api_products():
     with LOCK:
-        lst = [p for p in stock_data.values() if p['stock'] > 0]
+        lst = [p for p in stock_data.values() if p['stock'] > 0 and not p.get('paused')]
     lst.sort(key=lambda x: x['name'].lower())
     return jsonify(lst)
 
@@ -456,6 +456,25 @@ def api_upload_product_image(code):
         save_stock()
     log.info(f'🖼️  Imagem do produto {code} atualizada: {fname}')
     return jsonify({'ok': True, 'image': fname})
+
+# --- API: pausar/reativar venda do produto ---
+@app.post('/api/products/<code>/pause')
+@require_admin
+def api_toggle_pause_product(code):
+    with LOCK:
+        product = stock_data.get(code)
+        if not product:
+            return jsonify({'error': 'Produto não encontrado.'}), 404
+        data = request.get_json(silent=True) or {}
+        paused = bool(data.get('paused', True))
+        stock_data[code]['paused'] = paused
+        save_stock()
+        name = product['name']
+    if paused:
+        log.info(f'⏸️  Venda pausada manualmente: {code} ({name})')
+    else:
+        log.info(f'▶️  Venda reativada manualmente: {code} ({name})')
+    return jsonify({'ok': True, 'paused': paused})
 
 # ── API: pedido ───────────────────────────────────────────────────────────────
 @app.post('/api/order')
@@ -491,6 +510,8 @@ def api_order():
                 product = stock_data.get(pcode)
                 if not product:
                     return jsonify({'error':f'Produto não encontrado: {pcode}'}), 404
+                if product.get('paused'):
+                    return jsonify({'error':f'Produto "{product["name"]}" está temporariamente indisponível para venda.'}), 400
                 if qty > product['stock']:
                     return jsonify({'error':f'Estoque insuficiente para "{product["name"]}". Disponível: {product["stock"]} un.'}), 400
                 preco_unit = round(float(product.get('price', 0.0)), 2)
@@ -551,6 +572,8 @@ def api_order():
     with LOCK:
         product = stock_data.get(pcode)
         if not product: return jsonify({'error':'Produto não encontrado.'}), 404
+        if product.get('paused'):
+            return jsonify({'error':f'Produto "{product["name"]}" está temporariamente indisponível para venda.'}), 400
         if qty > product['stock']:
             return jsonify({'error':f'Estoque insuficiente. Disponível: {product["stock"]} un.'}), 400
         stock_data[pcode]['stock'] -= qty
@@ -791,6 +814,7 @@ def api_inventario():
                 'code':    code,
                 'name':    p['name'],
                 'image':   p.get('image', ''),
+                'paused':  bool(p.get('paused', False)),
                 'inicial': initial,
                 'vendido': sold,
                 'atual':   current,
@@ -851,6 +875,13 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
 .info-box strong{display:block;margin-bottom:4px}
 .prod-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #EDE3F5;display:block}
 .prod-thumb-empty{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F8F3FF;color:#B39DDB;font-size:1.1rem;cursor:pointer;border:1px dashed #D1C4E9}
+.btn-pause{border:none;cursor:pointer;border-radius:7px;padding:4px 10px;font-size:.72rem;font-weight:700;transition:.18s;white-space:nowrap}
+.btn-pause.active{background:#FFF3E0;color:#E65100;border:1.5px solid #FFCC80}
+.btn-pause.active:hover{background:#FFE0B2}
+.btn-pause.paused{background:#E8F5E9;color:#1B5E20;border:1.5px solid #A5D6A7}
+.btn-pause.paused:hover{background:#D4EFDC}
+tbody tr.paused-row{background:#FFF8F0}
+tbody tr.paused-row:hover{background:#FFF0DC}
 @media print{
   header .rbtn{display:none}
   .info-box{border:1px solid #ccc}
@@ -896,6 +927,7 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
           <th>Código</th>
           <th>Imagem</th>
           <th>Produto</th>
+          <th class="num">Status</th>
           <th class="num">Est. Inicial</th>
           <th class="num">Vendido</th>
           <th class="num">Est. Sistema</th>
@@ -903,7 +935,7 @@ input.fisica:focus{border-color:#7B3FAD;background:#FAF5FF}
           <th class="num">Diferença</th>
         </tr></thead>
         <tbody id="inv-body">
-          <tr><td colspan="9" style="text-align:center;padding:40px;color:#aaa">Carregando...</td></tr>
+          <tr><td colspan="10" style="text-align:center;padding:40px;color:#aaa">Carregando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -934,7 +966,7 @@ function render() {
   document.getElementById('st-atual').textContent = totAtual;
 
   if (!invData.length) {
-    body.innerHTML = "<tr><td colspan='9' style='text-align:center;padding:40px;color:#aaa'>Nenhum produto encontrado.</td></tr>";
+    body.innerHTML = "<tr><td colspan='10' style='text-align:center;padding:40px;color:#aaa'>Nenhum produto encontrado.</td></tr>";
     return;
   }
 
@@ -946,11 +978,18 @@ function render() {
     const thumb = p.image
       ? `<img src="/uploads/${p.image}" class="prod-thumb" onclick="document.getElementById('imgup-${i}').click()" title="Clique para trocar a imagem">`
       : `<div class="prod-thumb-empty" onclick="document.getElementById('imgup-${i}').click()" title="Clique para adicionar uma imagem">📷</div>`;
-    return `<tr id="row-${i}">
+    const statusChip = p.paused
+      ? `<span class="chip chip-warn">⏸️ Pausado</span>`
+      : `<span class="chip chip-ok">✅ Ativo</span>`;
+    const pauseBtn = p.paused
+      ? `<button class="btn-pause paused" onclick="togglePause('${p.code}', ${i}, false)">▶️ Reativar</button>`
+      : `<button class="btn-pause active" onclick="togglePause('${p.code}', ${i}, true)">⏸️ Pausar</button>`;
+    return `<tr id="row-${i}" class="${p.paused ? 'paused-row' : ''}">
       <td style="color:#bbb;font-size:.76rem">${i+1}</td>
       <td class="code">${p.code}</td>
       <td>${thumb}<input type="file" id="imgup-${i}" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="uploadImagem('${p.code}', ${i}, this)"></td>
       <td style="font-weight:600;max-width:280px">${p.name}</td>
+      <td class="num"><div style="display:flex;flex-direction:column;align-items:center;gap:4px">${statusChip}${pauseBtn}</div></td>
       <td class="num" style="color:#888">${p.inicial}</td>
       <td class="num">${chip}</td>
       <td class="num" style="color:#4A1B7A;font-size:1rem">${p.atual}</td>
@@ -979,13 +1018,33 @@ async function uploadImagem(code, i, input) {
   }
 }
 
+async function togglePause(code, i, newPaused) {
+  try {
+    const r = await fetch(`/api/products/${code}/pause`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({paused: newPaused})
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      invData[i].paused = data.paused;
+      render();
+    } else {
+      alert('❌ Erro ao atualizar: ' + (data.error || 'desconhecido'));
+    }
+  } catch (e) {
+    alert('❌ Erro ao atualizar: ' + e.message);
+  }
+}
+
 function calcDif(i) {
   const val = document.getElementById('fis-'+i).value;
   const dif = document.getElementById('dif-'+i);
   const row = document.getElementById('row-'+i);
+  const pausedCls = invData[i].paused ? 'paused-row' : '';
   if (val === '' || val === null) {
     dif.innerHTML = '<span class="dif-zero">—</span>';
-    row.className = '';
+    row.className = pausedCls;
     return;
   }
   const fisica  = parseInt(val, 10);
@@ -993,13 +1052,13 @@ function calcDif(i) {
   const diff    = fisica - sistema;
   if (diff > 0) {
     dif.innerHTML = `<span class="dif-pos">+${diff}</span>`;
-    row.className = 'diff-pos';
+    row.className = ('diff-pos ' + pausedCls).trim();
   } else if (diff < 0) {
     dif.innerHTML = `<span class="dif-neg">${diff}</span>`;
-    row.className = 'diff-neg';
+    row.className = ('diff-neg ' + pausedCls).trim();
   } else {
     dif.innerHTML = `<span class="dif-zero">✓ 0</span>`;
-    row.className = '';
+    row.className = pausedCls;
   }
 }
 
