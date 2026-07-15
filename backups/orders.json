@@ -78,8 +78,9 @@
     ],
     "valor_total": 211.47,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260715195524783_20260715_204912_Maycon_NF_5907.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260715195524783_20260715_204912_Maycon_NF_5907.pdf",
+    "entregue_em": "15/07/2026 21:01"
   },
   {
     "id": "20260715175319475",
