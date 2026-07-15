@@ -178,7 +178,7 @@
   "1111400": {
     "code": "1111400",
     "name": "Cicatricure Regeneplast 30g",
-    "stock": 17,
+    "stock": 16,
     "price": 17.68,
     "image": "produto_1111400.jpg"
   },
@@ -213,14 +213,14 @@
   "2100100": {
     "code": "2100100",
     "name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
-    "stock": 10,
+    "stock": 9,
     "price": 17.01,
     "image": "produto_2100100.jpg"
   },
   "2100200": {
     "code": "2100200",
     "name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
-    "stock": 11,
+    "stock": 10,
     "price": 17.01,
     "image": "produto_2100200.jpg"
   },
@@ -283,14 +283,14 @@
   "4041040": {
     "code": "4041040",
     "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
-    "stock": 13,
+    "stock": 12,
     "price": 23.59,
     "image": "produto_4041040.jpg"
   },
   "4041041": {
     "code": "4041041",
     "name": "Tío Nacho Reconstrutor Condicionador 415 mL",
-    "stock": 13,
+    "stock": 12,
     "price": 21.78,
     "image": "produto_4041041.jpg"
   },
@@ -325,7 +325,7 @@
   "4043040": {
     "code": "4043040",
     "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
-    "stock": 5,
+    "stock": 1,
     "price": 16.17,
     "image": "produto_4043040.jpg"
   },
@@ -479,7 +479,7 @@
   "600170": {
     "code": "600170",
     "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
-    "stock": 22,
+    "stock": 20,
     "price": 24.86,
     "image": "produto_600170.jpg"
   },
