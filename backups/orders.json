@@ -333,8 +333,9 @@
     ],
     "valor_total": 257.37,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260714211637432_20260715_205000_Rubens_NF_5901.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260714211637432_20260715_205000_Rubens_NF_5901.pdf",
+    "entregue_em": "15/07/2026 21:00"
   },
   {
     "id": "20260714190526481",
