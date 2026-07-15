@@ -264,8 +264,9 @@
     ],
     "valor_total": 37.31,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260714211950050_20260715_204955_Vini_NF_5906.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260714211950050_20260715_204955_Vini_NF_5906.pdf",
+    "entregue_em": "15/07/2026 21:00"
   },
   {
     "id": "20260714211637432",
