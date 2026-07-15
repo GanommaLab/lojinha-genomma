@@ -1,5 +1,66 @@
 [
   {
+    "id": "20260715195524783",
+    "data_hora": "15/07/2026 19:55:24",
+    "nome": "maycon Dias",
+    "email": "maycon351@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "4043040",
+        "produto_name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+        "quantidade": 4,
+        "preco_unit": 16.17,
+        "valor_total": 64.68
+      },
+      {
+        "produto_code": "1111400",
+        "produto_name": "Cicatricure Regeneplast 30g",
+        "quantidade": 1,
+        "preco_unit": 17.68,
+        "valor_total": 17.68
+      },
+      {
+        "produto_code": "600170",
+        "produto_name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
+        "quantidade": 2,
+        "preco_unit": 24.86,
+        "valor_total": 49.72
+      },
+      {
+        "produto_code": "2100200",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
+        "quantidade": 1,
+        "preco_unit": 17.01,
+        "valor_total": 17.01
+      },
+      {
+        "produto_code": "2100100",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+        "quantidade": 1,
+        "preco_unit": 17.01,
+        "valor_total": 17.01
+      },
+      {
+        "produto_code": "4041040",
+        "produto_name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4041041",
+        "produto_name": "Tío Nacho Reconstrutor Condicionador 415 mL",
+        "quantidade": 1,
+        "preco_unit": 21.78,
+        "valor_total": 21.78
+      }
+    ],
+    "valor_total": 211.47,
+    "comprovante": "",
+    "status": "pendente"
+  },
+  {
     "id": "20260715175319475",
     "data_hora": "15/07/2026 17:53:19",
     "nome": "Vinicius Vaz",
