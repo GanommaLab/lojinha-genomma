@@ -109,7 +109,8 @@
     "name": "Cicatricure Creme FPS 30 Diurno 50g",
     "stock": 12,
     "price": 35.55,
-    "image": "produto_1109200.jpg"
+    "image": "produto_1109200.jpg",
+    "paused": true
   },
   "1109300": {
     "code": "1109300",
