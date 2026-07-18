@@ -75,9 +75,16 @@
         "quantidade": 1,
         "preco_unit": 21.78,
         "valor_total": 21.78
+      },
+      {
+        "produto_code": "4043040",
+        "produto_name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+        "quantidade": 2,
+        "preco_unit": 16.17,
+        "valor_total": 32.34
       }
     ],
-    "valor_total": 166.21,
+    "valor_total": 198.55,
     "comprovante": "",
     "status": "entregue",
     "nota_fiscal": "nf_20260715195524783_20260715_204912_Maycon_NF_5907.pdf",
