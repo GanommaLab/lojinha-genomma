@@ -217,11 +217,11 @@
         "valor_total": 64.3
       },
       {
-        "produto_code": "1109200",
-        "produto_name": "Cicatricure Creme FPS 30 Diurno 50g",
-        "quantidade": 1,
-        "preco_unit": 35.55,
-        "valor_total": 35.55
+        "produto_code": "1031087",
+        "produto_name": "Asepxia Barra Detox 80g",
+        "quantidade": 2,
+        "preco_unit": 9.71,
+        "valor_total": 19.42
       },
       {
         "produto_code": "1109100",
@@ -245,7 +245,7 @@
         "valor_total": 32.15
       }
     ],
-    "valor_total": 401.89,
+    "valor_total": 385.76,
     "comprovante": "20260714_213213_shared_image.jpg",
     "status": "entregue",
     "nota_fiscal": "nf_20260714213214926_20260715_204849_Mica_NF_5908.pdf",
