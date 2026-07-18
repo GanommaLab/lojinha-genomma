@@ -1381,6 +1381,8 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .btn-item-sub:hover{{background:#E3F2FD}}
 .btn-item-del:hover{{background:#FFEBEE}}
 .btn-item-qty:hover{{background:#FFF3E0}}
+.btn-item-del-armed{{border:none;cursor:pointer;background:#D32F2F;color:#fff;font-size:.72rem;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap}}
+.sub-select option:disabled{{color:#aaa}}
 .produto-row-edit{{display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap}}
 .sub-select{{flex:1;min-width:200px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
 .sub-qtd{{width:60px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
@@ -1527,6 +1529,8 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 let allOrders = [];
 let editingItem = null;
 let productsCache = null;
+let pendingRemove = null;
+let pendingRemoveTimer = null;
 
 async function loadOrders() {{
   try {{
@@ -1639,7 +1643,12 @@ function render(orders) {{
         </div>`;
         }}
         if (editingItem && editingItem.orderId === o.id && editingItem.idx === idx) {{
-          const opts = (productsCache||[]).map(p => `<option value="${{p.code}}" ${{p.code===it.produto_code?'selected':''}}>${{p.code}} — ${{p.name}}</option>`).join('');
+          const opts = (productsCache||[]).map(p => {{
+            const isCurrent = p.code === it.produto_code;
+            const unavailable = (p.stock <= 0 || p.paused) && !isCurrent;
+            const suffix = p.paused ? ' (pausado)' : (p.stock <= 0 ? ' (sem estoque)' : '');
+            return `<option value="${{p.code}}" ${{isCurrent?'selected':''}} ${{unavailable?'disabled':''}}>${{p.code}} — ${{p.name}}${{suffix}}</option>`;
+          }}).join('');
           return `
         <div class="produto-row-edit">
           <select id="sub-code-${{o.id}}-${{idx}}" class="sub-select">${{opts}}</select>
@@ -1658,7 +1667,9 @@ function render(orders) {{
           <span class="produto-item-actions">
             <button class="btn-item-qty" onclick="abrirEditarQtd('${{o.id}}', ${{idx}})" title="Editar quantidade">✏️</button>
             <button class="btn-item-sub" onclick="abrirSubstituir('${{o.id}}', ${{idx}})" title="Substituir item">🔄</button>
-            <button class="btn-item-del" onclick="removerItem('${{o.id}}', ${{idx}})" title="Remover item (devolve ao estoque)">🗑️</button>
+            ${{pendingRemove && pendingRemove.orderId===o.id && pendingRemove.idx===idx
+              ? `<button class="btn-item-del-armed" onclick="removerItem('${{o.id}}', ${{idx}})" title="Clique novamente para confirmar">⚠️ Confirmar exclusão</button>`
+              : `<button class="btn-item-del" onclick="armRemover('${{o.id}}', ${{idx}})" title="Remover item (devolve ao estoque)">🗑️</button>`}}
           </span>
         </div>`;
       }}).join('');
@@ -1727,8 +1738,9 @@ async function excluir(id) {{
 async function ensureProducts() {{
   if (!productsCache) {{
     try {{
-      const r = await fetch('/api/products');
-      productsCache = await r.json();
+      const r = await fetch('/api/inventario');
+      const inv = await r.json();
+      productsCache = inv.map(p => ({{code: p.code, name: p.name, stock: p.atual, paused: p.paused}}));
     }} catch (e) {{
       productsCache = [];
     }}
@@ -1800,10 +1812,19 @@ async function confirmarQuantidade(orderId, idx) {{
     alert('Erro de conexão.');
   }}
 }}
+function armRemover(orderId, idx) {{
+  pendingRemove = {{ orderId, idx }};
+  render(allOrders);
+  if (pendingRemoveTimer) clearTimeout(pendingRemoveTimer);
+  pendingRemoveTimer = setTimeout(() => {{
+    pendingRemove = null;
+    render(allOrders);
+  }}, 4000);
+}}
+
 async function removerItem(orderId, idx) {{
-  const o = allOrders.find(x => String(x.id) === String(orderId));
-  const nome = (o && o.items && o.items[idx]) ? o.items[idx].produto_name : '';
-  if (!confirm(`Remover "${{nome}}" deste item do pedido?\n\nO estoque será devolvido automaticamente.`)) return;
+  if (pendingRemoveTimer) {{ clearTimeout(pendingRemoveTimer); pendingRemoveTimer = null; }}
+  pendingRemove = null;
   try {{
     const r = await fetch(`/api/orders/${{orderId}}/items/${{idx}}/remove`, {{ method: 'POST' }});
     const data = await r.json();
@@ -1811,9 +1832,11 @@ async function removerItem(orderId, idx) {{
       await loadOrders();
     }} else {{
       alert('Erro: ' + (data.error || 'Falha ao remover item.'));
+      render(allOrders);
     }}
   }} catch (e) {{
     alert('Erro de conexão.');
+    render(allOrders);
   }}
 }}
 
