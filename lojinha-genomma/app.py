@@ -720,6 +720,86 @@ def api_delete_order(order_id):
             save_stock()
     return jsonify({'ok': True})
 
+# --- API: remover item de um pedido (produto nao entregue, devolve ao estoque) ---
+@app.post('/api/orders/<order_id>/items/<int:idx>/remove')
+@require_admin
+def api_remove_order_item(order_id, idx):
+    with LOCK:
+        orders = load_orders()
+        order = next((o for o in orders if o.get('id') == order_id), None)
+        if not order:
+            return jsonify({'error': 'Pedido não encontrado.'}), 404
+        items = order.get('items')
+        if not items:
+            return jsonify({'error': 'Este pedido não tem múltiplos itens; exclua o pedido inteiro.'}), 400
+        if idx < 0 or idx >= len(items):
+            return jsonify({'error': 'Item não encontrado.'}), 404
+        if len(items) <= 1:
+            return jsonify({'error': 'Não é possível remover o único item; exclua o pedido inteiro.'}), 400
+        item = items.pop(idx)
+        pcode = item.get('produto_code')
+        qty   = int(item.get('quantidade', 0) or 0)
+        if pcode and pcode in stock_data and qty > 0:
+            stock_data[pcode]['stock'] += qty
+            save_stock()
+            log.info(f'🔄 Estoque restaurado: +{qty} de {pcode} (item removido do pedido {order_id})')
+        order['valor_total'] = round(sum(float(i.get('valor_total', 0) or 0) for i in items), 2)
+        write_orders(orders)
+    return jsonify({'ok': True, 'order': order})
+
+# --- API: substituir item de um pedido (produto errado entregue pelo fornecedor) ---
+@app.post('/api/orders/<order_id>/items/<int:idx>/replace')
+@require_admin
+def api_replace_order_item(order_id, idx):
+    data     = request.get_json(silent=True) or {}
+    new_code = str(data.get('produto_code', '')).strip()
+    if not new_code:
+        return jsonify({'error': 'Selecione um produto para substituir.'}), 400
+    with LOCK:
+        orders = load_orders()
+        order = next((o for o in orders if o.get('id') == order_id), None)
+        if not order:
+            return jsonify({'error': 'Pedido não encontrado.'}), 404
+        items = order.get('items')
+        if not items or idx < 0 or idx >= len(items):
+            return jsonify({'error': 'Item não encontrado.'}), 404
+        old_item = items[idx]
+        old_code = old_item.get('produto_code')
+        old_qty  = int(old_item.get('quantidade', 0) or 0)
+        try:
+            new_qty = int(float(data.get('quantidade', old_qty)))
+            if new_qty < 1: raise ValueError
+        except Exception:
+            return jsonify({'error': 'Quantidade inválida.'}), 400
+        new_product = stock_data.get(new_code)
+        if not new_product:
+            return jsonify({'error': 'Produto de substituição não encontrado.'}), 404
+        if new_product.get('paused'):
+            return jsonify({'error': f'Produto "{new_product["name"]}" está pausado para venda.'}), 400
+        # Devolve o estoque do item antigo antes de checar disponibilidade do novo
+        if old_code and old_code in stock_data and old_qty > 0:
+            stock_data[old_code]['stock'] += old_qty
+        if new_qty > stock_data[new_code]['stock']:
+            # desfaz a devolução acima antes de recusar, para não vazar estoque
+            if old_code and old_code in stock_data and old_qty > 0:
+                stock_data[old_code]['stock'] -= old_qty
+            return jsonify({'error': f'Estoque insuficiente para "{new_product["name"]}". Disponível: {stock_data[new_code]["stock"]} un.'}), 400
+        stock_data[new_code]['stock'] -= new_qty
+        save_stock()
+        preco_unit = round(float(new_product.get('price', 0.0)), 2)
+        valor_item = round(preco_unit * new_qty, 2)
+        items[idx] = {
+            'produto_code': new_code,
+            'produto_name': new_product['name'],
+            'quantidade':   new_qty,
+            'preco_unit':   preco_unit,
+            'valor_total':  valor_item,
+        }
+        order['valor_total'] = round(sum(float(i.get('valor_total', 0) or 0) for i in items), 2)
+        write_orders(orders)
+        log.info(f'✏️  Item substituído no pedido {order_id}: {old_code} -> {new_code} ({new_qty} un.)')
+    return jsonify({'ok': True, 'order': order})
+
 # ── API: resincronizar estoque a partir da planilha ────────────────────────────
 def _pedidos_pendentes_por_produto():
     """Soma, por código de produto, a quantidade de todos os pedidos que ainda NÃO
@@ -1252,6 +1332,16 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .produto-qtd{{font-weight:700;color:#27AE60;font-size:.82rem;white-space:nowrap}}
 .produto-preco{{color:#888;font-size:.8rem;white-space:nowrap}}
 .produto-total{{font-weight:700;color:#1A5FB4;font-size:.82rem;white-space:nowrap}}
+.produto-item-actions{{display:flex;gap:4px;margin-left:auto}}
+.btn-item-sub,.btn-item-del{{border:none;cursor:pointer;background:transparent;font-size:.85rem;padding:2px 5px;border-radius:5px;transition:.15s}}
+.btn-item-sub:hover{{background:#E3F2FD}}
+.btn-item-del:hover{{background:#FFEBEE}}
+.produto-row-edit{{display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap}}
+.sub-select{{flex:1;min-width:200px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
+.sub-qtd{{width:60px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
+.btn-item-ok,.btn-item-cancel{{border:none;cursor:pointer;border-radius:6px;padding:4px 10px;font-size:.76rem;font-weight:700;white-space:nowrap}}
+.btn-item-ok{{background:#4A1B7A;color:#fff}}
+.btn-item-cancel{{background:#eee;color:#555}}
 .pedido-bottom{{display:flex;gap:28px;flex-wrap:wrap;align-items:center}}
 /* badges */
 .tg{{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}}
@@ -1390,6 +1480,8 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 
 <script>
 let allOrders = [];
+let editingItem = null;
+let productsCache = null;
 
 async function loadOrders() {{
   try {{
@@ -1491,15 +1583,30 @@ function render(orders) {{
     const fmtBRL = v => v != null && v > 0 ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{{minimumFractionDigits:2,maximumFractionDigits:2}}) : '—';
     let produtosHtml;
     if (o.items && o.items.length) {{
-      produtosHtml = o.items.map(it => `
+      produtosHtml = o.items.map((it, idx) => {{
+        if (editingItem && editingItem.orderId === o.id && editingItem.idx === idx) {{
+          const opts = (productsCache||[]).map(p => `<option value="${{p.code}}" ${{p.code===it.produto_code?'selected':''}}>${{p.code}} — ${{p.name}}</option>`).join('');
+          return `
+        <div class="produto-row-edit">
+          <select id="sub-code-${{o.id}}-${{idx}}" class="sub-select">${{opts}}</select>
+          <input type="number" id="sub-qtd-${{o.id}}-${{idx}}" class="sub-qtd" min="1" value="${{it.quantidade}}">
+          <button class="btn-item-ok" onclick="confirmarSubstituicao('${{o.id}}', ${{idx}})">✅ Confirmar</button>
+          <button class="btn-item-cancel" onclick="cancelarEdicao()">✖️ Cancelar</button>
+        </div>`;
+        }}
+        return `
         <div class="produto-row">
           <span class="produto-code">${{it.produto_code||''}}</span>
           <span class="produto-nome">${{it.produto_name}}</span>
           <span class="produto-qtd">${{it.quantidade}} un.</span>
           <span class="produto-preco">${{fmtBRL(it.preco_unit)}}/un</span>
           <span class="produto-total">${{fmtBRL(it.valor_total)}}</span>
-        </div>`
-      ).join('');
+          <span class="produto-item-actions">
+            <button class="btn-item-sub" onclick="abrirSubstituir('${{o.id}}', ${{idx}})" title="Substituir item">🔄</button>
+            <button class="btn-item-del" onclick="removerItem('${{o.id}}', ${{idx}})" title="Remover item (devolve ao estoque)">🗑️</button>
+          </span>
+        </div>`;
+      }}).join('');
     }} else {{
       produtosHtml = `
         <div class="produto-row">
@@ -1560,6 +1667,70 @@ async function excluir(id) {{
     if (r.ok) {{ await loadOrders(); }}
     else {{ alert('Erro ao excluir. Tente novamente.'); }}
   }} catch(e) {{ alert('Erro de conexão.'); }}
+}}
+
+async function ensureProducts() {{
+  if (!productsCache) {{
+    try {{
+      const r = await fetch('/api/products');
+      productsCache = await r.json();
+    }} catch (e) {{
+      productsCache = [];
+    }}
+  }}
+  return productsCache;
+}}
+
+async function abrirSubstituir(orderId, idx) {{
+  await ensureProducts();
+  editingItem = {{ orderId, idx }};
+  render(allOrders);
+}}
+
+function cancelarEdicao() {{
+  editingItem = null;
+  render(allOrders);
+}}
+
+async function confirmarSubstituicao(orderId, idx) {{
+  const sel = document.getElementById(`sub-code-${{orderId}}-${{idx}}`);
+  const qtdInput = document.getElementById(`sub-qtd-${{orderId}}-${{idx}}`);
+  const code = sel ? sel.value : '';
+  const qtd = qtdInput ? parseInt(qtdInput.value, 10) : 0;
+  if (!code || !qtd || qtd < 1) {{ alert('Selecione um produto e uma quantidade válida.'); return; }}
+  try {{
+    const r = await fetch(`/api/orders/${{orderId}}/items/${{idx}}/replace`, {{
+      method: 'POST',
+      headers: {{'Content-Type':'application/json'}},
+      body: JSON.stringify({{produto_code: code, quantidade: qtd}})
+    }});
+    const data = await r.json();
+    if (r.ok && data.ok) {{
+      editingItem = null;
+      await loadOrders();
+    }} else {{
+      alert('Erro: ' + (data.error || 'Falha ao substituir.'));
+    }}
+  }} catch (e) {{
+    alert('Erro de conexão.');
+  }}
+}}
+
+async function removerItem(orderId, idx) {{
+  const o = allOrders.find(x => String(x.id) === String(orderId));
+  const nome = (o && o.items && o.items[idx]) ? o.items[idx].produto_name : '';
+  if (!confirm(`Remover "${{nome}}" deste item do pedido?\n\nO estoque será devolvido automaticamente.`)) return;
+  try {{
+    const r = await fetch(`/api/orders/${{orderId}}/items/${{idx}}/remove`, {{ method: 'POST' }});
+    const data = await r.json();
+    if (r.ok && data.ok) {{
+      await loadOrders();
+    }} else {{
+      alert('Erro: ' + (data.error || 'Falha ao remover item.'));
+    }}
+  }} catch (e) {{
+    alert('Erro de conexão.');
+  }}
 }}
 
 async function anexarNF(id, input) {{
