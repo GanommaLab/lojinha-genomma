@@ -800,6 +800,50 @@ def api_replace_order_item(order_id, idx):
         log.info(f'✏️  Item substituído no pedido {order_id}: {old_code} -> {new_code} ({new_qty} un.)')
     return jsonify({'ok': True, 'order': order})
 
+# --- API: adicionar item a um pedido existente ---
+@app.post('/api/orders/<order_id>/items/add')
+@require_admin
+def api_add_order_item(order_id):
+    data = request.get_json(silent=True) or {}
+    code = str(data.get('produto_code', '')).strip()
+    if not code:
+        return jsonify({'error': 'Selecione um produto para adicionar.'}), 400
+    with LOCK:
+        orders = load_orders()
+        order = next((o for o in orders if o.get('id') == order_id), None)
+        if not order:
+            return jsonify({'error': 'Pedido não encontrado.'}), 404
+        items = order.get('items')
+        if items is None:
+            return jsonify({'error': 'Este pedido não tem múltiplos itens.'}), 400
+        try:
+            qty = int(float(data.get('quantidade', 1)))
+            if qty < 1: raise ValueError
+        except Exception:
+            return jsonify({'error': 'Quantidade inválida.'}), 400
+        product = stock_data.get(code)
+        if not product:
+            return jsonify({'error': 'Produto não encontrado.'}), 404
+        if product.get('paused'):
+            return jsonify({'error': f'Produto "{product["name"]}" está pausado para venda.'}), 400
+        if qty > product['stock']:
+            return jsonify({'error': f'Estoque insuficiente para "{product["name"]}". Disponível: {product["stock"]} un.'}), 400
+        stock_data[code]['stock'] -= qty
+        save_stock()
+        preco_unit = round(float(product.get('price', 0.0)), 2)
+        valor_item = round(preco_unit * qty, 2)
+        items.append({
+            'produto_code': code,
+            'produto_name': product['name'],
+            'quantidade':   qty,
+            'preco_unit':   preco_unit,
+            'valor_total':  valor_item,
+        })
+        order['valor_total'] = round(sum(float(i.get('valor_total', 0) or 0) for i in items), 2)
+        write_orders(orders)
+        log.info(f'➕ Item adicionado ao pedido {order_id}: {code} ({qty} un.)')
+    return jsonify({'ok': True, 'order': order})
+
 # ── API: resincronizar estoque a partir da planilha ────────────────────────────
 def _pedidos_pendentes_por_produto():
     """Soma, por código de produto, a quantidade de todos os pedidos que ainda NÃO
@@ -1333,9 +1377,10 @@ header p{{color:rgba(255,255,255,.75);font-size:.88rem}}
 .produto-preco{{color:#888;font-size:.8rem;white-space:nowrap}}
 .produto-total{{font-weight:700;color:#1A5FB4;font-size:.82rem;white-space:nowrap}}
 .produto-item-actions{{display:flex;gap:4px;margin-left:auto}}
-.btn-item-sub,.btn-item-del{{border:none;cursor:pointer;background:transparent;font-size:.85rem;padding:2px 5px;border-radius:5px;transition:.15s}}
+.btn-item-sub,.btn-item-del,.btn-item-qty{{border:none;cursor:pointer;background:transparent;font-size:.85rem;padding:2px 5px;border-radius:5px;transition:.15s}}
 .btn-item-sub:hover{{background:#E3F2FD}}
 .btn-item-del:hover{{background:#FFEBEE}}
+.btn-item-qty:hover{{background:#FFF3E0}}
 .produto-row-edit{{display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap}}
 .sub-select{{flex:1;min-width:200px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
 .sub-qtd{{width:60px;padding:4px 6px;border-radius:6px;border:1px solid #D1C4E9;font-size:.82rem}}
@@ -1584,6 +1629,15 @@ function render(orders) {{
     let produtosHtml;
     if (o.items && o.items.length) {{
       produtosHtml = o.items.map((it, idx) => {{
+        if (editingItem && editingItem.orderId === o.id && editingItem.idx === idx && editingItem.mode === 'qty') {{
+          return `
+        <div class="produto-row-edit">
+          <span class="produto-nome">${{it.produto_name}}</span>
+          <input type="number" id="qty-only-${{o.id}}-${{idx}}" class="sub-qtd" min="1" value="${{it.quantidade}}">
+          <button class="btn-item-ok" onclick="confirmarQuantidade('${{o.id}}', ${{idx}})">✅ Confirmar</button>
+          <button class="btn-item-cancel" onclick="cancelarEdicao()">✖️ Cancelar</button>
+        </div>`;
+        }}
         if (editingItem && editingItem.orderId === o.id && editingItem.idx === idx) {{
           const opts = (productsCache||[]).map(p => `<option value="${{p.code}}" ${{p.code===it.produto_code?'selected':''}}>${{p.code}} — ${{p.name}}</option>`).join('');
           return `
@@ -1602,6 +1656,7 @@ function render(orders) {{
           <span class="produto-preco">${{fmtBRL(it.preco_unit)}}/un</span>
           <span class="produto-total">${{fmtBRL(it.valor_total)}}</span>
           <span class="produto-item-actions">
+            <button class="btn-item-qty" onclick="abrirEditarQtd('${{o.id}}', ${{idx}})" title="Editar quantidade">✏️</button>
             <button class="btn-item-sub" onclick="abrirSubstituir('${{o.id}}', ${{idx}})" title="Substituir item">🔄</button>
             <button class="btn-item-del" onclick="removerItem('${{o.id}}', ${{idx}})" title="Remover item (devolve ao estoque)">🗑️</button>
           </span>
@@ -1683,7 +1738,12 @@ async function ensureProducts() {{
 
 async function abrirSubstituir(orderId, idx) {{
   await ensureProducts();
-  editingItem = {{ orderId, idx }};
+  editingItem = {{ orderId, idx, mode: 'substitute' }};
+  render(allOrders);
+}}
+
+function abrirEditarQtd(orderId, idx) {{
+  editingItem = {{ orderId, idx, mode: 'qty' }};
   render(allOrders);
 }}
 
@@ -1716,6 +1776,30 @@ async function confirmarSubstituicao(orderId, idx) {{
   }}
 }}
 
+
+async function confirmarQuantidade(orderId, idx) {{
+  const o = allOrders.find(x => String(x.id) === String(orderId));
+  const it = (o && o.items) ? o.items[idx] : null;
+  const qtdInput = document.getElementById(`qty-only-${{orderId}}-${{idx}}`);
+  const qtd = qtdInput ? parseInt(qtdInput.value, 10) : 0;
+  if (!it || !qtd || qtd < 1) {{ alert('Quantidade inválida.'); return; }}
+  try {{
+    const r = await fetch(`/api/orders/${{orderId}}/items/${{idx}}/replace`, {{
+      method: 'POST',
+      headers: {{'Content-Type':'application/json'}},
+      body: JSON.stringify({{produto_code: it.produto_code, quantidade: qtd}})
+    }});
+    const data = await r.json();
+    if (r.ok && data.ok) {{
+      editingItem = null;
+      await loadOrders();
+    }} else {{
+      alert('Erro: ' + (data.error || 'Falha ao atualizar quantidade.'));
+    }}
+  }} catch (e) {{
+    alert('Erro de conexão.');
+  }}
+}}
 async function removerItem(orderId, idx) {{
   const o = allOrders.find(x => String(x.id) === String(orderId));
   const nome = (o && o.items && o.items[idx]) ? o.items[idx].produto_name : '';
