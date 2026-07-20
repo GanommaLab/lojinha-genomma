@@ -342,7 +342,8 @@
     "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
     "stock": 0,
     "price": 44.85,
-    "image": "produto_4043800.jpg"
+    "image": "produto_4043800.jpg",
+    "paused": true
   },
   "4043900": {
     "code": "4043900",
