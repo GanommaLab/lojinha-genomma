@@ -314,7 +314,7 @@
     "stock": 1,
     "price": 13.2,
     "image": "produto_4042010.jpg",
-    "paused": true
+    "paused": false
   },
   "4043000": {
     "code": "4043000",
