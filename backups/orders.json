@@ -23,8 +23,9 @@
     ],
     "valor_total": 70.77,
     "comprovante": "20260720_195140_Comprovante_TN.jpeg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260720195141624_20260720_202150_Murilo_NF_5918.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260720195141624_20260720_202150_Murilo_NF_5918.pdf",
+    "entregue_em": "20/07/2026 20:21"
   },
   {
     "id": "20260715200009556",
