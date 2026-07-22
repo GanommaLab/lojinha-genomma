@@ -30,7 +30,7 @@
   "1031069": {
     "code": "1031069",
     "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
-    "stock": 30,
+    "stock": 22,
     "price": 10.56,
     "image": "produto_1031069.jpg"
   },
@@ -129,7 +129,7 @@
   "1109700": {
     "code": "1109700",
     "name": "Cicatricure Água Micelar 200 mL",
-    "stock": 10,
+    "stock": 9,
     "price": 14.7,
     "image": "produto_1109700.jpg"
   },
@@ -234,7 +234,7 @@
   "2310900": {
     "code": "2310900",
     "name": "LakesiaMedical Esmalte 3g",
-    "stock": 15,
+    "stock": 14,
     "price": 79.79,
     "image": "produto_2310900.jpg"
   },
@@ -405,7 +405,7 @@
   "4406200": {
     "code": "4406200",
     "name": "Liris Power 10 mL",
-    "stock": 10,
+    "stock": 9,
     "price": 39.58,
     "image": "produto_4406200.jpg"
   },
@@ -426,7 +426,7 @@
   "5300100": {
     "code": "5300100",
     "name": "Renovaflora Probiótico 10 caps",
-    "stock": 49,
+    "stock": 48,
     "price": 28.42,
     "image": "produto_5300100.jpg"
   },
