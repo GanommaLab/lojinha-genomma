@@ -178,7 +178,8 @@
     "name": "Cicatricure Porcelana Peeling Facial 30ml",
     "stock": 0,
     "price": 22.12,
-    "image": "produto_1110800.jpg"
+    "image": "produto_1110800.jpg",
+    "paused": true
   },
   "1111400": {
     "code": "1111400",
