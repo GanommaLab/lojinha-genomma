@@ -170,7 +170,8 @@
     "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
     "stock": 0,
     "price": 8.63,
-    "image": "produto_1110700.jpg"
+    "image": "produto_1110700.jpg",
+    "paused": true
   },
   "1110800": {
     "code": "1110800",
