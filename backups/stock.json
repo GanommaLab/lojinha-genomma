@@ -33,7 +33,8 @@
     "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
     "stock": 27,
     "price": 10.56,
-    "image": "produto_1031069.jpg"
+    "image": "produto_1031069.jpg",
+    "paused": true
   },
   "1031070": {
     "code": "1031070",
