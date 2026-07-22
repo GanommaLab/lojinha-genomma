@@ -559,5 +559,52 @@
     "valor_total": 28.42,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20260722143353728",
+    "data_hora": "22/07/2026 14:33:53",
+    "nome": "José Carlos de Almeida",
+    "email": "jose.almeida@contractor.genommalab.com",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1109700",
+        "produto_name": "Cicatricure Água Micelar 200 mL",
+        "quantidade": 1,
+        "preco_unit": 14.7,
+        "valor_total": 14.7
+      },
+      {
+        "produto_code": "5300100",
+        "produto_name": "Renovaflora Probiótico 10 caps",
+        "quantidade": 1,
+        "preco_unit": 28.42,
+        "valor_total": 28.42
+      },
+      {
+        "produto_code": "1031069",
+        "produto_name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
+        "quantidade": 8,
+        "preco_unit": 10.56,
+        "valor_total": 84.48
+      },
+      {
+        "produto_code": "2310900",
+        "produto_name": "LakesiaMedical Esmalte 3g",
+        "quantidade": 1,
+        "preco_unit": 79.79,
+        "valor_total": 79.79
+      },
+      {
+        "produto_code": "4406200",
+        "produto_name": "Liris Power 10 mL",
+        "quantidade": 1,
+        "preco_unit": 39.58,
+        "valor_total": 39.58
+      }
+    ],
+    "valor_total": 246.97,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
