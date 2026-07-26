@@ -2,6 +2,7 @@
 Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 """
 import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64, time
+import html as htmllib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -555,6 +556,8 @@ def api_order():
         nomes = ', '.join(i['produto_name'] for i in order_items)
         log.info(f'📝 Pedido {order["id"]} — {nome} / {len(order_items)} itens: {nomes}')
         threading.Thread(target=_send_teams_notification, args=(order,), daemon=True).start()
+        _send_admin_order_email_async(order, attach_path, attach_name)
+        _send_customer_receipt_async(order)
         return jsonify({'success': True, 'message': 'Pedido finalizado!',
                         'itens': len(order_items), 'total': total_valor})
 
@@ -611,11 +614,9 @@ def api_order():
     _log_new_order(order)
     log.info(f'📝 Pedido {order["id"]} — {nome} / {snap["name"]} x{qty}')
 
-    def try_email():
-        try: _send_email(nome, email, tipo, snap, qty, attach_path, attach_name)
-        except Exception as e: log.warning(f'⚠️ Email não enviado: {e}')
-    threading.Thread(target=try_email, daemon=True).start()
+    _send_admin_order_email_async(order, attach_path, attach_name)
     threading.Thread(target=_send_teams_notification, args=(order,), daemon=True).start()
+    _send_customer_receipt_async(order)
 
     return jsonify({'success':True,'message':'Pedido finalizado!','produto':snap['name'],'quantidade':qty})
 
@@ -2182,50 +2183,217 @@ def _brevo_send(to, subject, html, reply_to=None, attachment=None):
         return False
 
 # ── Email ─────────────────────────────────────────────────────────────────────────
-def _send_email(nome, email, tipo, product, qty, attach_path, attach_name):
+def _send_email(order, attach_path=None, attach_name=None):
+    """Avisa a administração da lojinha sobre um novo pedido. Funciona tanto para
+    pedidos multi-item quanto para o formato antigo de item único — antes esta
+    notificação só era disparada em pedidos de um produto só."""
     if not SMTP_USER or not BREVO_API_KEY: return
-    tipo_label = '🏢 Genomma' if tipo == 'genomma' else '🤝 Terceirizado(a)'
-    dh = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+
+    esc = htmllib.escape
+    itens = _order_items(order)
+    if not itens:
+        log.warning(f'⚠️  Pedido {order.get("id")} sem itens — aviso à administração não enviado.')
+        return
+
+    nome  = order.get('nome', '')
+    email = order.get('email', '')
+    tipo_label = '🏢 Genomma' if order.get('tipo') == 'genomma' else '🤝 Terceirizado(a)'
+    dh = order.get('data_hora') or datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+    total = float(order.get('valor_total', 0) or 0)
+
+    linhas = ''.join(
+        f'<tr>'
+        f'<td style="padding:9px 8px;border-bottom:1px solid #eee;">{esc(str(it.get("produto_name","")))}'
+        f'<br><span style="color:#999;font-size:12px;">cód. {esc(str(it.get("produto_code","")))}</span></td>'
+        f'<td style="padding:9px 8px;border-bottom:1px solid #eee;text-align:center;font-weight:bold;color:#27AE60;white-space:nowrap;">{int(it.get("quantidade",0) or 0)} un.</td>'
+        f'<td style="padding:9px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">{_brl(it.get("preco_unit",0))}</td>'
+        f'<td style="padding:9px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;"><b>{_brl(it.get("valor_total",0))}</b></td>'
+        f'</tr>'
+        for it in itens
+    )
+    separar = ''.join(
+        f'<li style="margin:3px 0;">{int(it.get("quantidade",0) or 0)} un. de <em>{esc(str(it.get("produto_name","")))}</em></li>'
+        for it in itens
+    )
+
     html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;">
 <div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
   <div style="background:linear-gradient(135deg,#4A1B7A,#1A5FB4);padding:28px;text-align:center;">
     <h1 style="color:white;margin:0;font-size:22px;">🛍️ Novo Pedido Recebido</h1>
-    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;">{dh}</p>
+    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;">Pedido #{esc(str(order.get('id','')))} · {esc(dh)}</p>
   </div>
   <div style="padding:28px;">
     <h2 style="color:#4A1B7A;border-bottom:2px solid #f0e6f6;padding-bottom:10px;">👤 Comprador</h2>
     <table style="width:100%;border-collapse:collapse;">
-      <tr><td style="padding:7px 0;color:#666;width:140px;"><b>Nome:</b></td><td>{nome}</td></tr>
-      <tr><td style="padding:7px 0;color:#666;"><b>E-mail:</b></td><td>{email}</td></tr>
+      <tr><td style="padding:7px 0;color:#666;width:140px;"><b>Nome:</b></td><td>{esc(nome)}</td></tr>
+      <tr><td style="padding:7px 0;color:#666;"><b>E-mail:</b></td><td>{esc(email)}</td></tr>
       <tr><td style="padding:7px 0;color:#666;"><b>Vínculo:</b></td><td>{tipo_label}</td></tr>
     </table>
-    <h2 style="color:#4A1B7A;border-bottom:2px solid #f0e6f6;padding-bottom:10px;margin-top:22px;">📦 Produto</h2>
-    <table style="width:100%;border-collapse:collapse;">
-      <tr><td style="padding:7px 0;color:#666;width:140px;"><b>Produto:</b></td><td>{product["name"]}</td></tr>
-      <tr><td style="padding:7px 0;color:#666;"><b>Código:</b></td><td>{product["code"]}</td></tr>
-      <tr><td style="padding:7px 0;color:#666;"><b>Quantidade:</b></td>
-          <td style="font-size:18px;font-weight:bold;color:#27AE60;">{qty} un.</td></tr>
+    <h2 style="color:#4A1B7A;border-bottom:2px solid #f0e6f6;padding-bottom:10px;margin-top:22px;">📦 Produtos ({len(itens)})</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="background:#f8f3ff;">
+        <th style="padding:9px 8px;text-align:left;color:#4A1B7A;">Produto</th>
+        <th style="padding:9px 8px;text-align:center;color:#4A1B7A;">Qtd.</th>
+        <th style="padding:9px 8px;text-align:right;color:#4A1B7A;white-space:nowrap;">Valor unit.</th>
+        <th style="padding:9px 8px;text-align:right;color:#4A1B7A;">Subtotal</th>
+      </tr></thead>
+      <tbody>{linhas}</tbody>
     </table>
+    <p style="margin-top:14px;text-align:right;font-size:16px;color:#27AE60;"><b>Total: {_brl(total)}</b></p>
     <div style="background:#f8f3ff;border-left:4px solid #4A1B7A;padding:13px;border-radius:4px;margin-top:22px;">
-      <p style="margin:0;color:#4A1B7A;"><b>💡 Ação:</b> Separar {qty} un. de <em>{product["name"]}</em> → enviar para {email}</p>
+      <p style="margin:0 0 6px;color:#4A1B7A;"><b>💡 Ação: separar e enviar para {esc(email)}</b></p>
+      <ul style="margin:0;padding-left:20px;color:#4A1B7A;">{separar}</ul>
     </div>
   </div>
   <div style="background:#f5f5f5;padding:14px;text-align:center;">
-    <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab · {dh}</p>
+    <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab · {esc(dh)}</p>
   </div>
 </div></body></html>"""
     attachment = None
     if attach_path and Path(attach_path).exists():
         with open(str(attach_path), 'rb') as f:
             attachment = [{'content': base64.b64encode(f.read()).decode(), 'name': attach_name or 'comprovante'}]
-    _brevo_send(
+    ok = _brevo_send(
         to=[DEST_EMAIL],
         subject=f'🛍️ Novo Pedido — {nome}',
         html=html,
-        reply_to=email,
+        reply_to=email or None,
         attachment=attachment,
     )
+    if ok:
+        log.info(f'📧 Aviso de novo pedido {order.get("id")} enviado para {DEST_EMAIL}.')
+
+
+def _send_admin_order_email_async(order, attach_path=None, attach_name=None):
+    """Dispara o aviso à administração em background, blindado contra exceções."""
+    def _run():
+        try:
+            _send_email(order, attach_path, attach_name)
+        except Exception as e:
+            log.warning(f'⚠️  Email não enviado: {e}')
+    threading.Thread(target=_run, daemon=True).start()
+
+# ── Email de confirmação para o comprador ─────────────────────────────────────
+def _brl(valor):
+    """Formata um número no padrão monetário brasileiro: 1234.5 → 'R$ 1.234,50'."""
+    try:
+        v = float(valor or 0)
+    except (TypeError, ValueError):
+        v = 0.0
+    return 'R$ ' + f'{v:,.2f}'.replace(',', '@').replace('.', ',').replace('@', '.')
+
+
+def _order_items(order):
+    """Normaliza o pedido em uma lista de itens, aceitando tanto o formato
+    multi-item (chave 'items') quanto o formato antigo de item único."""
+    if order.get('items'):
+        return list(order['items'])
+    if not order.get('produto_name'):
+        return []
+    qty = int(order.get('quantidade', 0) or 0)
+    valor_total = float(order.get('valor_total', 0) or 0)
+    preco_unit = order.get('preco_unit')
+    if preco_unit in (None, ''):
+        preco_unit = round(valor_total / qty, 2) if qty else 0.0
+    return [{
+        'produto_code': order.get('produto_code', ''),
+        'produto_name': order.get('produto_name', ''),
+        'quantidade':   qty,
+        'preco_unit':   float(preco_unit),
+        'valor_total':  valor_total,
+    }]
+
+
+def _send_customer_receipt(order):
+    """Envia ao comprador, no e-mail que ele informou no checkout, o resumo do
+    pedido: descrição do produto, quantidade, valor unitário, valor por item e
+    valor total da compra. Roda em thread separada — nunca bloqueia o checkout."""
+    if not SMTP_USER or not BREVO_API_KEY:
+        log.warning('⚠️  Resumo do pedido não enviado ao comprador: Brevo não configurado.')
+        return
+
+    destino = (order.get('email') or '').strip()
+    if not destino:
+        log.warning(f'⚠️  Pedido {order.get("id")} sem e-mail do comprador — resumo não enviado.')
+        return
+
+    itens = _order_items(order)
+    if not itens:
+        log.warning(f'⚠️  Pedido {order.get("id")} sem itens — resumo não enviado.')
+        return
+
+    esc = htmllib.escape
+    nome = esc(order.get('nome', ''))
+    pedido_id = esc(str(order.get('id', '')))
+    dh = esc(order.get('data_hora', datetime.now().strftime('%d/%m/%Y %H:%M:%S')))
+    total = float(order.get('valor_total', 0) or 0)
+
+    linhas = ''.join(
+        f'<tr>'
+        f'<td style="padding:11px 8px;border-bottom:1px solid #eee;color:#333;">{esc(str(it.get("produto_name","")))}</td>'
+        f'<td style="padding:11px 8px;border-bottom:1px solid #eee;text-align:center;color:#333;">{int(it.get("quantidade",0) or 0)}</td>'
+        f'<td style="padding:11px 8px;border-bottom:1px solid #eee;text-align:right;color:#333;white-space:nowrap;">{_brl(it.get("preco_unit",0))}</td>'
+        f'<td style="padding:11px 8px;border-bottom:1px solid #eee;text-align:right;color:#333;white-space:nowrap;"><b>{_brl(it.get("valor_total",0))}</b></td>'
+        f'</tr>'
+        for it in itens
+    )
+
+    html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;margin:0;">
+<div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);">
+  <div style="background:linear-gradient(135deg,#4A1B7A,#1A5FB4);padding:28px;text-align:center;">
+    <h1 style="color:white;margin:0;font-size:22px;">✅ Pedido confirmado</h1>
+    <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:13px;">Pedido #{pedido_id} · {dh}</p>
+  </div>
+  <div style="padding:28px;">
+    <p style="margin:0 0 20px;color:#333;font-size:15px;">Olá, <b>{nome}</b>! Recebemos o seu pedido na Lojinha Genomma. Segue o resumo da sua compra:</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr style="background:#f8f3ff;">
+          <th style="padding:10px 8px;text-align:left;color:#4A1B7A;border-bottom:2px solid #e6d9f2;">Produto</th>
+          <th style="padding:10px 8px;text-align:center;color:#4A1B7A;border-bottom:2px solid #e6d9f2;">Qtd.</th>
+          <th style="padding:10px 8px;text-align:right;color:#4A1B7A;border-bottom:2px solid #e6d9f2;white-space:nowrap;">Valor unit.</th>
+          <th style="padding:10px 8px;text-align:right;color:#4A1B7A;border-bottom:2px solid #e6d9f2;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {linhas}
+      </tbody>
+    </table>
+    <table style="width:100%;border-collapse:collapse;margin-top:18px;">
+      <tr>
+        <td style="padding:14px 8px;background:#f8f3ff;border-radius:6px 0 0 6px;color:#4A1B7A;font-size:15px;"><b>Valor total da compra</b></td>
+        <td style="padding:14px 8px;background:#f8f3ff;border-radius:0 6px 6px 0;text-align:right;color:#27AE60;font-size:19px;white-space:nowrap;"><b>{_brl(total)}</b></td>
+      </tr>
+    </table>
+  </div>
+  <div style="background:#f5f5f5;padding:16px;text-align:center;">
+    <p style="color:#aaa;font-size:11px;margin:0;">Lojinha Interna Genomma Lab · Este é um e-mail automático, não é necessário responder.</p>
+  </div>
+</div></body></html>"""
+
+    ok = _brevo_send(
+        to=[destino],
+        subject=f'Resumo do seu pedido — Lojinha Genomma (#{order.get("id","")})',
+        html=html,
+        reply_to=DEST_EMAIL,
+    )
+    if ok:
+        log.info(f'📧 Resumo do pedido {order.get("id")} enviado ao comprador ({destino}).')
+    else:
+        log.warning(f'⚠️  Falha ao enviar o resumo do pedido {order.get("id")} para {destino}.')
+
+
+def _send_customer_receipt_async(order):
+    """Dispara o resumo do comprador em background, blindado contra exceções."""
+    def _run():
+        try:
+            _send_customer_receipt(order)
+        except Exception as e:
+            log.warning(f'⚠️  Erro inesperado ao enviar resumo ao comprador: {e}')
+    threading.Thread(target=_run, daemon=True).start()
+
 
 # ── Email de Nota Fiscal (pedido entregue) ──────────────────────────────────────
 NF_EMAIL_RECIPIENTS = [
