@@ -3,6 +3,7 @@ Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 """
 import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64, time
 import html as htmllib
+import hmac
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -65,12 +66,16 @@ BREVO_API_KEY = ''
 DEST_EMAIL = 'maycon.silva@contractor.genommalab.com'
 PORT       = 3000
 ADMIN_USER    = 'admin'
-ADMIN_PASS    = '5827'
+# Segredos NÃO ficam no código — este repositório é público.
+# Defina ADMIN_PASS e TEAMS_WEBHOOK_URL nas variáveis de ambiente do Render.
+# Sem ADMIN_PASS definido o /admin fica fechado (nenhuma senha é aceita);
+# sem TEAMS_WEBHOOK_URL a notificação do Teams simplesmente não é enviada.
+ADMIN_PASS    = ''
 GITHUB_TOKEN  = ''
 GITHUB_OWNER  = 'GanommaLab'
 GITHUB_REPO   = 'lojinha-genomma'
 GITHUB_BRANCH = 'main'
-TEAMS_WEBHOOK_URL = 'https://defaultfd62b29cf0f442188ed60bccbb1b1b.67.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8ea0e9a86e794cf499da0d84cb674621/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=V3ILIIj6HZlRCu1WfsTbzw3UNLpz8i_1ZdQxdLScpwk'
+TEAMS_WEBHOOK_URL = ''
 
 env_file = BASE / '.env'
 if env_file.exists():
@@ -85,6 +90,7 @@ SMTP_USER  = os.getenv('SMTP_USER', SMTP_USER)
 SMTP_PASS  = os.getenv('SMTP_PASS', SMTP_PASS)
 BREVO_API_KEY = os.getenv('BREVO_API_KEY', BREVO_API_KEY)
 PORT       = int(os.getenv('PORT', str(PORT)))
+ADMIN_USER    = os.getenv('ADMIN_USER',    ADMIN_USER)
 ADMIN_PASS    = os.getenv('ADMIN_PASS',    ADMIN_PASS)
 GITHUB_TOKEN  = os.getenv('GITHUB_TOKEN',  GITHUB_TOKEN)
 GITHUB_OWNER  = os.getenv('GITHUB_OWNER',  GITHUB_OWNER)
@@ -272,7 +278,15 @@ def reconcile_orders_with_log():
 
 # ── Autenticação Admin ────────────────────────────────────────────────────────
 def _check_auth(username, password):
-    return username == ADMIN_USER and password == ADMIN_PASS
+    # Fecha o acesso se a senha não estiver configurada — assim uma variável de
+    # ambiente ausente nunca deixa o /admin aberto por engano.
+    if not ADMIN_PASS:
+        log.error('🔒 ADMIN_PASS não configurada — acesso ao /admin bloqueado. '
+                  'Defina a variável de ambiente ADMIN_PASS no Render.')
+        return False
+    # compare_digest evita vazar a senha pelo tempo de resposta.
+    return (hmac.compare_digest(username or '', ADMIN_USER) and
+            hmac.compare_digest(password or '', ADMIN_PASS))
 
 def require_admin(f):
     @functools.wraps(f)
@@ -2489,6 +2503,15 @@ def _send_nf_email(order):
         log.info(f'📧 Email de NF enviado (via Brevo) para {", ".join(NF_EMAIL_RECIPIENTS)} — pedido {order.get("id")}')
 
 
+
+# ── Conferência da configuração (roda também sob gunicorn) ────────────────────
+if not ADMIN_PASS:
+    log.error('🔒 ADMIN_PASS não definida — o painel /admin está BLOQUEADO. '
+              'Cadastre a variável de ambiente ADMIN_PASS no Render.')
+if not TEAMS_WEBHOOK_URL:
+    log.warning('⚠️  TEAMS_WEBHOOK_URL não definida — notificações do Teams desativadas.')
+if not BREVO_API_KEY or not SMTP_USER:
+    log.warning('⚠️  Brevo não configurada (SMTP_USER/BREVO_API_KEY) — nenhum e-mail será enviado.')
 
 # ── Inicialização do estoque (compatível com gunicorn) ────────────────────────
 init_stock()
