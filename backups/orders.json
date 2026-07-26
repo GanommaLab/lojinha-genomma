@@ -1,24 +1,5 @@
 [
   {
-    "id": "20260726211649103",
-    "data_hora": "26/07/2026 21:16:49",
-    "nome": "maycon Dias",
-    "email": "maycon351@yahoo.com.br",
-    "tipo": "terceirizado",
-    "items": [
-      {
-        "produto_code": "1031087",
-        "produto_name": "Asepxia Barra Detox 80g",
-        "quantidade": 1,
-        "preco_unit": 9.71,
-        "valor_total": 9.71
-      }
-    ],
-    "valor_total": 9.71,
-    "comprovante": "",
-    "status": "pendente"
-  },
-  {
     "id": "20260722210812972",
     "data_hora": "22/07/2026 21:08:12",
     "nome": "ROSERLANDIA MARIA ALVES VALENTIM",
