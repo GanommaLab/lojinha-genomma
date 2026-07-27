@@ -16,8 +16,9 @@
     ],
     "valor_total": 23.59,
     "comprovante": "20260722_210811_Screenshot_20260722_180645_Ita.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260722210812972_20260727_122536_Rose_NF_5922.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260722210812972_20260727_122536_Rose_NF_5922.pdf",
+    "entregue_em": "27/07/2026 12:25"
   },
   {
     "id": "20260722143353728",
