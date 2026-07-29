@@ -722,5 +722,31 @@
     "valor_total": 70.42,
     "comprovante": "20260729_170416_WhatsApp_Image_2026-07-29_at_14.03.49.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20260729202222531",
+    "data_hora": "29/07/2026 20:22:22",
+    "nome": "ALESSANDRA CHAVES DE JESUS REZENDE",
+    "email": "alessandra.rezende@genommalab.com",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "2310900",
+        "produto_name": "LakesiaMedical Esmalte 3g",
+        "quantidade": 1,
+        "preco_unit": 79.79,
+        "valor_total": 79.79
+      },
+      {
+        "produto_code": "4406000",
+        "produto_name": "Liris Carmelose Sódica 10 mL 5mg/mL",
+        "quantidade": 2,
+        "preco_unit": 30.15,
+        "valor_total": 60.3
+      }
+    ],
+    "valor_total": 140.09,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
