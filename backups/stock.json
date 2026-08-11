@@ -385,7 +385,8 @@
     "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
     "stock": 2,
     "price": 23.59,
-    "image": "produto_4044300.jpg"
+    "image": "produto_4044300.jpg",
+    "paused": true
   },
   "4044400": {
     "code": "4044400",
