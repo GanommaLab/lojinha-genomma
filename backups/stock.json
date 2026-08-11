@@ -289,7 +289,7 @@
   "4041040": {
     "code": "4041040",
     "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
-    "stock": 11,
+    "stock": 10,
     "price": 23.59,
     "image": "produto_4041040.jpg"
   },
@@ -383,7 +383,7 @@
   "4044300": {
     "code": "4044300",
     "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
-    "stock": 2,
+    "stock": 3,
     "price": 23.59,
     "image": "produto_4044300.jpg",
     "paused": false
