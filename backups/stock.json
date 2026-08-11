@@ -386,7 +386,7 @@
     "stock": 2,
     "price": 23.59,
     "image": "produto_4044300.jpg",
-    "paused": true
+    "paused": false
   },
   "4044400": {
     "code": "4044400",
