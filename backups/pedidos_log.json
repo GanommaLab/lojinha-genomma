@@ -850,5 +850,38 @@
     "valor_total": 23.59,
     "comprovante": "20260812_112400_IMG_1018.png",
     "status": "pendente"
+  },
+  {
+    "id": "20260812191233482",
+    "data_hora": "12/08/2026 19:12:33",
+    "nome": "RUBENS SANTOS TEIXEIRA",
+    "email": "RUBENS.SANTOS@CONTRACTOR.GENOMMALAB.COM",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "2100100",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+        "quantidade": 1,
+        "preco_unit": 17.01,
+        "valor_total": 17.01
+      },
+      {
+        "produto_code": "4041041",
+        "produto_name": "Tío Nacho Reconstrutor Condicionador 415 mL",
+        "quantidade": 2,
+        "preco_unit": 21.78,
+        "valor_total": 43.56
+      },
+      {
+        "produto_code": "4041040",
+        "produto_name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+        "quantidade": 2,
+        "preco_unit": 23.59,
+        "valor_total": 47.18
+      }
+    ],
+    "valor_total": 107.75,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
