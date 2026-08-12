@@ -70,7 +70,8 @@
     ],
     "valor_total": 23.59,
     "comprovante": "20260811_195909_Pgto_Tio_nacho_Tamara.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260811195911036_20260812_192429_KATE_5.935.pdf"
   },
   {
     "id": "20260810204950825",
