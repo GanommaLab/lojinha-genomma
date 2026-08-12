@@ -49,8 +49,9 @@
     ],
     "valor_total": 23.59,
     "comprovante": "20260812_112400_IMG_1018.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260812112401759_20260812_192400_ALINE_5.939.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260812112401759_20260812_192400_ALINE_5.939.pdf",
+    "entregue_em": "12/08/2026 19:24"
   },
   {
     "id": "20260811195911036",
