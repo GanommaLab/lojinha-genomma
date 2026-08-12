@@ -699,6 +699,34 @@ def api_nota_fiscal(order_id):
     log.info(f'📄 Nota fiscal anexada ao pedido {order_id}: {fname}')
     return jsonify({'ok': True, 'nota_fiscal': fname})
 
+# ── API: anexar comprovante manualmente ───────────────────────────────────────
+@app.post('/api/orders/<order_id>/comprovante')
+@require_admin
+def api_comprovante(order_id):
+    """Permite ao admin anexar o comprovante de pagamento a um pedido já feito.
+    Útil para pedidos de terceirizados, em que a pessoa manda o comprovante por
+    fora (WhatsApp, e-mail) em vez de subir no checkout."""
+    file = request.files.get('comprovante')
+    if not file or not file.filename:
+        return jsonify({'error': 'Nenhum arquivo enviado.'}), 400
+    ts    = datetime.now().strftime('%Y%m%d_%H%M%S')
+    safe  = ''.join(c if c.isalnum() or c in '._-' else '_' for c in file.filename)
+    fname = f'comp_{order_id}_{ts}_{safe}'
+    _save_upload(file, UPLOAD / fname)
+    with LOCK:
+        orders = load_orders()
+        found  = False
+        for o in orders:
+            if o.get('id') == order_id:
+                o['comprovante'] = fname
+                found = True
+                break
+        if not found:
+            return jsonify({'error': 'Pedido não encontrado.'}), 404
+        write_orders(orders)
+    log.info(f'📎 Comprovante anexado ao pedido {order_id}: {fname}')
+    return jsonify({'ok': True, 'comprovante': fname})
+
 # ── API: excluir pedido ───────────────────────────────────────────────────────
 @app.delete('/api/orders/<order_id>')
 @require_admin
@@ -1628,7 +1656,18 @@ function render(orders) {{
     const sBadge = done
       ? "<span class='tg tg-e'>✅ Entregue" + (o.entregue_em ? '<br><small style=\\"font-weight:400;opacity:.75;font-size:.68rem\\">' + o.entregue_em + '</small>' : '') + "</span>"
       : "<span class='tg tg-p'>⏳ Pendente</span>";
-    const cLink  = o.comprovante ? `<a href="/uploads/${{o.comprovante}}" target="_blank" style="color:#4A1B7A;font-weight:600;text-decoration:none;">📎 Ver</a>` : '—';
+    const cLink  = o.comprovante
+      ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+           <a href="/uploads/${{o.comprovante}}" target="_blank" style="color:#4A1B7A;font-weight:600;text-decoration:none;">📎 Ver</a>
+           <label style="cursor:pointer;background:#FFF4E0;color:#B8860B;border:1px solid #B8860B;border-radius:6px;padding:2px 6px;font-size:.72rem;font-weight:600;white-space:nowrap;">
+             🔄 Alterar
+             <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarComprovante('${{o.id}}',this)">
+           </label>
+         </div>`
+      : `<label style="cursor:pointer;background:#F3EAFB;color:#4A1B7A;border:1px solid #4A1B7A;border-radius:6px;padding:3px 8px;font-size:.78rem;font-weight:600;white-space:nowrap;">
+           📎 Anexar comprovante
+           <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarComprovante('${{o.id}}',this)">
+         </label>`;
     const nfCell = o.nota_fiscal
       ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
            <a href="/uploads/${{o.nota_fiscal}}" target="_blank" style="color:#27AE60;font-weight:600;text-decoration:none;">📄 Ver NF</a>
@@ -1874,6 +1913,29 @@ async function anexarNF(id, input) {{
   }} catch(e) {{
     alert('Erro de conexão.');
     label.innerHTML = '📎 Tentar novamente <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarNF(\\'' + id + '\\',this)">';
+  }}
+}}
+
+async function anexarComprovante(id, input) {{
+  const file = input.files[0];
+  if (!file) return;
+  const label = input.parentElement;
+  label.textContent = '⏳ Enviando...';
+  const fd = new FormData();
+  fd.append('comprovante', file);
+  const retry = '📎 Tentar novamente <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="anexarComprovante(\\'' + id + '\\',this)">';
+  try {{
+    const r = await fetch(`/api/orders/${{id}}/comprovante`, {{method:'POST', body:fd}});
+    if (r.ok) {{
+      await loadOrders();
+    }} else {{
+      const d = await r.json();
+      alert('Erro: ' + (d.error||'Falha no upload.'));
+      label.innerHTML = retry;
+    }}
+  }} catch(e) {{
+    alert('Erro de conexão.');
+    label.innerHTML = retry;
   }}
 }}
 
