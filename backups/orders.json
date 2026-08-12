@@ -194,7 +194,8 @@
     ],
     "valor_total": 70.42,
     "comprovante": "20260729_170416_WhatsApp_Image_2026-07-29_at_14.03.49.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20260729170418113_20260812_192722_ALEXANDRE_5.932.pdf"
   },
   {
     "id": "20260722210812972",
