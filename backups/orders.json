@@ -16,8 +16,9 @@
     ],
     "valor_total": 17.01,
     "comprovante": "comp_20260817122154917_20260817_123800_Image__1_.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260817122154917_20260817_123804_OLIVIA_5.941.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260817122154917_20260817_123804_OLIVIA_5.941.pdf",
+    "entregue_em": "17/08/2026 12:38"
   },
   {
     "id": "20260816211029874",
