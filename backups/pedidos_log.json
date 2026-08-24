@@ -940,5 +940,24 @@
     "valor_total": 17.1,
     "comprovante": "20260818_124845_WhatsApp_Image_2026-08-18_at_09.48.09.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20260824211618319",
+    "data_hora": "24/08/2026 21:16:18",
+    "nome": "Roserlândia Maria Alves Valentim",
+    "email": "rosealvesvalentim@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "600089",
+        "produto_name": "Goicoechea Creme Arnica e Camomila 350g",
+        "quantidade": 1,
+        "preco_unit": 22.95,
+        "valor_total": 22.95
+      }
+    ],
+    "valor_total": 22.95,
+    "comprovante": "20260824_211616_Captura_de_tela_2026-08-24_181601.png",
+    "status": "pendente"
   }
 ]
