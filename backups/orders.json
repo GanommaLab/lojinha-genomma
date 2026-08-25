@@ -35,8 +35,9 @@
     ],
     "valor_total": 22.95,
     "comprovante": "20260824_211616_Captura_de_tela_2026-08-24_181601.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260824211618319_20260825_182953_5.950_Rose.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260824211618319_20260825_182953_5.950_Rose.pdf",
+    "entregue_em": "25/08/2026 18:30"
   },
   {
     "id": "20260818124846701",
