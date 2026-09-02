@@ -978,5 +978,31 @@
     "valor_total": 24.86,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20260902122350842",
+    "data_hora": "02/09/2026 12:23:50",
+    "nome": "José Carlos de Almeida",
+    "email": "jose.almeida@contractor.genommalab.com",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "5100100",
+        "produto_name": "Expulsatox Adulto XPE 100mL",
+        "quantidade": 2,
+        "preco_unit": 18.84,
+        "valor_total": 37.68
+      },
+      {
+        "produto_code": "1131072",
+        "produto_name": "Cicatricure Prot Solar FPS50 Matte 40g",
+        "quantidade": 1,
+        "preco_unit": 34.42,
+        "valor_total": 34.42
+      }
+    ],
+    "valor_total": 72.1,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
