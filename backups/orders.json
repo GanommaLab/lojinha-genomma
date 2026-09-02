@@ -16,8 +16,9 @@
     ],
     "valor_total": 17.01,
     "comprovante": "20260902_131912_comprovante.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260902131914651_20260902_173243_5956.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260902131914651_20260902_173243_5956.pdf",
+    "entregue_em": "02/09/2026 17:32"
   },
   {
     "id": "20260902122350842",
