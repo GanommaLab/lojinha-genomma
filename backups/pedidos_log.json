@@ -1023,5 +1023,31 @@
     "valor_total": 17.01,
     "comprovante": "20260902_131912_comprovante.jpg",
     "status": "pendente"
+  },
+  {
+    "id": "20260902185432985",
+    "data_hora": "02/09/2026 18:54:32",
+    "nome": "Fernanda Pedro dos Santos",
+    "email": "fernanda.santos@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "4041000",
+        "produto_name": "Tío Nacho Engrossador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      },
+      {
+        "produto_code": "4041040",
+        "produto_name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 23.59,
+        "valor_total": 23.59
+      }
+    ],
+    "valor_total": 47.18,
+    "comprovante": "20260902_185431_WhatsApp_Image_2026-09-02_at_15.54.06.jpeg",
+    "status": "pendente"
   }
 ]
