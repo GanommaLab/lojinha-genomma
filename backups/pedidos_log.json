@@ -1049,5 +1049,31 @@
     "valor_total": 47.18,
     "comprovante": "20260902_185431_WhatsApp_Image_2026-09-02_at_15.54.06.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20260903172246550",
+    "data_hora": "03/09/2026 17:22:46",
+    "nome": "Julia Florencio Ferreira",
+    "email": "julia.florencio@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "2100200",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
+        "quantidade": 2,
+        "preco_unit": 17.01,
+        "valor_total": 34.02
+      },
+      {
+        "produto_code": "2100100",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+        "quantidade": 1,
+        "preco_unit": 17.01,
+        "valor_total": 17.01
+      }
+    ],
+    "valor_total": 51.03,
+    "comprovante": "20260903_172245_IMG_8709.png",
+    "status": "pendente"
   }
 ]
