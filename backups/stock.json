@@ -156,7 +156,8 @@
     "name": "Cicatricure Gel 30g - Horizontal",
     "stock": 2,
     "price": 17.1,
-    "image": "produto_1110400.jpg"
+    "image": "produto_1110400.jpg",
+    "paused": true
   },
   "1110500": {
     "code": "1110500",
