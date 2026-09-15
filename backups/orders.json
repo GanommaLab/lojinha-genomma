@@ -16,8 +16,9 @@
     ],
     "valor_total": 70.72,
     "comprovante": "20260915_161633_comprovante_pagamento_lojinha.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260915161635497_20260915_172136_5965.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260915161635497_20260915_172136_5965.pdf",
+    "entregue_em": "15/09/2026 17:21"
   },
   {
     "id": "20260914175921997",
