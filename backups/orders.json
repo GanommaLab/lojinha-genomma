@@ -16,8 +16,9 @@
     ],
     "valor_total": 128.6,
     "comprovante": "20260914_175920_Comprovante_Ana_Masiero.jpeg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20260914175921997_20260915_135742_5964.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20260914175921997_20260915_135742_5964.pdf",
+    "entregue_em": "15/09/2026 13:57"
   },
   {
     "id": "20260908180156899",
