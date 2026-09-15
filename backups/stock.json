@@ -173,7 +173,7 @@
     "stock": 0,
     "price": 8.63,
     "image": "produto_1110700.jpg",
-    "paused": true
+    "paused": false
   },
   "1110800": {
     "code": "1110800",
