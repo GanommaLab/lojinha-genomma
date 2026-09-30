@@ -1215,5 +1215,24 @@
     "valor_total": 14.7,
     "comprovante": "20260928_194944_IMG_1111.png",
     "status": "pendente"
+  },
+  {
+    "id": "20260930122437673",
+    "data_hora": "30/09/2026 12:24:37",
+    "nome": "Thales Malaquias Ferreira",
+    "email": "thales.ferreira@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "600170",
+        "produto_name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
+        "quantidade": 1,
+        "preco_unit": 24.86,
+        "valor_total": 24.86
+      }
+    ],
+    "valor_total": 24.86,
+    "comprovante": "20260930_122435_20260930_compra_Genomma.jpeg",
+    "status": "pendente"
   }
 ]
