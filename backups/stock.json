@@ -165,7 +165,7 @@
     "stock": 1,
     "price": 32.15,
     "image": "produto_1110500.jpg",
-    "paused": true
+    "paused": false
   },
   "1110700": {
     "code": "1110700",
