@@ -154,7 +154,7 @@
   "1110400": {
     "code": "1110400",
     "name": "Cicatricure Gel 30g - Horizontal",
-    "stock": 2,
+    "stock": 0,
     "price": 17.1,
     "image": "produto_1110400.jpg",
     "paused": false
@@ -162,7 +162,7 @@
   "1110500": {
     "code": "1110500",
     "name": "Cicatricure Gel 60g - Horizontal",
-    "stock": 1,
+    "stock": 0,
     "price": 32.15,
     "image": "produto_1110500.jpg",
     "paused": false
