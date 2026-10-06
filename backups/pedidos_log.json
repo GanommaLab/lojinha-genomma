@@ -1267,5 +1267,31 @@
     "valor_total": 117.29,
     "comprovante": "20260930_150824_1790780860255.pdf",
     "status": "pendente"
+  },
+  {
+    "id": "20261006151141982",
+    "data_hora": "06/10/2026 15:11:41",
+    "nome": "EVERTON DOMINGUES",
+    "email": "evertondomingues@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1110500",
+        "produto_name": "Cicatricure Gel 60g - Horizontal",
+        "quantidade": 1,
+        "preco_unit": 32.15,
+        "valor_total": 32.15
+      },
+      {
+        "produto_code": "1110400",
+        "produto_name": "Cicatricure Gel 30g - Horizontal",
+        "quantidade": 2,
+        "preco_unit": 17.1,
+        "valor_total": 34.2
+      }
+    ],
+    "valor_total": 66.35,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
