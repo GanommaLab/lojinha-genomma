@@ -35,7 +35,8 @@
     ],
     "valor_total": 30.15,
     "comprovante": "20261014_170248_20261014_compra_Genomma.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261014170249788_20261014_191954_5.985.pdf"
   },
   {
     "id": "20261007120348564",
