@@ -16,8 +16,9 @@
     ],
     "valor_total": 64.3,
     "comprovante": "20261014_184029_IMG-20261014-WA0000.jpg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20261014184030829_20261014_191959_5.984.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20261014184030829_20261014_191959_5.984.pdf",
+    "entregue_em": "14/10/2026 19:20"
   },
   {
     "id": "20261014170249788",
