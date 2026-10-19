@@ -1350,5 +1350,31 @@
     "valor_total": 64.3,
     "comprovante": "20261014_184029_IMG-20261014-WA0000.jpg",
     "status": "pendente"
+  },
+  {
+    "id": "20261019174207447",
+    "data_hora": "19/10/2026 17:42:07",
+    "nome": "Thales Malaquias Ferreira",
+    "email": "thales.ferreira@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "1108900",
+        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
+        "quantidade": 1,
+        "preco_unit": 32.15,
+        "valor_total": 32.15
+      },
+      {
+        "produto_code": "4041117",
+        "produto_name": "Tío Nacho Leave-in 200mL",
+        "quantidade": 1,
+        "preco_unit": 23.64,
+        "valor_total": 23.64
+      }
+    ],
+    "valor_total": 55.79,
+    "comprovante": "20261019_174206_20261019_compra_Genomma.jpeg",
+    "status": "pendente"
   }
 ]
