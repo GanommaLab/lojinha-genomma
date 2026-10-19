@@ -24,10 +24,10 @@
   "1031068": {
     "code": "1031068",
     "name": "Asepxia Sab Líq Limpeza Profunda 150 mL",
-    "stock": 0,
+    "stock": 5,
     "price": 15.83,
     "image": "produto_1031068.jpg",
-    "paused": true
+    "paused": false
   },
   "1031069": {
     "code": "1031069",
@@ -111,10 +111,10 @@
   "1109200": {
     "code": "1109200",
     "name": "Cicatricure Creme FPS 30 Diurno 50g",
-    "stock": 0,
+    "stock": 5,
     "price": 35.55,
     "image": "produto_1109200.jpg",
-    "paused": true
+    "paused": false
   },
   "1109300": {
     "code": "1109300",
@@ -154,7 +154,7 @@
   "1110400": {
     "code": "1110400",
     "name": "Cicatricure Gel 30g - Horizontal",
-    "stock": 0,
+    "stock": 8,
     "price": 17.1,
     "image": "produto_1110400.jpg",
     "paused": false
@@ -162,7 +162,7 @@
   "1110500": {
     "code": "1110500",
     "name": "Cicatricure Gel 60g - Horizontal",
-    "stock": 0,
+    "stock": 9,
     "price": 32.15,
     "image": "produto_1110500.jpg",
     "paused": false
@@ -170,7 +170,7 @@
   "1110700": {
     "code": "1110700",
     "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
-    "stock": 0,
+    "stock": 5,
     "price": 8.63,
     "image": "produto_1110700.jpg",
     "paused": false
@@ -334,7 +334,7 @@
   "4043040": {
     "code": "4043040",
     "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
-    "stock": 0,
+    "stock": 12,
     "price": 16.17,
     "image": "produto_4043040.jpg"
   },
@@ -385,7 +385,7 @@
   "4044300": {
     "code": "4044300",
     "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
-    "stock": 0,
+    "stock": 12,
     "price": 23.59,
     "image": "produto_4044300.jpg",
     "paused": false
@@ -393,7 +393,7 @@
   "4044400": {
     "code": "4044400",
     "name": "Tío Nacho Condicionador Antigrisalho 415 mL",
-    "stock": 10,
+    "stock": 32,
     "price": 21.78,
     "image": "produto_4044400.jpg"
   },
@@ -508,5 +508,26 @@
     "stock": 10,
     "price": 27.52,
     "image": "produto_1110200.png"
+  },
+  "1131080": {
+    "code": "1131080",
+    "name": "Cicatricure Gold Lift Serum Firmador 30mL",
+    "stock": 12,
+    "price": 30.81,
+    "image": ""
+  },
+  "4041115": {
+    "code": "4041115",
+    "name": "Tío Nacho Máscara 250g",
+    "stock": 12,
+    "price": 23.64,
+    "image": ""
+  },
+  "4041117": {
+    "code": "4041117",
+    "name": "Tío Nacho Leave-in 200mL",
+    "stock": 12,
+    "price": 23.64,
+    "image": ""
   }
 }
