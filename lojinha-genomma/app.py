@@ -445,9 +445,17 @@ def write_orders(orders):
 # ── API: produtos ─────────────────────────────────────────────────────────────
 @app.get('/api/products')
 def api_products():
+    """Devolve o catálogo inteiro, marcando cada item com `disponivel`.
+    Produtos sem saldo ou pausados continuam na lista — a vitrine mostra a foto
+    deles com a tarja "Produto em Falta" em vez de o item simplesmente sumir."""
     with LOCK:
-        lst = [p for p in stock_data.values() if p['stock'] > 0 and not p.get('paused')]
-    lst.sort(key=lambda x: x['name'].lower())
+        lst = []
+        for p in stock_data.values():
+            item = dict(p)
+            item['disponivel'] = bool(p.get('stock', 0) > 0 and not p.get('paused'))
+            lst.append(item)
+    # disponíveis primeiro, cada grupo em ordem alfabética
+    lst.sort(key=lambda x: (not x['disponivel'], x['name'].lower()))
     return jsonify(lst)
 
 # ── API: imagem do produto ─────────────────────────────────────────────────────
