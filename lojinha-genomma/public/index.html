@@ -197,6 +197,35 @@
     .produto-dropdown-empty {
       padding: 12px 14px; font-size: .88rem; color: var(--muted); text-align: center;
     }
+    /* ── Produto em falta ─────────────────────────────────────────── */
+    .produto-dropdown-item.falta { color: var(--muted); }
+    .produto-dropdown-item.falta:hover, .produto-dropdown-item.falta.active {
+      background: #FFF0F0; color: #c0392b;
+    }
+    .tag-falta {
+      float: right; background: #FFE5E5; color: #c0392b; border-radius: 6px;
+      padding: 1px 7px; font-size: .7rem; font-weight: 700; letter-spacing: .3px;
+    }
+    .falta-wrap { position: relative; }
+    /* a tarja vermelha atravessando a foto */
+    .falta-wrap::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom right,
+        transparent calc(50% - 3px), #E02020 calc(50% - 3px),
+        #E02020 calc(50% + 3px), transparent calc(50% + 3px));
+    }
+    .falta-wrap img { filter: grayscale(100%); opacity: .55; }
+    .falta-selo {
+      position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%);
+      background: #E02020; color: #fff; text-align: center; font-weight: 800;
+      font-size: .95rem; letter-spacing: .6px; padding: 7px 4px; z-index: 2;
+      text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,.25);
+    }
+    .falta-aviso {
+      margin-top: 10px; background: #FFE5E5; border: 1px solid #E02020;
+      color: #c0392b; border-radius: 10px; padding: 10px 14px;
+      font-size: .88rem; font-weight: 600; text-align: center;
+    }
 
     /* ── Stock badge ─────────────────────────────────────────────── */
     .stock-badge {
@@ -488,8 +517,12 @@
           <span id="price-unit" style="font-weight:800;margin-left:4px;">—</span>
         </div>
         <div id="produto-image-card" style="display:none;margin-top:10px">
-          <div style="width:100%;max-width:260px;aspect-ratio:276/482;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(74,27,122,.18);border:1px solid #EDE3F5;overflow:hidden;display:flex;align-items:center;justify-content:center">
+          <div id="produto-image-box" style="position:relative;width:100%;max-width:260px;aspect-ratio:276/482;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(74,27,122,.18);border:1px solid #EDE3F5;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div class="falta-selo" id="produto-falta-selo" style="display:none">Produto em Falta</div>
             <img id="produto-image" src="" alt="Imagem do produto" style="width:100%;height:100%;object-fit:contain">
+          </div>
+          <div class="falta-aviso" id="produto-falta-aviso" style="display:none">
+            ❌ Este produto está em falta no estoque e não pode ser adicionado ao carrinho.
           </div>
         </div>
       </div>
@@ -671,6 +704,7 @@ async function loadProducts() {
       opt.dataset.name = p.name;
       opt.dataset.price = p.price || 0;
       opt.dataset.image = p.image || '';
+      opt.dataset.disponivel = p.disponivel === false ? '0' : '1';
       opt.textContent = p.name;
       sel.appendChild(opt);
     });
@@ -687,13 +721,37 @@ function fmtBRL(v) {
 function onProductChange() {
   const sel = document.getElementById('produto');
   const opt = sel.selectedOptions[0];
+  hideAlert('alert-product');   // limpa aviso do produto anterior
   const badge = document.getElementById('stock-info');
   const priceBox = document.getElementById('price-info');
   const imageCard = document.getElementById('produto-image-card');
   const imageEl = document.getElementById('produto-image');
+  const imageBox = document.getElementById('produto-image-box');
+  const selo = document.getElementById('produto-falta-selo');
+  const avisoFalta = document.getElementById('produto-falta-aviso');
   if (opt && opt.value) {
+    const emFalta = opt.dataset.disponivel === '0';
     const qty = parseInt(opt.dataset.stock);
     const price = parseFloat(opt.dataset.price) || 0;
+
+    // a foto aparece sempre; em falta, ganha a tarja vermelha e fica em cinza
+    if (opt.dataset.image) {
+      imageEl.src = '/uploads/' + opt.dataset.image;
+      imageCard.style.display = 'block';
+    } else {
+      imageCard.style.display = 'none';
+    }
+    imageBox.classList.toggle('falta-wrap', emFalta);
+    selo.style.display = emFalta ? 'block' : 'none';
+    avisoFalta.style.display = emFalta ? 'block' : 'none';
+
+    if (emFalta) {
+      badge.style.display = 'none';
+      priceBox.style.display = 'none';
+      document.getElementById('total-info').style.display = 'none';
+      return;
+    }
+
     badge.style.display = 'inline-flex';
     document.getElementById('stock-qty').textContent = qty.toLocaleString('pt-BR');
     badge.className = 'stock-badge' + (qty <= 10 ? ' low' : '');
@@ -703,12 +761,6 @@ function onProductChange() {
       document.getElementById('price-unit').textContent = fmtBRL(price);
     } else {
       priceBox.style.display = 'none';
-    }
-    if (opt.dataset.image) {
-      imageEl.src = '/uploads/' + opt.dataset.image;
-      imageCard.style.display = 'block';
-    } else {
-      imageCard.style.display = 'none';
     }
     updateTotal();
   } else {
@@ -756,8 +808,8 @@ function showProdutoDropdown() {
   if (!matches.length) {
     dropdown.innerHTML = '<div class="produto-dropdown-empty">Nenhum produto encontrado</div>';
   } else {
-    dropdown.innerHTML = matches.slice(0, 50).map(p => `
-      <div class="produto-dropdown-item" data-code="${p.code}">${p.name}</div>
+    dropdown.innerHTML = matches.slice(0, 200).map(p => `
+      <div class="produto-dropdown-item${p.disponivel === false ? ' falta' : ''}" data-code="${p.code}">${p.name}${p.disponivel === false ? '<span class="tag-falta">Em falta</span>' : ''}</div>
     `).join('');
   }
   dropdown.classList.add('show');
@@ -998,6 +1050,11 @@ function addToCart() {
   const opt = sel.selectedOptions[0];
   let ok = true;
   if (!sel.value) { showErr('err-produto'); ok = false; }
+  if (opt && opt.dataset.disponivel === '0') {
+    showErr('err-produto');
+    setAlert('alert-product', '❌ Este produto está em falta no estoque e não pode ser comprado.');
+    return;
+  }
   if (qty < 1) { showErr('err-quantidade'); ok = false; }
   if (opt && qty > parseInt(opt.dataset.stock)) {
     showErr('err-quantidade'); ok = false;
