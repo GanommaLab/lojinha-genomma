@@ -226,6 +226,21 @@
       color: #c0392b; border-radius: 10px; padding: 10px 14px;
       font-size: .88rem; font-weight: 600; text-align: center;
     }
+    /* ── Promoção por validade ───────────────────────────────────── */
+    .tag-promo {
+      float: right; background: #E8F7EC; color: #1E8449; border-radius: 6px;
+      padding: 1px 7px; font-size: .7rem; font-weight: 800; letter-spacing: .3px;
+    }
+    .preco-cheio { text-decoration: line-through; color: #999; font-weight: 600; margin-left: 4px; }
+    .selo-promo {
+      display: inline-block; background: #1E8449; color: #fff; border-radius: 6px;
+      padding: 1px 8px; font-size: .74rem; font-weight: 800; margin-left: 6px;
+    }
+    .promo-aviso {
+      margin-top: 8px; background: #E8F7EC; border: 1px solid #1E8449;
+      color: #1E8449; border-radius: 10px; padding: 9px 14px;
+      font-size: .84rem; font-weight: 600; text-align: center;
+    }
 
     /* ── Stock badge ─────────────────────────────────────────────── */
     .stock-badge {
@@ -515,7 +530,10 @@
         <div id="price-info" style="display:none;margin-top:8px;background:#EDE3F5;border-radius:10px;padding:10px 14px;font-size:.88rem;color:#4A1B7A;">
           <span style="font-weight:600">💲 Preço unitário:</span>
           <span id="price-unit" style="font-weight:800;margin-left:4px;">—</span>
+          <span id="price-cheio" class="preco-cheio" style="display:none"></span>
+          <span id="price-selo" class="selo-promo" style="display:none"></span>
         </div>
+        <div class="promo-aviso" id="promo-aviso" style="display:none"></div>
         <div id="produto-image-card" style="display:none;margin-top:10px">
           <div id="produto-image-box" style="position:relative;width:100%;max-width:260px;aspect-ratio:276/482;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(74,27,122,.18);border:1px solid #EDE3F5;overflow:hidden;display:flex;align-items:center;justify-content:center">
             <div class="falta-selo" id="produto-falta-selo" style="display:none">Produto em Falta</div>
@@ -705,6 +723,9 @@ async function loadProducts() {
       opt.dataset.price = p.price || 0;
       opt.dataset.image = p.image || '';
       opt.dataset.disponivel = p.disponivel === false ? '0' : '1';
+      opt.dataset.precoCheio = p.preco_cheio != null ? p.preco_cheio : '';
+      opt.dataset.desconto = p.desconto != null ? p.desconto : '';
+      opt.dataset.validade = p.validade || '';
       opt.textContent = p.name;
       sel.appendChild(opt);
     });
@@ -748,6 +769,7 @@ function onProductChange() {
     if (emFalta) {
       badge.style.display = 'none';
       priceBox.style.display = 'none';
+      document.getElementById('promo-aviso').style.display = 'none';
       document.getElementById('total-info').style.display = 'none';
       return;
     }
@@ -759,14 +781,37 @@ function onProductChange() {
     if (price > 0) {
       priceBox.style.display = 'block';
       document.getElementById('price-unit').textContent = fmtBRL(price);
+      // promoção por validade: mostra o preço cheio riscado e o selo de desconto
+      const cheio = parseFloat(opt.dataset.precoCheio) || 0;
+      const desc  = parseFloat(opt.dataset.desconto) || 0;
+      const elCheio = document.getElementById('price-cheio');
+      const elSelo  = document.getElementById('price-selo');
+      const elAviso = document.getElementById('promo-aviso');
+      if (desc > 0 && cheio > price) {
+        elCheio.textContent = fmtBRL(cheio);
+        elCheio.style.display = 'inline';
+        elSelo.textContent = Math.round(desc*100) + '% OFF';
+        elSelo.style.display = 'inline-block';
+        const v = opt.dataset.validade;
+        const venc = v ? v.split('-').reverse().join('/') : '';
+        elAviso.textContent = '🏷️ Preço promocional — ' + qty + ' un. disponíveis'
+                            + (venc ? ', validade ' + venc : '') + '.';
+        elAviso.style.display = 'block';
+      } else {
+        elCheio.style.display = 'none';
+        elSelo.style.display = 'none';
+        elAviso.style.display = 'none';
+      }
     } else {
       priceBox.style.display = 'none';
+      document.getElementById('promo-aviso').style.display = 'none';
     }
     updateTotal();
   } else {
     badge.style.display = 'none';
     priceBox.style.display = 'none';
     imageCard.style.display = 'none';
+    document.getElementById('promo-aviso').style.display = 'none';
     document.getElementById('total-info').style.display = 'none';
   }
 }
@@ -808,9 +853,11 @@ function showProdutoDropdown() {
   if (!matches.length) {
     dropdown.innerHTML = '<div class="produto-dropdown-empty">Nenhum produto encontrado</div>';
   } else {
-    dropdown.innerHTML = matches.slice(0, 200).map(p => `
-      <div class="produto-dropdown-item${p.disponivel === false ? ' falta' : ''}" data-code="${p.code}">${p.name}${p.disponivel === false ? '<span class="tag-falta">Em falta</span>' : ''}</div>
-    `).join('');
+    dropdown.innerHTML = matches.slice(0, 200).map(p => {
+      const falta = p.disponivel === false;
+      const off = (!falta && p.desconto) ? `<span class="tag-promo">${Math.round(p.desconto*100)}% OFF</span>` : '';
+      return `<div class="produto-dropdown-item${falta ? ' falta' : ''}" data-code="${p.code}">${p.name}${falta ? '<span class="tag-falta">Em falta</span>' : off}</div>`;
+    }).join('');
   }
   dropdown.classList.add('show');
 }
@@ -1026,6 +1073,7 @@ function novosPedido() {
   document.getElementById('quantidade').value = '1';
   document.getElementById('stock-info').style.display = 'none';
   document.getElementById('price-info').style.display = 'none';
+  document.getElementById('promo-aviso').style.display = 'none';
   document.getElementById('produto-image-card').style.display = 'none';
   document.getElementById('total-info').style.display = 'none';
   document.getElementById('comprovante').value = '';
@@ -1090,6 +1138,7 @@ function addToCart() {
   document.getElementById('quantidade').value = '1';
   document.getElementById('stock-info').style.display = 'none';
   document.getElementById('price-info').style.display = 'none';
+  document.getElementById('promo-aviso').style.display = 'none';
   document.getElementById('produto-image-card').style.display = 'none';
   document.getElementById('total-info').style.display = 'none';
 
