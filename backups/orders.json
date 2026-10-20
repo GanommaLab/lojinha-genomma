@@ -1,5 +1,73 @@
 [
   {
+    "id": "20261020213721595",
+    "data_hora": "20/10/2026 21:37:21",
+    "nome": "ANDRESSA PORTELA DE OLIVEIRA",
+    "email": "andressa.oliveira@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 1,
+        "preco_unit": 11.0,
+        "valor_total": 11.0
+      },
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "4041041-P1",
+        "produto_name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 01/2027)",
+        "quantidade": 1,
+        "preco_unit": 15.0,
+        "valor_total": 15.0
+      },
+      {
+        "produto_code": "4041011-P1",
+        "produto_name": "Tío Nacho Clareador Condicionador 415 mL — Promoção (venc. 03/2027)",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "1109100-P1",
+        "produto_name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
+        "quantidade": 1,
+        "preco_unit": 24.0,
+        "valor_total": 24.0
+      },
+      {
+        "produto_code": "4041010",
+        "produto_name": "Tío Nacho Clareador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 20.0,
+        "valor_total": 20.0
+      },
+      {
+        "produto_code": "1108800-P1",
+        "produto_name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
+        "quantidade": 1,
+        "preco_unit": 49.0,
+        "valor_total": 49.0
+      },
+      {
+        "produto_code": "600125",
+        "produto_name": "Lomecan Creme 3 dias 20g",
+        "quantidade": 1,
+        "preco_unit": 36.0,
+        "valor_total": 36.0
+      }
+    ],
+    "valor_total": 189.0,
+    "comprovante": "20261020_213720_Comprovante.pdf",
+    "status": "pendente"
+  },
+  {
     "id": "20261020212813419",
     "data_hora": "20/10/2026 21:28:13",
     "nome": "Hérica Honorato Ferreira",
