@@ -124,7 +124,7 @@
   "1108800-P1": {
     "code": "1108800-P1",
     "name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
-    "stock": 4,
+    "stock": 3,
     "price": 49.0,
     "image": "produto_1108800.jpg",
     "preco_cheio": 51.0,
@@ -155,7 +155,7 @@
   "1109100-P1": {
     "code": "1109100-P1",
     "name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
-    "stock": 7,
+    "stock": 6,
     "price": 24.0,
     "image": "produto_1109100.jpg",
     "preco_cheio": 30.51,
@@ -214,7 +214,7 @@
   "1110200": {
     "code": "1110200",
     "name": "Cicatricure Eye Cream For Face 30g",
-    "stock": 10,
+    "stock": 9,
     "price": 11.0,
     "image": "produto_1110200.png",
     "preco_cheio": 27.52,
@@ -293,7 +293,7 @@
   "1131080": {
     "code": "1131080",
     "name": "Cicatricure Gold Lift Serum Firmador 30mL",
-    "stock": 9,
+    "stock": 8,
     "price": 17.0,
     "image": "",
     "preco_cheio": 30.81,
@@ -346,7 +346,7 @@
   "4041010": {
     "code": "4041010",
     "name": "Tío Nacho Clareador Shampoo 415 mL",
-    "stock": 2,
+    "stock": 1,
     "price": 20.0,
     "image": "produto_4041010.jpg",
     "preco_cheio": 23.59,
@@ -364,7 +364,7 @@
   "4041011-P1": {
     "code": "4041011-P1",
     "name": "Tío Nacho Clareador Condicionador 415 mL — Promoção (venc. 03/2027)",
-    "stock": 5,
+    "stock": 4,
     "price": 17.0,
     "image": "produto_4041011.jpg",
     "preco_cheio": 21.78,
@@ -405,7 +405,7 @@
   "4041041-P1": {
     "code": "4041041-P1",
     "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 01/2027)",
-    "stock": 3,
+    "stock": 2,
     "price": 15.0,
     "image": "produto_4041041.jpg",
     "preco_cheio": 21.78,
@@ -641,7 +641,7 @@
   "600125": {
     "code": "600125",
     "name": "Lomecan Creme 3 dias 20g",
-    "stock": 5,
+    "stock": 4,
     "price": 36.0,
     "image": "produto_600125.jpg",
     "preco_cheio": 40.32,
