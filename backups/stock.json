@@ -50,8 +50,9 @@
     "price": 6.4,
     "image": "produto_1031082.jpg",
     "preco_cheio": 8.0,
-    "desconto": 0.2,
-    "validade": "2027-02-08"
+    "desconto": 0.3416,
+    "validade": "2027-02-08",
+    "preco_base": 9.72
   },
   "1031083": {
     "code": "1031083",
@@ -60,8 +61,9 @@
     "price": 5.6,
     "image": "produto_1031083.jpg",
     "preco_cheio": 8.0,
-    "desconto": 0.3,
-    "validade": "2027-01-26"
+    "desconto": 0.4239,
+    "validade": "2027-01-26",
+    "preco_base": 9.72
   },
   "1031084": {
     "code": "1031084",
@@ -70,8 +72,9 @@
     "price": 5.6,
     "image": "produto_1031084.jpg",
     "preco_cheio": 8.0,
-    "desconto": 0.3,
-    "validade": "2027-01-20"
+    "desconto": 0.4239,
+    "validade": "2027-01-20",
+    "preco_base": 9.72
   },
   "1031085": {
     "code": "1031085",
@@ -80,8 +83,9 @@
     "price": 6.4,
     "image": "produto_1031085.jpg",
     "preco_cheio": 8.0,
-    "desconto": 0.2,
-    "validade": "2027-02-27"
+    "desconto": 0.3416,
+    "validade": "2027-02-27",
+    "preco_base": 9.72
   },
   "1031086": {
     "code": "1031086",
@@ -104,10 +108,11 @@
     "price": 6.8,
     "image": "produto_1031087.jpg",
     "preco_cheio": 9.71,
-    "desconto": 0.2997,
+    "desconto": 0.4237,
     "validade": "2027-01-18",
     "promo": true,
-    "promo_de": "1031087"
+    "promo_de": "1031087",
+    "preco_base": 11.8
   },
   "1108800": {
     "code": "1108800",
@@ -123,8 +128,9 @@
     "price": 24.55,
     "image": "produto_1108900.jpg",
     "preco_cheio": 32.15,
-    "desconto": 0.2364,
-    "validade": "2027-02-24"
+    "desconto": 0.455,
+    "validade": "2027-02-24",
+    "preco_base": 45.05
   },
   "1109100": {
     "code": "1109100",
@@ -140,10 +146,11 @@
     "price": 23.3,
     "image": "produto_1109100.jpg",
     "preco_cheio": 30.51,
-    "desconto": 0.2363,
+    "desconto": 0.4828,
     "validade": "2027-02-05",
     "promo": true,
-    "promo_de": "1109100"
+    "promo_de": "1109100",
+    "preco_base": 45.05
   },
   "1109200": {
     "code": "1109200",
@@ -173,8 +180,9 @@
     "price": 12.34,
     "image": "produto_1109700.jpg",
     "preco_cheio": 14.7,
-    "desconto": 0.1605,
-    "validade": "2027-04-02"
+    "desconto": 0.3593,
+    "validade": "2027-04-02",
+    "preco_base": 19.26
   },
   "1110000": {
     "code": "1110000",
@@ -197,8 +205,9 @@
     "price": 11.0,
     "image": "produto_1110200.png",
     "preco_cheio": 27.52,
-    "desconto": 0.6003,
-    "validade": "2027-01-09"
+    "desconto": 0.8021,
+    "validade": "2027-01-09",
+    "preco_base": 55.58
   },
   "1110400": {
     "code": "1110400",
@@ -221,8 +230,9 @@
     "price": 4.32,
     "image": "produto_1110700.jpg",
     "preco_cheio": 8.63,
-    "desconto": 0.4994,
-    "validade": "2027-02-11"
+    "desconto": 0.8329,
+    "validade": "2027-02-11",
+    "preco_base": 25.86
   },
   "1110800": {
     "code": "1110800",
@@ -274,8 +284,9 @@
     "price": 27.73,
     "image": "",
     "preco_cheio": 30.81,
-    "desconto": 0.1,
-    "validade": "2027-01-09"
+    "desconto": 0.6674,
+    "validade": "2027-01-09",
+    "preco_base": 83.38
   },
   "2100100": {
     "code": "2100100",
@@ -326,8 +337,9 @@
     "price": 19.22,
     "image": "produto_4041010.jpg",
     "preco_cheio": 23.59,
-    "desconto": 0.1852,
-    "validade": "2027-03-11"
+    "desconto": 0.4235,
+    "validade": "2027-03-11",
+    "preco_base": 33.34
   },
   "4041011": {
     "code": "4041011",
@@ -343,10 +355,11 @@
     "price": 16.72,
     "image": "produto_4041011.jpg",
     "preco_cheio": 21.78,
-    "desconto": 0.2323,
+    "desconto": 0.5088,
     "validade": "2027-03-13",
     "promo": true,
-    "promo_de": "4041011"
+    "promo_de": "4041011",
+    "preco_base": 34.04
   },
   "4041020": {
     "code": "4041020",
@@ -383,10 +396,11 @@
     "price": 14.63,
     "image": "produto_4041041.jpg",
     "preco_cheio": 21.78,
-    "desconto": 0.3283,
+    "desconto": 0.5702,
     "validade": "2027-01-25",
     "promo": true,
-    "promo_de": "4041041"
+    "promo_de": "4041041",
+    "preco_base": 34.04
   },
   "4041041-P2": {
     "code": "4041041-P2",
@@ -395,10 +409,11 @@
     "price": 16.72,
     "image": "produto_4041041.jpg",
     "preco_cheio": 21.78,
-    "desconto": 0.2323,
+    "desconto": 0.5088,
     "validade": "2027-02-14",
     "promo": true,
-    "promo_de": "4041041"
+    "promo_de": "4041041",
+    "preco_base": 34.04
   },
   "4041050": {
     "code": "4041050",
@@ -407,8 +422,9 @@
     "price": 9.04,
     "image": "produto_4041050.jpg",
     "preco_cheio": 23.59,
-    "desconto": 0.6168,
-    "validade": "2026-11-12"
+    "desconto": 0.7289,
+    "validade": "2026-11-12",
+    "preco_base": 33.34
   },
   "4041115": {
     "code": "4041115",
@@ -475,8 +491,9 @@
     "price": 5.65,
     "image": "produto_4043900.jpg",
     "preco_cheio": 13.56,
-    "desconto": 0.5833,
-    "validade": "2027-02-27"
+    "desconto": 0.8232,
+    "validade": "2027-02-27",
+    "preco_base": 31.96
   },
   "4044000": {
     "code": "4044000",
@@ -485,8 +502,9 @@
     "price": 10.45,
     "image": "produto_4044000.jpg",
     "preco_cheio": 20.89,
-    "desconto": 0.4998,
-    "validade": "2027-04-24"
+    "desconto": 0.6799,
+    "validade": "2027-04-24",
+    "preco_base": 32.65
   },
   "4044100": {
     "code": "4044100",
@@ -523,10 +541,11 @@
     "price": 16.72,
     "image": "produto_4044400.jpg",
     "preco_cheio": 21.78,
-    "desconto": 0.2323,
+    "desconto": 0.5088,
     "validade": "2027-04-25",
     "promo": true,
-    "promo_de": "4044400"
+    "promo_de": "4044400",
+    "preco_base": 34.04
   },
   "4406000": {
     "code": "4406000",
@@ -605,8 +624,9 @@
     "price": 36.28,
     "image": "produto_600125.jpg",
     "preco_cheio": 40.32,
-    "desconto": 0.1002,
-    "validade": "2027-04-30"
+    "desconto": 0.3046,
+    "validade": "2027-04-30",
+    "preco_base": 52.17
   },
   "600146": {
     "code": "600146",
@@ -622,10 +642,11 @@
     "price": 19.21,
     "image": "produto_600146.jpg",
     "preco_cheio": 24.01,
-    "desconto": 0.1999,
+    "desconto": 0.4593,
     "validade": "2027-04-16",
     "promo": true,
-    "promo_de": "600146"
+    "promo_de": "600146",
+    "preco_base": 35.53
   },
   "600151": {
     "code": "600151",
@@ -634,8 +655,9 @@
     "price": 36.75,
     "image": "produto_600151.jpg",
     "preco_cheio": 40.84,
-    "desconto": 0.1001,
-    "validade": "2027-04-30"
+    "desconto": 0.2415,
+    "validade": "2027-04-30",
+    "preco_base": 48.45
   },
   "600170": {
     "code": "600170",
@@ -658,10 +680,11 @@
     "price": 26.39,
     "image": "produto_91114.jpg",
     "preco_cheio": 37.69,
-    "desconto": 0.2998,
+    "desconto": 0.4099,
     "validade": "2027-01-31",
     "promo": true,
-    "promo_de": "91114"
+    "promo_de": "91114",
+    "preco_base": 44.72
   },
   "91114-P2": {
     "code": "91114-P2",
@@ -670,9 +693,10 @@
     "price": 33.93,
     "image": "produto_91114.jpg",
     "preco_cheio": 37.69,
-    "desconto": 0.0998,
+    "desconto": 0.2413,
     "validade": "2027-03-01",
     "promo": true,
-    "promo_de": "91114"
+    "promo_de": "91114",
+    "preco_base": 44.72
   }
 }
