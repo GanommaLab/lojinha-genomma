@@ -447,13 +447,25 @@ def write_orders(orders):
 def api_products():
     """Devolve o catálogo inteiro, marcando cada item com `disponivel`.
     Produtos sem saldo ou pausados continuam na lista — a vitrine mostra a foto
-    deles com a tarja "Produto em Falta" em vez de o item simplesmente sumir."""
+    deles com a tarja "Produto em Falta" em vez de o item simplesmente sumir.
+
+    Lotes promocionais (`promo`) são a exceção: quando acabam, somem da lista em
+    vez de virar "em falta", porque a promoção terminou e não é falta de produto.
+    O produto-pai também some enquanto todo o saldo restante dele estiver num
+    lote promocional ativo — senão apareceria como em falta tendo estoque."""
     with LOCK:
-        lst = []
-        for p in stock_data.values():
-            item = dict(p)
-            item['disponivel'] = bool(p.get('stock', 0) > 0 and not p.get('paused'))
-            lst.append(item)
+        snapshot = {c: dict(p) for c, p in stock_data.items()}
+
+    promo_ativa = {p.get('promo_de') for p in snapshot.values()
+                   if p.get('promo') and p.get('stock', 0) > 0}
+
+    lst = []
+    for code, p in snapshot.items():
+        disponivel = bool(p.get('stock', 0) > 0 and not p.get('paused'))
+        if not disponivel and (p.get('promo') or code in promo_ativa):
+            continue
+        p['disponivel'] = disponivel
+        lst.append(p)
     # disponíveis primeiro, cada grupo em ordem alfabética
     lst.sort(key=lambda x: (not x['disponivel'], x['name'].lower()))
     return jsonify(lst)
