@@ -241,6 +241,48 @@
       color: #1E8449; border-radius: 10px; padding: 9px 14px;
       font-size: .84rem; font-weight: 600; text-align: center;
     }
+    /* ── Card de promoções ativas ─────────────────────────────────── */
+    .promo-card { border: 2px solid #1E8449; border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+    .promo-head {
+      background: linear-gradient(135deg, #1E8449, #27AE60); color: #fff;
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .promo-head b { font-size: 1rem; }
+    .promo-head span { font-size: .76rem; opacity: .9; }
+    .promo-body { max-height: 420px; overflow-y: auto; background: #fff; }
+    .promo-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-bottom: 1px solid #EFEFEF;
+    }
+    .promo-item:last-child { border-bottom: none; }
+    .promo-item img {
+      width: 46px; height: 60px; object-fit: contain; border-radius: 6px;
+      background: #fff; border: 1px solid #EEE; flex-shrink: 0;
+    }
+    .pi-info { flex: 1; min-width: 0; }
+    .pi-nome { font-size: .86rem; font-weight: 700; color: #2B2B2B; line-height: 1.2; }
+    .pi-sub { font-size: .72rem; color: #888; margin-top: 2px; }
+    .pi-precos { margin-top: 3px; white-space: nowrap; }
+    .pi-de { font-size: .74rem; color: #AAA; text-decoration: line-through; }
+    .pi-por { font-size: .95rem; font-weight: 800; color: #1E8449; margin-left: 4px; }
+    .pi-off { background: #1E8449; color: #fff; border-radius: 5px; padding: 1px 6px; font-size: .68rem; font-weight: 800; margin-left: 5px; }
+    .pi-acao { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .pi-acao input {
+      width: 54px; padding: 6px; text-align: center; border: 2px solid #E8DEF8;
+      border-radius: 8px; font-size: .85rem; font-weight: 700; font-family: inherit;
+    }
+    .pi-add {
+      background: #1E8449; color: #fff; border: none; border-radius: 8px;
+      padding: 8px 12px; font-size: .8rem; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .pi-add:hover { background: #17693A; }
+    .pi-add.ok { background: #4A1B7A; }
+    .btn-fora {
+      width: 100%; background: #fff; color: #4A1B7A; border: 2px dashed #B9A3D4;
+      border-radius: 12px; padding: 12px; font-size: .9rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; margin-bottom: 4px;
+    }
+    .btn-fora:hover { background: #F6F2FA; }
 
     /* ── Stock badge ─────────────────────────────────────────────── */
     .stock-badge {
@@ -513,6 +555,21 @@
 
     <div class="alert alert-error" id="alert-product"></div>
 
+    <!-- Promoções ativas -->
+    <div class="promo-card" id="promo-card" style="display:none">
+      <div class="promo-head">
+        <b>🏷️ Promoções ativas</b>
+        <span id="promo-head-sub">quantidade limitada</span>
+      </div>
+      <div class="promo-body" id="promo-body"></div>
+    </div>
+
+    <!-- Produtos fora da promoção (escondido até o cliente pedir) -->
+    <button type="button" class="btn-fora" id="btn-fora" style="display:none" onclick="toggleFora()">
+      🛍️ Comprar itens fora da promoção
+    </button>
+
+    <div id="bloco-fora">
     <div class="product-row">
       <div class="field">
         <label>Produto <span class="req">*</span></label>
@@ -556,6 +613,13 @@
       </div>
     </div>
 
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" id="btn-add-cart" style="width:100%;" onclick="addToCart()">
+        <span class="btn-text">➕ Adicionar ao Carrinho</span>
+      </button>
+    </div>
+    </div><!-- /bloco-fora -->
+
     <!-- Carrinho -->
     <div id="cart-section" style="display:none;margin-top:18px;">
       <div style="border-top:1px solid #E8DEF8;margin:14px 0;"></div>
@@ -571,9 +635,6 @@
 
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn btn-outline" style="flex:1; min-width:120px;" onclick="goToStep1()">← Voltar</button>
-      <button class="btn btn-primary" style="flex:2; min-width:160px;" onclick="addToCart()">
-        <span class="btn-text">➕ Adicionar ao Carrinho</span>
-      </button>
     </div>
     <div style="margin-top:10px;">
       <button class="btn btn-success" id="btn-fazer-pedido" style="width:100%;display:none;" onclick="goToStep3()">
@@ -723,7 +784,7 @@ async function loadProducts() {
       opt.dataset.price = p.price || 0;
       opt.dataset.image = p.image || '';
       opt.dataset.disponivel = p.disponivel === false ? '0' : '1';
-      opt.dataset.precoCheio = p.preco_cheio != null ? p.preco_cheio : '';
+      opt.dataset.precoCheio = p.preco_base != null ? p.preco_base : (p.preco_cheio != null ? p.preco_cheio : '');
       opt.dataset.desconto = p.desconto != null ? p.desconto : '';
       opt.dataset.validade = p.validade || '';
       opt.textContent = p.name;
@@ -732,6 +793,105 @@ async function loadProducts() {
   } catch(e) {
     document.getElementById('produto').innerHTML = '<option value="">Erro ao carregar produtos</option>';
   }
+  renderPromoCard();
+}
+
+/* ── Card de promoções ativas ─────────────────────────────────── */
+function promoAtivas() {
+  return products.filter(p => p.desconto && p.disponivel !== false);
+}
+
+function renderPromoCard() {
+  const card = document.getElementById('promo-card');
+  const body = document.getElementById('promo-body');
+  const btnFora = document.getElementById('btn-fora');
+  const bloco = document.getElementById('bloco-fora');
+  const lista = promoAtivas();
+
+  if (!lista.length) {
+    // sem promoção ativa: volta ao fluxo normal, com tudo visível
+    card.style.display = 'none';
+    btnFora.style.display = 'none';
+    bloco.style.display = '';
+    return;
+  }
+
+  lista.sort((a, b) => b.desconto - a.desconto || a.name.localeCompare(b.name));
+  const maior = Math.round(Math.max(...lista.map(p => p.desconto)) * 100);
+  document.getElementById('promo-head-sub').textContent =
+    `${lista.length} itens · até ${maior}% OFF · quantidade limitada`;
+
+  body.innerHTML = lista.map(p => {
+    const nome = p.name.replace(/\s*—\s*Promoção.*$/, '');
+    const img = p.image
+      ? `<img src="/uploads/${p.image}" alt="">`
+      : `<div style="width:46px;height:60px;flex-shrink:0"></div>`;
+    return `
+      <div class="promo-item">
+        ${img}
+        <div class="pi-info">
+          <div class="pi-nome">${nome}</div>
+          <div class="pi-sub">${p.stock} un. disponíve${p.stock > 1 ? 'is' : 'l'}</div>
+          <div class="pi-precos">
+            <span class="pi-de">${fmtBRL(p.preco_base || p.preco_cheio)}</span>
+            <span class="pi-por">${fmtBRL(p.price)}</span>
+            <span class="pi-off">-${Math.round(p.desconto * 100)}%</span>
+          </div>
+        </div>
+        <div class="pi-acao">
+          <input type="number" id="pq-${p.code}" min="1" max="${p.stock}" value="1">
+          <button type="button" class="pi-add" onclick="addPromoToCart('${p.code}')">Adicionar</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  card.style.display = '';
+  btnFora.style.display = '';
+  bloco.style.display = 'none';   // só aparece se o cliente pedir
+}
+
+function toggleFora() {
+  const bloco = document.getElementById('bloco-fora');
+  const btn = document.getElementById('btn-fora');
+  const aberto = bloco.style.display !== 'none';
+  bloco.style.display = aberto ? 'none' : '';
+  btn.textContent = aberto ? '🛍️ Comprar itens fora da promoção' : '✕ Fechar itens fora da promoção';
+  if (!aberto) bloco.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function addPromoToCart(code) {
+  const p = products.find(x => x.code === code);
+  if (!p) return;
+  const input = document.getElementById('pq-' + code);
+  const qty = parseInt(input.value) || 0;
+  if (qty < 1) { setAlert('alert-product', '⚠️ Informe uma quantidade válida.'); return; }
+
+  const existing = cart.find(i => i.produto_code === code);
+  const total = (existing ? existing.quantidade : 0) + qty;
+  if (total > p.stock) {
+    setAlert('alert-product', `⚠️ Só temos ${p.stock} un. de ${p.name.replace(/\s*—\s*Promoção.*$/, '')} nesse preço.`);
+    return;
+  }
+  hideAlert('alert-product');
+
+  if (existing) {
+    existing.quantidade = total;
+    existing.valor_total = round2(existing.preco_unit * total);
+  } else {
+    cart.push({
+      produto_code: code,
+      produto_name: p.name,
+      quantidade: qty,
+      preco_unit: p.price,
+      valor_total: round2(p.price * qty)
+    });
+  }
+  input.value = '1';
+  const btn = input.nextElementSibling;
+  btn.textContent = '✓ No carrinho';
+  btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'Adicionar'; btn.classList.remove('ok'); }, 1600);
+  renderCart();
 }
 
 /* ── Produto selecionado ──────────────────────────────────────── */
@@ -847,9 +1007,11 @@ function showProdutoDropdown() {
   const input = document.getElementById('produto-search');
   const term = normalizeTxt(input.value);
   const dropdown = document.getElementById('produto-dropdown');
+  // itens em promoção ficam só no card de promoções, não nesta busca
+  const base = products.filter(p => !p.desconto);
   const matches = term
-    ? products.filter(p => normalizeTxt(p.name).includes(term))
-    : products;
+    ? base.filter(p => normalizeTxt(p.name).includes(term))
+    : base;
   if (!matches.length) {
     dropdown.innerHTML = '<div class="produto-dropdown-empty">Nenhum produto encontrado</div>';
   } else {
