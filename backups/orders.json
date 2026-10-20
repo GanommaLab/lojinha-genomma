@@ -16,8 +16,9 @@
     ],
     "valor_total": 15.21,
     "comprovante": "20261020_133127_WhatsApp_Image_2026-10-20_at_10.30.58.jpeg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20261020133129410_20261020_133644_5.987.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20261020133129410_20261020_133644_5.987.pdf",
+    "entregue_em": "20/10/2026 13:36"
   },
   {
     "id": "20261019174207447",
