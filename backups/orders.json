@@ -209,7 +209,8 @@
     ],
     "valor_total": 13.0,
     "comprovante": "20261020_223628_Screenshot_20261020_193549_Ita.jpg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261020223630001_20261021_195717_5.989.pdf"
   },
   {
     "id": "20261020213721595",
