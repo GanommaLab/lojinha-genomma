@@ -104,7 +104,7 @@
   "1031087-P1": {
     "code": "1031087-P1",
     "name": "Asepxia Barra Detox 80g — Promoção (venc. 01/2027)",
-    "stock": 10,
+    "stock": 8,
     "price": 5.0,
     "image": "produto_1031087.jpg",
     "preco_cheio": 9.71,
@@ -137,7 +137,7 @@
   "1108900": {
     "code": "1108900",
     "name": "Cicatricure Creme Contorno dos Olhos 15g",
-    "stock": 8,
+    "stock": 6,
     "price": 26.0,
     "image": "produto_1108900.jpg",
     "preco_cheio": 32.15,
@@ -155,7 +155,7 @@
   "1109100-P1": {
     "code": "1109100-P1",
     "name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
-    "stock": 6,
+    "stock": 4,
     "price": 24.0,
     "image": "produto_1109100.jpg",
     "preco_cheio": 30.51,
@@ -214,7 +214,7 @@
   "1110200": {
     "code": "1110200",
     "name": "Cicatricure Eye Cream For Face 30g",
-    "stock": 9,
+    "stock": 7,
     "price": 11.0,
     "image": "produto_1110200.png",
     "preco_cheio": 27.52,
@@ -239,7 +239,7 @@
   "1110700": {
     "code": "1110700",
     "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
-    "stock": 3,
+    "stock": 0,
     "price": 6.0,
     "image": "produto_1110700.jpg",
     "preco_cheio": 8.63,
@@ -293,7 +293,7 @@
   "1131080": {
     "code": "1131080",
     "name": "Cicatricure Gold Lift Serum Firmador 30mL",
-    "stock": 8,
+    "stock": 6,
     "price": 17.0,
     "image": "",
     "preco_cheio": 30.81,
@@ -697,7 +697,7 @@
   "91114-P1": {
     "code": "91114-P1",
     "name": "LaKesia Antimicótico 30 mL — Promoção (venc. 01/2027)",
-    "stock": 3,
+    "stock": 2,
     "price": 26.0,
     "image": "produto_91114.jpg",
     "preco_cheio": 37.69,
