@@ -124,7 +124,7 @@
   "1108800-P1": {
     "code": "1108800-P1",
     "name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
-    "stock": 3,
+    "stock": 2,
     "price": 49.0,
     "image": "produto_1108800.jpg",
     "preco_cheio": 51.0,
@@ -137,7 +137,7 @@
   "1108900": {
     "code": "1108900",
     "name": "Cicatricure Creme Contorno dos Olhos 15g",
-    "stock": 6,
+    "stock": 5,
     "price": 26.0,
     "image": "produto_1108900.jpg",
     "preco_cheio": 32.15,
@@ -155,7 +155,7 @@
   "1109100-P1": {
     "code": "1109100-P1",
     "name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
-    "stock": 4,
+    "stock": 3,
     "price": 24.0,
     "image": "produto_1109100.jpg",
     "preco_cheio": 30.51,
@@ -293,7 +293,7 @@
   "1131080": {
     "code": "1131080",
     "name": "Cicatricure Gold Lift Serum Firmador 30mL",
-    "stock": 4,
+    "stock": 2,
     "price": 17.0,
     "image": "produto_1131080.png",
     "preco_cheio": 30.81,
