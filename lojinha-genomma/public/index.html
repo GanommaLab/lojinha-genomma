@@ -283,6 +283,21 @@
       cursor: pointer; font-family: inherit; margin-bottom: 4px;
     }
     .btn-fora:hover { background: #F6F2FA; }
+    /* ── Promoção esgotada ────────────────────────────────────────── */
+    .promo-item.esgotado { background: #FAFAFA; }
+    .promo-item.esgotado img { filter: grayscale(100%); opacity: .5; }
+    .promo-item.esgotado .pi-nome,
+    .promo-item.esgotado .pi-por { color: #9A9A9A; }
+    .promo-item.esgotado .pi-de { color: #C4C4C4; }
+    .faixa-esgotado {
+      background: #E02020; color: #fff; border-radius: 6px; padding: 5px 12px;
+      font-size: .78rem; font-weight: 800; letter-spacing: .6px;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .promo-aviso-escassez {
+      background: #FFF4E0; border-top: 1px solid #F0D9A8; color: #8A6400;
+      padding: 9px 14px; font-size: .8rem; font-weight: 600; text-align: center;
+    }
 
     /* ── Stock badge ─────────────────────────────────────────────── */
     .stock-badge {
@@ -562,6 +577,7 @@
         <span id="promo-head-sub">quantidade limitada</span>
       </div>
       <div class="promo-body" id="promo-body"></div>
+      <div class="promo-aviso-escassez" id="promo-escassez" style="display:none"></div>
     </div>
 
     <!-- Produtos fora da promoção (escondido até o cliente pedir) -->
@@ -753,6 +769,64 @@ let selectedTipo = null;
 let orderData = {};
 let cart = [];
 
+/* ── Reserva de estoque ───────────────────────────────────────────
+   O carrinho segura as unidades no servidor assim que o item entra,
+   para duas pessoas não pagarem pela mesma unidade enquanto uma delas
+   ainda está anexando o comprovante. */
+let cartId = '';
+try {
+  cartId = sessionStorage.getItem('lojinha_cart_id') || '';
+  if (!cartId) {
+    cartId = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    sessionStorage.setItem('lojinha_cart_id', cartId);
+  }
+} catch (e) {
+  cartId = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+let foraAberto = false;
+
+/* Manda o carrinho inteiro: serve para reservar, alterar, soltar e renovar.
+   Devolve null se deu certo, ou a lista de itens que alguém pegou antes. */
+async function sincronizarReserva() {
+  const itens = {};
+  cart.forEach(i => { itens[i.produto_code] = i.quantidade; });
+  try {
+    const r = await fetch('/api/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart: cartId, itens })
+    });
+    if (r.ok) return null;
+    const d = await r.json();
+    return d.problemas || [];
+  } catch (e) {
+    return null;   // sem rede: não trava o cliente, o servidor confere de novo no envio
+  }
+}
+
+/* Tira do carrinho o que outra pessoa levou e avisa quem está comprando. */
+async function conferirReserva() {
+  const probs = await sincronizarReserva();
+  if (!probs || !probs.length) return true;
+  probs.forEach(p => {
+    const idx = cart.findIndex(i => i.produto_code === p.code);
+    if (idx < 0) return;
+    if (p.disponivel > 0) {
+      cart[idx].quantidade = p.disponivel;
+      cart[idx].valor_total = round2(cart[idx].preco_unit * p.disponivel);
+    } else {
+      cart.splice(idx, 1);
+    }
+  });
+  const nomes = probs.map(p => p.name.replace(/\s*—\s*Promoção.*$/, '')
+    + (p.disponivel > 0 ? ` (sobraram ${p.disponivel})` : ' (esgotou)')).join(', ');
+  setAlert('alert-product', `⚠️ Outra pessoa comprou antes: ${nomes}. Ajustamos seu carrinho.`);
+  renderCart();
+  await sincronizarReserva();
+  await loadProducts();
+  return false;
+}
+
 /* ── Inicialização ─────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
   loadProducts();
@@ -768,11 +842,25 @@ window.addEventListener('DOMContentLoaded', () => {
     const wrap = document.querySelector('.produto-search-wrap');
     if (wrap && !wrap.contains(e.target)) hideProdutoDropdown();
   });
+
+  // Mantém a vitrine viva: renova a reserva e mostra o que os outros já levaram.
+  setInterval(() => {
+    if (cart.length) sincronizarReserva();
+    if (document.getElementById('card-2').classList.contains('active')) loadProducts();
+  }, 45000);
+  // Ao fechar a aba, devolve as unidades em vez de esperar a reserva vencer.
+  window.addEventListener('pagehide', () => {
+    if (!cart.length) return;
+    try {
+      navigator.sendBeacon('/api/reserve', new Blob(
+        [JSON.stringify({ cart: cartId, itens: {} })], { type: 'application/json' }));
+    } catch (e) {}
+  });
 });
 
 async function loadProducts() {
   try {
-    const r = await fetch('/api/products');
+    const r = await fetch('/api/products?cart=' + encodeURIComponent(cartId));
     products = await r.json();
     const sel = document.getElementById('produto');
     sel.innerHTML = '<option value="">— Selecione um produto —</option>';
@@ -798,7 +886,7 @@ async function loadProducts() {
 
 /* ── Card de promoções ativas ─────────────────────────────────── */
 function promoAtivas() {
-  return products.filter(p => p.desconto && p.disponivel !== false);
+  return products.filter(p => p.desconto);
 }
 
 function renderPromoCard() {
@@ -816,53 +904,79 @@ function renderPromoCard() {
     return;
   }
 
-  lista.sort((a, b) => b.desconto - a.desconto || a.name.localeCompare(b.name));
-  const maior = Math.round(Math.max(...lista.map(p => p.desconto)) * 100);
-  document.getElementById('promo-head-sub').textContent =
-    `${lista.length} itens · até ${maior}% OFF · quantidade limitada`;
+  // disponíveis primeiro (maior desconto no topo), esgotados no fim
+  lista.sort((a, b) => (a.disponivel === b.disponivel)
+    ? (b.desconto - a.desconto || a.name.localeCompare(b.name))
+    : (a.disponivel ? -1 : 1));
+
+  const vivos = lista.filter(p => p.disponivel);
+  const fim   = lista.length - vivos.length;
+  const maior = vivos.length ? Math.round(Math.max(...vivos.map(p => p.desconto)) * 100) : 0;
+  document.getElementById('promo-head-sub').textContent = vivos.length
+    ? `${vivos.length} disponíveis · até ${maior}% OFF` + (fim ? ` · ${fim} já esgotaram` : '')
+    : 'todos os itens esgotaram';
 
   body.innerHTML = lista.map(p => {
     const nome = p.name.replace(/\s*—\s*Promoção.*$/, '');
     const img = p.image
       ? `<img src="/uploads/${p.image}" alt="">`
       : `<div style="width:46px;height:60px;flex-shrink:0"></div>`;
+    const acao = p.disponivel
+      ? `<div class="pi-acao">
+           <input type="number" id="pq-${p.code}" min="1" max="${p.stock}" value="1">
+           <button type="button" class="pi-add" onclick="addPromoToCart('${p.code}')">Adicionar</button>
+         </div>`
+      : `<div class="pi-acao"><span class="faixa-esgotado">Esgotado</span></div>`;
+    const sub = p.disponivel
+      ? `${p.stock} un. disponíve${p.stock > 1 ? 'is' : 'l'}`
+      : 'acabou — não temos mais nesse preço';
     return `
-      <div class="promo-item">
+      <div class="promo-item${p.disponivel ? '' : ' esgotado'}">
         ${img}
         <div class="pi-info">
           <div class="pi-nome">${nome}</div>
-          <div class="pi-sub">${p.stock} un. disponíve${p.stock > 1 ? 'is' : 'l'}</div>
+          <div class="pi-sub">${sub}</div>
           <div class="pi-precos">
             <span class="pi-de">${fmtBRL(p.preco_base || p.preco_cheio)}</span>
             <span class="pi-por">${fmtBRL(p.price)}</span>
             <span class="pi-off">-${Math.round(p.desconto * 100)}%</span>
           </div>
         </div>
-        <div class="pi-acao">
-          <input type="number" id="pq-${p.code}" min="1" max="${p.stock}" value="1">
-          <button type="button" class="pi-add" onclick="addPromoToCart('${p.code}')">Adicionar</button>
-        </div>
+        ${acao}
       </div>`;
   }).join('');
 
+  const escassez = document.getElementById('promo-escassez');
+  if (fim && vivos.length) {
+    escassez.textContent = `⏳ ${fim} ${fim > 1 ? 'itens já esgotaram' : 'item já esgotou'} — os que restam podem acabar a qualquer momento.`;
+    escassez.style.display = '';
+  } else {
+    escassez.style.display = 'none';
+  }
+
   card.style.display = '';
   btnFora.style.display = '';
-  bloco.style.display = 'none';   // só aparece se o cliente pedir
+  if (!foraAberto) bloco.style.display = 'none';
 }
 
 function toggleFora() {
   const bloco = document.getElementById('bloco-fora');
   const btn = document.getElementById('btn-fora');
-  const aberto = bloco.style.display !== 'none';
-  bloco.style.display = aberto ? 'none' : '';
-  btn.textContent = aberto ? '🛍️ Comprar itens fora da promoção' : '✕ Fechar itens fora da promoção';
-  if (!aberto) bloco.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  foraAberto = bloco.style.display === 'none';
+  bloco.style.display = foraAberto ? '' : 'none';
+  btn.textContent = foraAberto ? '✕ Fechar itens fora da promoção' : '🛍️ Comprar itens fora da promoção';
+  if (foraAberto) bloco.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function addPromoToCart(code) {
+async function addPromoToCart(code) {
   const p = products.find(x => x.code === code);
   if (!p) return;
   const input = document.getElementById('pq-' + code);
+  if (!input || !p.disponivel) {
+    setAlert('alert-product', '⚠️ Este item da promoção acabou.');
+    loadProducts();
+    return;
+  }
   const qty = parseInt(input.value) || 0;
   if (qty < 1) { setAlert('alert-product', '⚠️ Informe uma quantidade válida.'); return; }
 
@@ -874,6 +988,7 @@ function addPromoToCart(code) {
   }
   hideAlert('alert-product');
 
+  const antes = existing ? existing.quantidade : null;
   if (existing) {
     existing.quantidade = total;
     existing.valor_total = round2(existing.preco_unit * total);
@@ -886,12 +1001,33 @@ function addPromoToCart(code) {
       valor_total: round2(p.price * qty)
     });
   }
+
+  // segura as unidades no servidor antes de seguir
+  const probs = await sincronizarReserva();
+  if (probs && probs.length) {
+    const prob = probs.find(x => x.code === code);
+    if (existing && antes !== null) {
+      existing.quantidade = antes;
+      existing.valor_total = round2(existing.preco_unit * antes);
+    } else {
+      cart = cart.filter(i => i.produto_code !== code);
+    }
+    await sincronizarReserva();
+    setAlert('alert-product', prob && prob.disponivel > 0
+      ? `⚠️ Outra pessoa está comprando este item. Sobraram ${prob.disponivel} un.`
+      : '⚠️ Outra pessoa levou a última unidade deste item.');
+    renderCart();
+    await loadProducts();
+    return;
+  }
+
   input.value = '1';
   const btn = input.nextElementSibling;
   btn.textContent = '✓ No carrinho';
   btn.classList.add('ok');
   setTimeout(() => { btn.textContent = 'Adicionar'; btn.classList.remove('ok'); }, 1600);
   renderCart();
+  loadProducts();   // atualiza o saldo que os outros enxergam
 }
 
 /* ── Produto selecionado ──────────────────────────────────────── */
@@ -1169,6 +1305,7 @@ async function finalizarPedido() {
   fd.append('email', orderData.email);
   fd.append('tipo_comprador', selectedTipo);
   fd.append('items_json', JSON.stringify(cart));
+  fd.append('cart_id', cartId);
 
   if (selectedTipo === 'genomma') {
     const file = document.getElementById('comprovante').files[0];
@@ -1305,11 +1442,13 @@ function addToCart() {
   document.getElementById('total-info').style.display = 'none';
 
   renderCart();
+  conferirReserva().then(ok => { if (ok) loadProducts(); });
 }
 
 function removeFromCart(idx) {
   cart.splice(idx, 1);
   renderCart();
+  sincronizarReserva().then(() => loadProducts());   // devolve as unidades
 }
 
 function setCartQty(idx, value) {
@@ -1327,6 +1466,7 @@ function setCartQty(idx, value) {
   item.quantidade = qty;
   item.valor_total = round2(item.preco_unit * qty);
   renderCart();
+  conferirReserva();
 }
 
 function changeCartQty(idx, delta) {
