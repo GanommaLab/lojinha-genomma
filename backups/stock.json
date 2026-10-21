@@ -405,7 +405,7 @@
   "4041041-P1": {
     "code": "4041041-P1",
     "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 01/2027)",
-    "stock": 2,
+    "stock": 0,
     "price": 15.0,
     "image": "produto_4041041.jpg",
     "preco_cheio": 21.78,
@@ -418,7 +418,7 @@
   "4041041-P2": {
     "code": "4041041-P2",
     "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 02/2027)",
-    "stock": 2,
+    "stock": 1,
     "price": 17.0,
     "image": "produto_4041041.jpg",
     "preco_cheio": 21.78,
@@ -431,7 +431,7 @@
   "4041050": {
     "code": "4041050",
     "name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
-    "stock": 9,
+    "stock": 6,
     "price": 8.0,
     "image": "produto_4041050.jpg",
     "preco_cheio": 23.59,
