@@ -51,6 +51,33 @@ def _find_excel_with_sheet(predicate, exclude=None):
     return None
 LOCK  = threading.Lock()
 
+# ── Reservas de carrinho ──────────────────────────────────────────────────────
+# {cart_id: {'exp': timestamp, 'itens': {codigo: qtd}}}
+# Ficam só na memória: se o processo reinicia, as reservas caem e o estoque
+# volta a ficar livre — que é o comportamento correto, porque o carrinho da
+# pessoa também se perdeu. Nunca descontam do estoque gravado; o abatimento
+# real continua acontecendo só quando o pedido é finalizado.
+RESERVAS   = {}
+RESERVA_SEG = 25 * 60   # tempo de pé: dá folga para anexar o comprovante
+
+def _expira_reservas():
+    """Remove reservas vencidas. Sempre chamar com o LOCK tomado."""
+    agora = time.time()
+    for cid in [c for c, r in RESERVAS.items() if r['exp'] < agora]:
+        RESERVAS.pop(cid, None)
+
+def _reservado_por_outros(cart_id):
+    """Quantas unidades de cada produto estão presas no carrinho de outras
+    pessoas. O próprio carrinho não conta contra si mesmo."""
+    _expira_reservas()
+    tot = {}
+    for cid, r in RESERVAS.items():
+        if cid and cid == cart_id:
+            continue
+        for code, q in r['itens'].items():
+            tot[code] = tot.get(code, 0) + q
+    return tot
+
 UPLOAD.mkdir(parents=True, exist_ok=True)
 (TMP).mkdir(parents=True, exist_ok=True)
 
@@ -449,26 +476,78 @@ def api_products():
     Produtos sem saldo ou pausados continuam na lista — a vitrine mostra a foto
     deles com a tarja "Produto em Falta" em vez de o item simplesmente sumir.
 
-    Lotes promocionais (`promo`) são a exceção: quando acabam, somem da lista em
-    vez de virar "em falta", porque a promoção terminou e não é falta de produto.
-    O produto-pai também some enquanto todo o saldo restante dele estiver num
-    lote promocional ativo — senão apareceria como em falta tendo estoque."""
+    Lotes promocionais esgotados também continuam na lista, para a vitrine
+    mostrar a faixa "Esgotado": ver que a promoção está acabando é o que faz
+    quem chegou depois não deixar passar o que ainda tem.
+
+    O `stock` devolvido já desconta o que está reservado nos carrinhos de outras
+    pessoas (ver /api/reserve), então duas pessoas não disputam a mesma unidade.
+    Passe ?cart=<id> para o próprio carrinho não descontar de si mesmo."""
+    cart = (request.args.get('cart') or '').strip()[:64]
     with LOCK:
         snapshot = {c: dict(p) for c, p in stock_data.items()}
+        outros = _reservado_por_outros(cart)
 
-    promo_ativa = {p.get('promo_de') for p in snapshot.values()
-                   if p.get('promo') and p.get('stock', 0) > 0}
+    for code, p in snapshot.items():
+        p['stock_real'] = p.get('stock', 0)
+        p['reservado'] = outros.get(code, 0)
+        p['stock'] = max(0, p['stock_real'] - p['reservado'])
+
+    # pai sem saldo cujo restante está num lote promocional: quem aparece é o lote
+    tem_promo = {p.get('promo_de') for p in snapshot.values() if p.get('promo')}
 
     lst = []
     for code, p in snapshot.items():
-        disponivel = bool(p.get('stock', 0) > 0 and not p.get('paused'))
-        if not disponivel and (p.get('promo') or code in promo_ativa):
+        disponivel = bool(p['stock'] > 0 and not p.get('paused'))
+        if not disponivel and not p.get('promo') and code in tem_promo:
             continue
         p['disponivel'] = disponivel
         lst.append(p)
     # disponíveis primeiro, cada grupo em ordem alfabética
     lst.sort(key=lambda x: (not x['disponivel'], x['name'].lower()))
     return jsonify(lst)
+
+
+# ── Reserva de estoque no carrinho ────────────────────────────────────────────
+@app.post('/api/reserve')
+def api_reserve():
+    """Guarda as unidades do carrinho de alguém por RESERVA_SEG segundos.
+
+    Existe porque o comprador Genomma precisa anexar o comprovante antes de
+    finalizar: sem reserva, duas pessoas conseguiam pagar pela mesma unidade.
+    O corpo traz o carrinho inteiro ({cart, itens:{codigo: qtd}}), então a mesma
+    chamada serve para adicionar, alterar, remover e renovar a reserva.
+    Carrinho vazio libera tudo. Devolve 409 com o que sobrou de cada item quando
+    alguém chegou antes."""
+    data  = request.get_json(force=True, silent=True) or {}
+    cart  = str(data.get('cart') or '').strip()[:64]
+    if not cart:
+        return jsonify({'error': 'Carrinho sem identificação.'}), 400
+
+    pedido = {}
+    for code, q in (data.get('itens') or {}).items():
+        try: q = int(q)
+        except Exception: continue
+        if q > 0: pedido[str(code)] = q
+
+    with LOCK:
+        outros = _reservado_por_outros(cart)
+        problemas = []
+        for code, q in pedido.items():
+            p = stock_data.get(code)
+            if not p or p.get('paused'):
+                problemas.append({'code': code, 'name': p['name'] if p else code, 'disponivel': 0})
+                continue
+            disp = max(0, p['stock'] - outros.get(code, 0))
+            if q > disp:
+                problemas.append({'code': code, 'name': p['name'], 'disponivel': disp})
+        if problemas:
+            return jsonify({'ok': False, 'problemas': problemas}), 409
+        if pedido:
+            RESERVAS[cart] = {'exp': time.time() + RESERVA_SEG, 'itens': pedido}
+        else:
+            RESERVAS.pop(cart, None)
+    return jsonify({'ok': True, 'expira_em': RESERVA_SEG})
 
 # ── API: imagem do produto ─────────────────────────────────────────────────────
 @app.post('/api/products/<code>/image')
@@ -519,6 +598,7 @@ def api_order():
     tipo  = request.form.get('tipo_comprador','').strip()
     file  = request.files.get('comprovante')
     items_json = request.form.get('items_json','').strip()
+    cart_id    = request.form.get('cart_id','').strip()[:64]
 
     if not all([nome, email, tipo]):
         return jsonify({'error':'Preencha todos os campos obrigatórios.'}), 400
@@ -535,6 +615,7 @@ def api_order():
         order_items = []
         total_valor = 0.0
         with LOCK:
+            reservado_outros = _reservado_por_outros(cart_id)
             for item in raw_items:
                 pcode = str(item.get('produto_code', '')).strip()
                 try:
@@ -547,8 +628,10 @@ def api_order():
                     return jsonify({'error':f'Produto não encontrado: {pcode}'}), 404
                 if product.get('paused'):
                     return jsonify({'error':f'Produto "{product["name"]}" está temporariamente indisponível para venda.'}), 400
-                if qty > product['stock']:
-                    return jsonify({'error':f'Estoque insuficiente para "{product["name"]}". Disponível: {product["stock"]} un.'}), 400
+                # desconta o que está preso no carrinho de outras pessoas
+                disp = max(0, product['stock'] - reservado_outros.get(pcode, 0))
+                if qty > disp:
+                    return jsonify({'error':f'Estoque insuficiente para "{product["name"]}". Disponível: {disp} un.'}), 400
                 preco_unit = round(float(product.get('price', 0.0)), 2)
                 valor_item = round(preco_unit * qty, 2)
                 total_valor += valor_item
@@ -560,6 +643,7 @@ def api_order():
                     'valor_total':  valor_item,
                 })
                 stock_data[pcode]['stock'] -= qty
+            RESERVAS.pop(cart_id, None)   # virou venda, não precisa mais segurar
             save_stock()
 
         attach_path, attach_name = None, None
@@ -611,9 +695,11 @@ def api_order():
         if not product: return jsonify({'error':'Produto não encontrado.'}), 404
         if product.get('paused'):
             return jsonify({'error':f'Produto "{product["name"]}" está temporariamente indisponível para venda.'}), 400
-        if qty > product['stock']:
-            return jsonify({'error':f'Estoque insuficiente. Disponível: {product["stock"]} un.'}), 400
+        disp = max(0, product['stock'] - _reservado_por_outros(cart_id).get(pcode, 0))
+        if qty > disp:
+            return jsonify({'error':f'Estoque insuficiente. Disponível: {disp} un.'}), 400
         stock_data[pcode]['stock'] -= qty
+        RESERVAS.pop(cart_id, None)
         save_stock()
         snap = dict(product)
 
