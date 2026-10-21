@@ -1701,5 +1701,45 @@
     "valor_total": 96.0,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20261021224033231",
+    "data_hora": "21/10/2026 22:40:33",
+    "nome": "Everton Domingues",
+    "email": "everondomingues@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 2,
+        "preco_unit": 17.0,
+        "valor_total": 34.0
+      },
+      {
+        "produto_code": "1109100-P1",
+        "produto_name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
+        "quantidade": 1,
+        "preco_unit": 24.0,
+        "valor_total": 24.0
+      },
+      {
+        "produto_code": "1108900",
+        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
+        "quantidade": 1,
+        "preco_unit": 26.0,
+        "valor_total": 26.0
+      },
+      {
+        "produto_code": "1108800-P1",
+        "produto_name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
+        "quantidade": 1,
+        "preco_unit": 49.0,
+        "valor_total": 49.0
+      }
+    ],
+    "valor_total": 133.0,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
