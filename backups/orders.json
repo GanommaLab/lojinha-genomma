@@ -303,7 +303,8 @@
     ],
     "valor_total": 63.0,
     "comprovante": "20261020_212811_Compra_Lojinha.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261020212813419_20261021_195709_5.988.pdf"
   },
   {
     "id": "20261020133129410",
