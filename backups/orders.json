@@ -1,5 +1,66 @@
 [
   {
+    "id": "20261021012738516",
+    "data_hora": "21/10/2026 01:27:38",
+    "nome": "Everton Domingues",
+    "email": "Evertondomingues@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1110700",
+        "produto_name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
+        "quantidade": 3,
+        "preco_unit": 6.0,
+        "valor_total": 18.0
+      },
+      {
+        "produto_code": "1031087-P1",
+        "produto_name": "Asepxia Barra Detox 80g — Promoção (venc. 01/2027)",
+        "quantidade": 2,
+        "preco_unit": 5.0,
+        "valor_total": 10.0
+      },
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 2,
+        "preco_unit": 11.0,
+        "valor_total": 22.0
+      },
+      {
+        "produto_code": "1109100-P1",
+        "produto_name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
+        "quantidade": 2,
+        "preco_unit": 24.0,
+        "valor_total": 48.0
+      },
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 2,
+        "preco_unit": 17.0,
+        "valor_total": 34.0
+      },
+      {
+        "produto_code": "91114-P1",
+        "produto_name": "LaKesia Antimicótico 30 mL — Promoção (venc. 01/2027)",
+        "quantidade": 1,
+        "preco_unit": 26.0,
+        "valor_total": 26.0
+      },
+      {
+        "produto_code": "1108900",
+        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
+        "quantidade": 2,
+        "preco_unit": 26.0,
+        "valor_total": 52.0
+      }
+    ],
+    "valor_total": 210.0,
+    "comprovante": "",
+    "status": "pendente"
+  },
+  {
     "id": "20261020223630001",
     "data_hora": "20/10/2026 22:36:30",
     "nome": "Micaella Americo Torrecilha",
