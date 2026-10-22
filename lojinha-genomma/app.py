@@ -276,10 +276,38 @@ def _log_new_order(order):
     log_orders.append(order)
     _gh_backup('pedidos_log.json', json.dumps(log_orders, ensure_ascii=False, indent=2))
 
+def _ids_excluidos():
+    """IDs de pedidos apagados de propósito pelo admin (backups/pedidos_excluidos.json).
+
+    O log de auditoria (pedidos_log.json) só cresce e nunca é reescrito, então,
+    sem essa lista, todo pedido excluído voltava a aparecer no próximo boot —
+    e, se fosse excluído de novo, devolvia as mesmas unidades ao estoque outra
+    vez, inflando o saldo a cada deploy."""
+    if not GITHUB_TOKEN:
+        return set()
+    try:
+        raw = _gh_restore('pedidos_excluidos.json')
+        return set(json.loads(raw)) if raw else set()
+    except Exception as e:
+        log.warning(f'⚠️  Não foi possível ler a lista de pedidos excluídos: {e}')
+        return set()
+
+def _marcar_excluido(order_id):
+    """Registra o pedido como apagado de propósito, para que a reconciliação
+    com o log de auditoria não o recrie no próximo boot."""
+    if not GITHUB_TOKEN:
+        return
+    ids = _ids_excluidos()
+    if order_id in ids:
+        return
+    ids.add(order_id)
+    _gh_backup('pedidos_excluidos.json', json.dumps(sorted(ids), ensure_ascii=False, indent=2))
+
 def reconcile_orders_with_log():
     """Compara backups/pedidos_log.json com os pedidos atuais e recria, com os
     dados originais, qualquer pedido presente no log mas ausente de orders.json.
-    Retorna a lista de pedidos recuperados (vazia se nenhum estiver faltando)."""
+    Pedidos apagados de propósito pelo admin (pedidos_excluidos.json) são
+    ignorados. Retorna a lista de pedidos recuperados."""
     if not GITHUB_TOKEN:
         return []
     try:
@@ -288,6 +316,9 @@ def reconcile_orders_with_log():
     except Exception as e:
         log.warning(f'⚠️  Não foi possível ler o log de auditoria de pedidos: {e}')
         return []
+    apagados = _ids_excluidos()
+    if apagados:
+        log_orders = [o for o in log_orders if o.get('id') not in apagados]
     if not log_orders:
         return []
     with LOCK:
@@ -848,6 +879,13 @@ def api_delete_order(order_id):
             return jsonify({'error': 'Pedido não encontrado'}), 404
         orders.remove(found)
         write_orders(orders)
+        _marcar_excluido(order_id)   # impede que o boot seguinte recrie o pedido
+        # ?estoque=0 → apaga sem devolver nada (pedido de teste, ou saldo já
+        # conferido no físico). Sem o parâmetro, mantém o comportamento antigo.
+        devolver = request.args.get('estoque', '1') != '0'
+        if not devolver:
+            log.info(f'🗑️  Pedido {order_id} excluído SEM devolver itens ao estoque.')
+            return jsonify({'ok': True, 'estoque_devolvido': False})
         # Restaurar estoque — suporta pedidos com múltiplos itens e item único
         stock_changed = False
         if 'items' in found:
@@ -1887,9 +1925,14 @@ async function excluir(id) {{
   const prod = o ? (o.items && o.items.length
     ? o.items.map(i=>`${{i.produto_name}} (${{i.quantidade}} un.)`).join('\\n')
     : (o.produto_name||'')) : '';
-  if (!confirm(`Excluir este pedido?\n\n${{prod}}\n\nO estoque será restaurado automaticamente.`)) return;
+  if (!confirm(`Excluir este pedido?\n\n${{prod}}`)) return;
+  const devolver = confirm(
+    'Devolver os itens ao estoque?\n\n' +
+    'OK      → SIM, devolver (venda cancelada, o produto voltou para a prateleira)\n' +
+    'Cancelar → NÃO devolver (pedido de teste, ou saldo já conferido no físico)'
+  );
   try {{
-    const r = await fetch(`/api/orders/${{id}}`, {{method: 'DELETE'}});
+    const r = await fetch(`/api/orders/${{id}}?estoque=${{devolver ? 1 : 0}}`, {{method: 'DELETE'}});
     if (r.ok) {{ await loadOrders(); }}
     else {{ alert('Erro ao excluir. Tente novamente.'); }}
   }} catch(e) {{ alert('Erro de conexão.'); }}
