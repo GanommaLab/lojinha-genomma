@@ -120,6 +120,53 @@
     "status": "pendente"
   },
   {
+    "id": "20261021120508654",
+    "data_hora": "21/10/2026 12:05:08",
+    "nome": "maycon Dias",
+    "email": "maycon351@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "4041041-P2",
+        "produto_name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 02/2027)",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "4041010",
+        "produto_name": "Tío Nacho Clareador Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 20.0,
+        "valor_total": 20.0
+      },
+      {
+        "produto_code": "4041050",
+        "produto_name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
+        "quantidade": 2,
+        "preco_unit": 8.0,
+        "valor_total": 16.0
+      },
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 2,
+        "preco_unit": 11.0,
+        "valor_total": 22.0
+      }
+    ],
+    "valor_total": 92.0,
+    "comprovante": "",
+    "status": "pendente"
+  },
+  {
     "id": "20261021094905548",
     "data_hora": "21/10/2026 09:49:05",
     "nome": "Rubens Teixeira",
