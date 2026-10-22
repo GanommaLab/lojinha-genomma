@@ -23,7 +23,8 @@
     ],
     "valor_total": 41.0,
     "comprovante": "",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261022145733830_20261022_173614_kate.pdf"
   },
   {
     "id": "20261021224033231",
