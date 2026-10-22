@@ -349,7 +349,8 @@
     ],
     "valor_total": 189.0,
     "comprovante": "20261020_213720_Comprovante.pdf",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261020213721595_20261022_173649_ANDRESSA.pdf"
   },
   {
     "id": "20261020212813419",
