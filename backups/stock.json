@@ -1,723 +1,723 @@
 {
- "101111": {
-  "code": "101111",
-  "name": "Pointts Antiverrugas 80 ml",
-  "stock": 0,
-  "price": 132.48,
-  "image": "produto_101111.jpg"
- },
- "1031045": {
-  "code": "1031045",
-  "name": "Asepxia Limpeza Esfoliante Carvão Detox",
-  "stock": 12,
-  "price": 15.83,
-  "image": "produto_1031045.jpg"
- },
- "1031046": {
-  "code": "1031046",
-  "name": "Asepxia Máscara Peel off Carvão Detox",
-  "stock": 0,
-  "price": 10.52,
-  "image": "produto_1031046.jpg"
- },
- "1031068": {
-  "code": "1031068",
-  "name": "Asepxia Sab Líq Limpeza Profunda 150 mL",
-  "stock": 5,
-  "price": 15.83,
-  "image": "produto_1031068.jpg"
- },
- "1031069": {
-  "code": "1031069",
-  "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
-  "stock": 0,
-  "price": 10.56,
-  "image": "produto_1031069.jpg",
-  "paused": true
- },
- "1031070": {
-  "code": "1031070",
-  "name": "Asepxia Sabonete Líquido Detox 150 mL",
-  "stock": 0,
-  "price": 15.83,
-  "image": "produto_1031070.jpg",
-  "paused": true
- },
- "1031082": {
-  "code": "1031082",
-  "name": "Asepxia Barra Esfoliante 80g",
-  "stock": 12,
-  "price": 6.0,
-  "image": "produto_1031082.jpg",
-  "preco_cheio": 8.0,
-  "validade": "2027-02-08",
-  "preco_base": 9.72,
-  "desconto": 0.3827
- },
- "1031083": {
-  "code": "1031083",
-  "name": "Asepxia Barra Neutro 80g",
-  "stock": 12,
-  "price": 5.0,
-  "image": "produto_1031083.jpg",
-  "preco_cheio": 8.0,
-  "validade": "2027-01-26",
-  "preco_base": 9.72,
-  "desconto": 0.4856
- },
- "1031084": {
-  "code": "1031084",
-  "name": "Asepxia Barra Enxofre 80g",
-  "stock": 7,
-  "price": 5.0,
-  "image": "produto_1031084.jpg",
-  "preco_cheio": 8.0,
-  "validade": "2027-01-20",
-  "preco_base": 9.72,
-  "desconto": 0.4856
- },
- "1031085": {
-  "code": "1031085",
-  "name": "Asepxia Barra Suavizante/Cremoso 80g",
-  "stock": 13,
-  "price": 6.0,
-  "image": "produto_1031085.jpg",
-  "preco_cheio": 8.0,
-  "validade": "2027-02-27",
-  "preco_base": 9.72,
-  "desconto": 0.3827
- },
- "1031086": {
-  "code": "1031086",
-  "name": "Asepxia Barra Forte 80g",
-  "stock": 5,
-  "price": 8.0,
-  "image": "produto_1031086.jpg"
- },
- "1031087": {
-  "code": "1031087",
-  "name": "Asepxia Barra Detox 80g",
-  "stock": 2,
-  "price": 9.71,
-  "image": "produto_1031087.jpg"
- },
- "1031087-P1": {
-  "code": "1031087-P1",
-  "name": "Asepxia Barra Detox 80g — Promoção (venc. 01/2027)",
-  "stock": 8,
-  "price": 5.0,
-  "image": "produto_1031087.jpg",
-  "preco_cheio": 9.71,
-  "validade": "2027-01-18",
-  "promo": true,
-  "promo_de": "1031087",
-  "preco_base": 11.8,
-  "desconto": 0.5763
- },
- "1108800": {
-  "code": "1108800",
-  "name": "Cicatricure Sérum Clareador Facial 30mL",
-  "stock": 4,
-  "price": 51.0,
-  "image": "produto_1108800.jpg"
- },
- "1108800-P1": {
-  "code": "1108800-P1",
-  "name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
-  "stock": 2,
-  "price": 49.0,
-  "image": "produto_1108800.jpg",
-  "preco_cheio": 51.0,
-  "validade": "2027-06-30",
-  "promo": true,
-  "promo_de": "1108800",
-  "preco_base": 69.48,
-  "desconto": 0.2948
- },
- "1108900": {
-  "code": "1108900",
-  "name": "Cicatricure Creme Contorno dos Olhos 15g",
-  "stock": 5,
-  "price": 26.0,
-  "image": "produto_1108900.jpg",
-  "preco_cheio": 32.15,
-  "validade": "2027-02-24",
-  "preco_base": 45.05,
-  "desconto": 0.4229
- },
- "1109100": {
-  "code": "1109100",
-  "name": "Cicatricure Creme para Rugas 50g",
-  "stock": 6,
-  "price": 31.0,
-  "image": "produto_1109100.jpg"
- },
- "1109100-P1": {
-  "code": "1109100-P1",
-  "name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
-  "stock": 3,
-  "price": 24.0,
-  "image": "produto_1109100.jpg",
-  "preco_cheio": 30.51,
-  "validade": "2027-02-05",
-  "promo": true,
-  "promo_de": "1109100",
-  "preco_base": 45.05,
-  "desconto": 0.4673
- },
- "1109200": {
-  "code": "1109200",
-  "name": "Cicatricure Creme FPS 30 Diurno 50g",
-  "stock": 5,
-  "price": 35.55,
-  "image": "produto_1109200.jpg"
- },
- "1109300": {
-  "code": "1109300",
-  "name": "Cicatricure Creme Corporal 250g",
-  "stock": 15,
-  "price": 19.09,
-  "image": "produto_1109300.jpg"
- },
- "1109600": {
-  "code": "1109600",
-  "name": "Cicatricure Maternity Corporal 250mL",
-  "stock": 29,
-  "price": 40.0,
-  "image": "produto_1109600.jpg"
- },
- "1109700": {
-  "code": "1109700",
-  "name": "Cicatricure Água Micelar 200 mL",
-  "stock": 0,
-  "price": 13.0,
-  "image": "produto_1109700.jpg",
-  "preco_cheio": 14.7,
-  "validade": "2027-04-02",
-  "preco_base": 19.26,
-  "desconto": 0.325
- },
- "1110000": {
-  "code": "1110000",
-  "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - clara",
-  "stock": 7,
-  "price": 34.42,
-  "image": "produto_1110000.jpg"
- },
- "1110100": {
-  "code": "1110100",
-  "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - média",
-  "stock": 0,
-  "price": 34.0,
-  "image": "produto_1110100.jpg"
- },
- "1110200": {
-  "code": "1110200",
-  "name": "Cicatricure Eye Cream For Face 30g",
-  "stock": 2,
-  "price": 11.0,
-  "image": "produto_1110200.png",
-  "preco_cheio": 27.52,
-  "validade": "2027-01-09",
-  "preco_base": 55.58,
-  "desconto": 0.8021
- },
- "1110400": {
-  "code": "1110400",
-  "name": "Cicatricure Gel 30g - Horizontal",
-  "stock": 8,
-  "price": 17.1,
-  "image": "produto_1110400.jpg"
- },
- "1110500": {
-  "code": "1110500",
-  "name": "Cicatricure Gel 60g - Horizontal",
-  "stock": 9,
-  "price": 32.15,
-  "image": "produto_1110500.jpg"
- },
- "1110700": {
-  "code": "1110700",
-  "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
-  "stock": 0,
-  "price": 6.0,
-  "image": "produto_1110700.jpg",
-  "preco_cheio": 8.63,
-  "validade": "2027-02-11",
-  "preco_base": 25.86,
-  "desconto": 0.768
- },
- "1110800": {
-  "code": "1110800",
-  "name": "Cicatricure Porcelana Peeling Facial 30ml",
-  "stock": 0,
-  "price": 22.12,
-  "image": "produto_1110800.jpg",
-  "paused": true
- },
- "1111400": {
-  "code": "1111400",
-  "name": "Cicatricure Regeneplast 30g",
-  "stock": 12,
-  "price": 17.68,
-  "image": "produto_1111400.jpg"
- },
- "1111500": {
-  "code": "1111500",
-  "name": "Cicatricure Neuro-zen 50g",
-  "stock": 15,
-  "price": 46.58,
-  "image": "produto_1111500.jpg"
- },
- "1131008": {
-  "code": "1131008",
-  "name": "Cicatricure Gold Lift Noite 50 g",
-  "stock": 7,
-  "price": 58.98,
-  "image": "produto_1131008.jpg"
- },
- "1131009": {
-  "code": "1131009",
-  "name": "Cicatricure Gold Lift Dia 50 g",
-  "stock": 22,
-  "price": 58.98,
-  "image": "produto_1131009.jpg"
- },
- "1131072": {
-  "code": "1131072",
-  "name": "Cicatricure Prot Solar FPS50 Matte 40g",
-  "stock": 11,
-  "price": 34.42,
-  "image": "produto_1131072.jpg"
- },
- "1131080": {
-  "code": "1131080",
-  "name": "Cicatricure Gold Lift Serum Firmador 30mL",
-  "stock": 3,
-  "price": 17.0,
-  "image": "produto_1131080.png",
-  "preco_cheio": 30.81,
-  "validade": "2027-01-09",
-  "preco_base": 83.38,
-  "desconto": 0.7961
- },
- "2100100": {
-  "code": "2100100",
-  "name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
-  "stock": 5,
-  "price": 20.0,
-  "image": "produto_2100100.jpg"
- },
- "2100200": {
-  "code": "2100200",
-  "name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
-  "stock": 5,
-  "price": 20.0,
-  "image": "produto_2100200.jpg"
- },
- "2310800": {
-  "code": "2310800",
-  "name": "LakesiaPÉS Creme Antifúngico 20g",
-  "stock": 12,
-  "price": 25.0,
-  "image": "produto_2310800.jpg"
- },
- "2310900": {
-  "code": "2310900",
-  "name": "LakesiaMedical Esmalte 3g",
-  "stock": 12,
-  "price": 79.79,
-  "image": "produto_2310900.jpg"
- },
- "4041000": {
-  "code": "4041000",
-  "name": "Tío Nacho Engrossador Shampoo 415 mL",
-  "stock": 4,
-  "price": 24.0,
-  "image": "produto_4041000.jpg"
- },
- "4041001": {
-  "code": "4041001",
-  "name": "Tío Nacho Engrossador Condicionador 415 mL",
-  "stock": 8,
-  "price": 21.78,
-  "image": "produto_4041001.jpg"
- },
- "4041010": {
-  "code": "4041010",
-  "name": "Tío Nacho Clareador Shampoo 415 mL",
-  "stock": 0,
-  "price": 20.0,
-  "image": "produto_4041010.jpg",
-  "preco_cheio": 23.59,
-  "validade": "2027-03-11",
-  "preco_base": 33.34,
-  "desconto": 0.4001
- },
- "4041011": {
-  "code": "4041011",
-  "name": "Tío Nacho Clareador Condicionador 415 mL",
-  "stock": 5,
-  "price": 22.0,
-  "image": "produto_4041011.jpg"
- },
- "4041011-P1": {
-  "code": "4041011-P1",
-  "name": "Tío Nacho Clareador Condicionador 415 mL — Promoção (venc. 03/2027)",
-  "stock": 4,
-  "price": 17.0,
-  "image": "produto_4041011.jpg",
-  "preco_cheio": 21.78,
-  "validade": "2027-03-13",
-  "promo": true,
-  "promo_de": "4041011",
-  "preco_base": 34.04,
-  "desconto": 0.5006
- },
- "4041020": {
-  "code": "4041020",
-  "name": "Tío Nacho Anti-idade Shampoo 415 mL",
-  "stock": 11,
-  "price": 22.61,
-  "image": "produto_4041020.jpg"
- },
- "4041021": {
-  "code": "4041021",
-  "name": "Tío Nacho Anti-idade Condicionador 415 mL",
-  "stock": 12,
-  "price": 20.89,
-  "image": "produto_4041021.jpg"
- },
- "4041040": {
-  "code": "4041040",
-  "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
-  "stock": 5,
-  "price": 24.0,
-  "image": "produto_4041040.jpg"
- },
- "4041041": {
-  "code": "4041041",
-  "name": "Tío Nacho Reconstrutor Condicionador 415 mL",
-  "stock": 0,
-  "price": 21.78,
-  "image": "produto_4041041.jpg"
- },
- "4041041-P1": {
-  "code": "4041041-P1",
-  "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 01/2027)",
-  "stock": 0,
-  "price": 15.0,
-  "image": "produto_4041041.jpg",
-  "preco_cheio": 21.78,
-  "validade": "2027-01-25",
-  "promo": true,
-  "promo_de": "4041041",
-  "preco_base": 34.04,
-  "desconto": 0.5593
- },
- "4041041-P2": {
-  "code": "4041041-P2",
-  "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 02/2027)",
-  "stock": 0,
-  "price": 17.0,
-  "image": "produto_4041041.jpg",
-  "preco_cheio": 21.78,
-  "validade": "2027-02-14",
-  "promo": true,
-  "promo_de": "4041041",
-  "preco_base": 34.04,
-  "desconto": 0.5006
- },
- "4041050": {
-  "code": "4041050",
-  "name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
-  "stock": 0,
-  "price": 8.0,
-  "image": "produto_4041050.jpg",
-  "preco_cheio": 23.59,
-  "validade": "2026-11-12",
-  "preco_base": 33.34,
-  "desconto": 0.76
- },
- "4041115": {
-  "code": "4041115",
-  "name": "Tío Nacho Máscara 250g",
-  "stock": 12,
-  "price": 23.64,
-  "image": "produto_4041115.png"
- },
- "4041117": {
-  "code": "4041117",
-  "name": "Tío Nacho Leave-in 200mL",
-  "stock": 11,
-  "price": 23.64,
-  "image": "produto_4041117.png"
- },
- "4042000": {
-  "code": "4042000",
-  "name": "Tío Nacho Engrossador Shampoo 200 mL",
-  "stock": 0,
-  "price": 13.64,
-  "image": "produto_4042000.jpg"
- },
- "4042010": {
-  "code": "4042010",
-  "name": "Tío Nacho Clareador Shampoo 200 mL",
-  "stock": 1,
-  "price": 13.2,
-  "image": "produto_4042010.jpg"
- },
- "4043000": {
-  "code": "4043000",
-  "name": "Tío Nacho Engrossador Spray 120 mL",
-  "stock": 3,
-  "price": 21.13,
-  "image": "produto_4043000.jpg"
- },
- "4043040": {
-  "code": "4043040",
-  "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
-  "stock": 12,
-  "price": 16.17,
-  "image": "produto_4043040.jpg"
- },
- "4043600": {
-  "code": "4043600",
-  "name": "Tío Nacho Shampoo Antiqueda Engrossador 950 mL",
-  "stock": 0,
-  "price": 44.85,
-  "image": "produto_4043600.jpg",
-  "paused": true
- },
- "4043800": {
-  "code": "4043800",
-  "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
-  "stock": 0,
-  "price": 44.85,
-  "image": "produto_4043800.jpg",
-  "paused": true
- },
- "4043900": {
-  "code": "4043900",
-  "name": "Tío Nacho Ginseng Shampoo 415 mL",
-  "stock": 8,
-  "price": 10.0,
-  "image": "produto_4043900.jpg",
-  "preco_cheio": 13.56,
-  "validade": "2027-02-27",
-  "preco_base": 31.96,
-  "desconto": 0.6871
- },
- "4044000": {
-  "code": "4044000",
-  "name": "Tío Nacho Ginseng Condicionador 415 mL",
-  "stock": 8,
-  "price": 10.0,
-  "image": "produto_4044000.jpg",
-  "preco_cheio": 20.89,
-  "validade": "2027-04-24",
-  "preco_base": 32.65,
-  "desconto": 0.6937
- },
- "4044100": {
-  "code": "4044100",
-  "name": "Tío Nacho Anticaspa Shampoo 415 mL",
-  "stock": 5,
-  "price": 23.59,
-  "image": "produto_4044100.jpg"
- },
- "4044200": {
-  "code": "4044200",
-  "name": "Tío Nacho Anticaspa 2 em 1 Shampoo 415 mL",
-  "stock": 6,
-  "price": 23.59,
-  "image": "produto_4044200.jpg"
- },
- "4044300": {
-  "code": "4044300",
-  "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
-  "stock": 12,
-  "price": 23.59,
-  "image": "produto_4044300.jpg"
- },
- "4044400": {
-  "code": "4044400",
-  "name": "Tío Nacho Condicionador Antigrisalho 415 mL",
-  "stock": 22,
-  "price": 22.0,
-  "image": "produto_4044400.jpg"
- },
- "4044400-P1": {
-  "code": "4044400-P1",
-  "name": "Tío Nacho Condicionador Antigrisalho 415 mL — Promoção (venc. 04/2027)",
-  "stock": 10,
-  "price": 17.0,
-  "image": "produto_4044400.jpg",
-  "preco_cheio": 21.78,
-  "validade": "2027-04-25",
-  "promo": true,
-  "promo_de": "4044400",
-  "preco_base": 34.04,
-  "desconto": 0.5006
- },
- "4406000": {
-  "code": "4406000",
-  "name": "Liris Carmelose Sódica 10 mL 5mg/mL",
-  "stock": 7,
-  "price": 30.0,
-  "image": "produto_4406000.jpg"
- },
- "4406100": {
-  "code": "4406100",
-  "name": "Liris Calm 10 mL",
-  "stock": 10,
-  "price": 25.0,
-  "image": "produto_4406100.jpg",
-  "preco_cheio": 31.41,
-  "validade": "2027-06-17",
-  "preco_base": 37.27,
-  "desconto": 0.3292
- },
- "4406200": {
-  "code": "4406200",
-  "name": "Liris Power 10 mL",
-  "stock": 9,
-  "price": 25.0,
-  "image": "produto_4406200.jpg",
-  "preco_cheio": 39.58,
-  "validade": "2027-06-19",
-  "preco_base": 46.96,
-  "desconto": 0.4676
- },
- "5100100": {
-  "code": "5100100",
-  "name": "Expulsatox Adulto XPE 100mL",
-  "stock": 4,
-  "price": 18.84,
-  "image": "produto_5100100.jpg"
- },
- "5100200": {
-  "code": "5100200",
-  "name": "Expulsatox Infantil XPE 100mL",
-  "stock": 6,
-  "price": 18.84,
-  "image": "produto_5100200.jpg"
- },
- "5300100": {
-  "code": "5300100",
-  "name": "Renovaflora Probiótico 10 caps",
-  "stock": 36,
-  "price": 28.42,
-  "image": "produto_5300100.jpg"
- },
- "600083": {
-  "code": "600083",
-  "name": "Goicoechea Diabetx BR",
-  "stock": 8,
-  "price": 24.49,
-  "image": "produto_600083.jpg"
- },
- "600089": {
-  "code": "600089",
-  "name": "Goicoechea Creme Arnica e Camomila 350g",
-  "stock": 12,
-  "price": 23.0,
-  "image": "produto_600089.jpg"
- },
- "600090": {
-  "code": "600090",
-  "name": "Goicoechea Creme Centella Asiática 350g",
-  "stock": 4,
-  "price": 22.95,
-  "image": "produto_600090.jpg"
- },
- "600119": {
-  "code": "600119",
-  "name": "Asepxia Gel Secativo",
-  "stock": 9,
-  "price": 15.21,
-  "image": "produto_600119.jpg"
- },
- "600125": {
-  "code": "600125",
-  "name": "Lomecan Creme 3 dias 20g",
-  "stock": 4,
-  "price": 36.0,
-  "image": "produto_600125.jpg",
-  "preco_cheio": 40.32,
-  "validade": "2027-04-30",
-  "preco_base": 52.17,
-  "desconto": 0.3099
- },
- "600146": {
-  "code": "600146",
-  "name": "LaKesia Sérum Fortalecedor 7ml",
-  "stock": 3,
-  "price": 24.01,
-  "image": "produto_600146.jpg"
- },
- "600146-P1": {
-  "code": "600146-P1",
-  "name": "LaKesia Sérum Fortalecedor 7ml — Promoção (venc. 04/2027)",
-  "stock": 11,
-  "price": 19.0,
-  "image": "produto_600146.jpg",
-  "preco_cheio": 24.01,
-  "validade": "2027-04-16",
-  "promo": true,
-  "promo_de": "600146",
-  "preco_base": 35.53,
-  "desconto": 0.4652
- },
- "600151": {
-  "code": "600151",
-  "name": "Proctan - UQ",
-  "stock": 10,
-  "price": 37.0,
-  "image": "produto_600151.jpg",
-  "preco_cheio": 40.84,
-  "validade": "2027-04-30",
-  "preco_base": 48.45,
-  "desconto": 0.2363
- },
- "600170": {
-  "code": "600170",
-  "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
-  "stock": 16,
-  "price": 25.0,
-  "image": "produto_600170.jpg"
- },
- "91114": {
-  "code": "91114",
-  "name": "LaKesia Antimicótico 30 mL",
-  "stock": 8,
-  "price": 38.0,
-  "image": "produto_91114.jpg"
- },
- "91114-P1": {
-  "code": "91114-P1",
-  "name": "LaKesia Antimicótico 30 mL — Promoção (venc. 01/2027)",
-  "stock": 2,
-  "price": 26.0,
-  "image": "produto_91114.jpg",
-  "preco_cheio": 37.69,
-  "validade": "2027-01-31",
-  "promo": true,
-  "promo_de": "91114",
-  "preco_base": 44.72,
-  "desconto": 0.4186
- },
- "91114-P2": {
-  "code": "91114-P2",
-  "name": "LaKesia Antimicótico 30 mL — Promoção (venc. 03/2027)",
-  "stock": 3,
-  "price": 30.0,
-  "image": "produto_91114.jpg",
-  "preco_cheio": 37.69,
-  "validade": "2027-03-01",
-  "promo": true,
-  "promo_de": "91114",
-  "preco_base": 44.72,
-  "desconto": 0.3292
- }
+  "101111": {
+    "code": "101111",
+    "name": "Pointts Antiverrugas 80 ml",
+    "stock": 0,
+    "price": 132.48,
+    "image": "produto_101111.jpg"
+  },
+  "1031045": {
+    "code": "1031045",
+    "name": "Asepxia Limpeza Esfoliante Carvão Detox",
+    "stock": 12,
+    "price": 15.83,
+    "image": "produto_1031045.jpg"
+  },
+  "1031046": {
+    "code": "1031046",
+    "name": "Asepxia Máscara Peel off Carvão Detox",
+    "stock": 0,
+    "price": 10.52,
+    "image": "produto_1031046.jpg"
+  },
+  "1031068": {
+    "code": "1031068",
+    "name": "Asepxia Sab Líq Limpeza Profunda 150 mL",
+    "stock": 5,
+    "price": 15.83,
+    "image": "produto_1031068.jpg"
+  },
+  "1031069": {
+    "code": "1031069",
+    "name": "Asepxia Sab Líq Limpeza Profunda 300 mL",
+    "stock": 0,
+    "price": 10.56,
+    "image": "produto_1031069.jpg",
+    "paused": true
+  },
+  "1031070": {
+    "code": "1031070",
+    "name": "Asepxia Sabonete Líquido Detox 150 mL",
+    "stock": 0,
+    "price": 15.83,
+    "image": "produto_1031070.jpg",
+    "paused": true
+  },
+  "1031082": {
+    "code": "1031082",
+    "name": "Asepxia Barra Esfoliante 80g",
+    "stock": 12,
+    "price": 6.0,
+    "image": "produto_1031082.jpg",
+    "preco_cheio": 8.0,
+    "validade": "2027-02-08",
+    "preco_base": 9.72,
+    "desconto": 0.3827
+  },
+  "1031083": {
+    "code": "1031083",
+    "name": "Asepxia Barra Neutro 80g",
+    "stock": 12,
+    "price": 5.0,
+    "image": "produto_1031083.jpg",
+    "preco_cheio": 8.0,
+    "validade": "2027-01-26",
+    "preco_base": 9.72,
+    "desconto": 0.4856
+  },
+  "1031084": {
+    "code": "1031084",
+    "name": "Asepxia Barra Enxofre 80g",
+    "stock": 7,
+    "price": 5.0,
+    "image": "produto_1031084.jpg",
+    "preco_cheio": 8.0,
+    "validade": "2027-01-20",
+    "preco_base": 9.72,
+    "desconto": 0.4856
+  },
+  "1031085": {
+    "code": "1031085",
+    "name": "Asepxia Barra Suavizante/Cremoso 80g",
+    "stock": 13,
+    "price": 6.0,
+    "image": "produto_1031085.jpg",
+    "preco_cheio": 8.0,
+    "validade": "2027-02-27",
+    "preco_base": 9.72,
+    "desconto": 0.3827
+  },
+  "1031086": {
+    "code": "1031086",
+    "name": "Asepxia Barra Forte 80g",
+    "stock": 5,
+    "price": 8.0,
+    "image": "produto_1031086.jpg"
+  },
+  "1031087": {
+    "code": "1031087",
+    "name": "Asepxia Barra Detox 80g",
+    "stock": 2,
+    "price": 9.71,
+    "image": "produto_1031087.jpg"
+  },
+  "1031087-P1": {
+    "code": "1031087-P1",
+    "name": "Asepxia Barra Detox 80g — Promoção (venc. 01/2027)",
+    "stock": 8,
+    "price": 5.0,
+    "image": "produto_1031087.jpg",
+    "preco_cheio": 9.71,
+    "validade": "2027-01-18",
+    "promo": true,
+    "promo_de": "1031087",
+    "preco_base": 11.8,
+    "desconto": 0.5763
+  },
+  "1108800": {
+    "code": "1108800",
+    "name": "Cicatricure Sérum Clareador Facial 30mL",
+    "stock": 4,
+    "price": 51.0,
+    "image": "produto_1108800.jpg"
+  },
+  "1108800-P1": {
+    "code": "1108800-P1",
+    "name": "Cicatricure Sérum Clareador Facial 30mL — Promoção (venc. 06/2027)",
+    "stock": 2,
+    "price": 49.0,
+    "image": "produto_1108800.jpg",
+    "preco_cheio": 51.0,
+    "validade": "2027-06-30",
+    "promo": true,
+    "promo_de": "1108800",
+    "preco_base": 69.48,
+    "desconto": 0.2948
+  },
+  "1108900": {
+    "code": "1108900",
+    "name": "Cicatricure Creme Contorno dos Olhos 15g",
+    "stock": 5,
+    "price": 26.0,
+    "image": "produto_1108900.jpg",
+    "preco_cheio": 32.15,
+    "validade": "2027-02-24",
+    "preco_base": 45.05,
+    "desconto": 0.4229
+  },
+  "1109100": {
+    "code": "1109100",
+    "name": "Cicatricure Creme para Rugas 50g",
+    "stock": 6,
+    "price": 31.0,
+    "image": "produto_1109100.jpg"
+  },
+  "1109100-P1": {
+    "code": "1109100-P1",
+    "name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
+    "stock": 3,
+    "price": 24.0,
+    "image": "produto_1109100.jpg",
+    "preco_cheio": 30.51,
+    "validade": "2027-02-05",
+    "promo": true,
+    "promo_de": "1109100",
+    "preco_base": 45.05,
+    "desconto": 0.4673
+  },
+  "1109200": {
+    "code": "1109200",
+    "name": "Cicatricure Creme FPS 30 Diurno 50g",
+    "stock": 5,
+    "price": 35.55,
+    "image": "produto_1109200.jpg"
+  },
+  "1109300": {
+    "code": "1109300",
+    "name": "Cicatricure Creme Corporal 250g",
+    "stock": 15,
+    "price": 19.09,
+    "image": "produto_1109300.jpg"
+  },
+  "1109600": {
+    "code": "1109600",
+    "name": "Cicatricure Maternity Corporal 250mL",
+    "stock": 29,
+    "price": 40.0,
+    "image": "produto_1109600.jpg"
+  },
+  "1109700": {
+    "code": "1109700",
+    "name": "Cicatricure Água Micelar 200 mL",
+    "stock": 0,
+    "price": 13.0,
+    "image": "produto_1109700.jpg",
+    "preco_cheio": 14.7,
+    "validade": "2027-04-02",
+    "preco_base": 19.26,
+    "desconto": 0.325
+  },
+  "1110000": {
+    "code": "1110000",
+    "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - clara",
+    "stock": 7,
+    "price": 34.42,
+    "image": "produto_1110000.jpg"
+  },
+  "1110100": {
+    "code": "1110100",
+    "name": "Cicatricure Protetor Solar FPS 50 com cor 40g - média",
+    "stock": 0,
+    "price": 34.0,
+    "image": "produto_1110100.jpg"
+  },
+  "1110200": {
+    "code": "1110200",
+    "name": "Cicatricure Eye Cream For Face 30g",
+    "stock": 2,
+    "price": 11.0,
+    "image": "produto_1110200.png",
+    "preco_cheio": 27.52,
+    "validade": "2027-01-09",
+    "preco_base": 55.58,
+    "desconto": 0.8021
+  },
+  "1110400": {
+    "code": "1110400",
+    "name": "Cicatricure Gel 30g - Horizontal",
+    "stock": 8,
+    "price": 17.1,
+    "image": "produto_1110400.jpg"
+  },
+  "1110500": {
+    "code": "1110500",
+    "name": "Cicatricure Gel 60g - Horizontal",
+    "stock": 9,
+    "price": 32.15,
+    "image": "produto_1110500.jpg"
+  },
+  "1110700": {
+    "code": "1110700",
+    "name": "Cicatricure Porcelana Limpeza Facial 3 em 1 150ml",
+    "stock": 0,
+    "price": 6.0,
+    "image": "produto_1110700.jpg",
+    "preco_cheio": 8.63,
+    "validade": "2027-02-11",
+    "preco_base": 25.86,
+    "desconto": 0.768
+  },
+  "1110800": {
+    "code": "1110800",
+    "name": "Cicatricure Porcelana Peeling Facial 30ml",
+    "stock": 0,
+    "price": 22.12,
+    "image": "produto_1110800.jpg",
+    "paused": true
+  },
+  "1111400": {
+    "code": "1111400",
+    "name": "Cicatricure Regeneplast 30g",
+    "stock": 12,
+    "price": 17.68,
+    "image": "produto_1111400.jpg"
+  },
+  "1111500": {
+    "code": "1111500",
+    "name": "Cicatricure Neuro-zen 50g",
+    "stock": 15,
+    "price": 46.58,
+    "image": "produto_1111500.jpg"
+  },
+  "1131008": {
+    "code": "1131008",
+    "name": "Cicatricure Gold Lift Noite 50 g",
+    "stock": 7,
+    "price": 58.98,
+    "image": "produto_1131008.jpg"
+  },
+  "1131009": {
+    "code": "1131009",
+    "name": "Cicatricure Gold Lift Dia 50 g",
+    "stock": 22,
+    "price": 58.98,
+    "image": "produto_1131009.jpg"
+  },
+  "1131072": {
+    "code": "1131072",
+    "name": "Cicatricure Prot Solar FPS50 Matte 40g",
+    "stock": 11,
+    "price": 34.42,
+    "image": "produto_1131072.jpg"
+  },
+  "1131080": {
+    "code": "1131080",
+    "name": "Cicatricure Gold Lift Serum Firmador 30mL",
+    "stock": 3,
+    "price": 17.0,
+    "image": "produto_1131080.png",
+    "preco_cheio": 30.81,
+    "validade": "2027-01-09",
+    "preco_base": 83.38,
+    "desconto": 0.7961
+  },
+  "2100100": {
+    "code": "2100100",
+    "name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+    "stock": 5,
+    "price": 20.0,
+    "image": "produto_2100100.jpg"
+  },
+  "2100200": {
+    "code": "2100200",
+    "name": "Goicoechea Algodão Creme Corporal Pele Extra Seca 400 mL",
+    "stock": 5,
+    "price": 20.0,
+    "image": "produto_2100200.jpg"
+  },
+  "2310800": {
+    "code": "2310800",
+    "name": "LakesiaPÉS Creme Antifúngico 20g",
+    "stock": 12,
+    "price": 25.0,
+    "image": "produto_2310800.jpg"
+  },
+  "2310900": {
+    "code": "2310900",
+    "name": "LakesiaMedical Esmalte 3g",
+    "stock": 12,
+    "price": 79.79,
+    "image": "produto_2310900.jpg"
+  },
+  "4041000": {
+    "code": "4041000",
+    "name": "Tío Nacho Engrossador Shampoo 415 mL",
+    "stock": 4,
+    "price": 24.0,
+    "image": "produto_4041000.jpg"
+  },
+  "4041001": {
+    "code": "4041001",
+    "name": "Tío Nacho Engrossador Condicionador 415 mL",
+    "stock": 8,
+    "price": 21.78,
+    "image": "produto_4041001.jpg"
+  },
+  "4041010": {
+    "code": "4041010",
+    "name": "Tío Nacho Clareador Shampoo 415 mL",
+    "stock": 0,
+    "price": 20.0,
+    "image": "produto_4041010.jpg",
+    "preco_cheio": 23.59,
+    "validade": "2027-03-11",
+    "preco_base": 33.34,
+    "desconto": 0.4001
+  },
+  "4041011": {
+    "code": "4041011",
+    "name": "Tío Nacho Clareador Condicionador 415 mL",
+    "stock": 5,
+    "price": 22.0,
+    "image": "produto_4041011.jpg"
+  },
+  "4041011-P1": {
+    "code": "4041011-P1",
+    "name": "Tío Nacho Clareador Condicionador 415 mL — Promoção (venc. 03/2027)",
+    "stock": 4,
+    "price": 17.0,
+    "image": "produto_4041011.jpg",
+    "preco_cheio": 21.78,
+    "validade": "2027-03-13",
+    "promo": true,
+    "promo_de": "4041011",
+    "preco_base": 34.04,
+    "desconto": 0.5006
+  },
+  "4041020": {
+    "code": "4041020",
+    "name": "Tío Nacho Anti-idade Shampoo 415 mL",
+    "stock": 11,
+    "price": 22.61,
+    "image": "produto_4041020.jpg"
+  },
+  "4041021": {
+    "code": "4041021",
+    "name": "Tío Nacho Anti-idade Condicionador 415 mL",
+    "stock": 12,
+    "price": 20.89,
+    "image": "produto_4041021.jpg"
+  },
+  "4041040": {
+    "code": "4041040",
+    "name": "Tío Nacho Reconstrutor Shampoo 415 mL",
+    "stock": 5,
+    "price": 24.0,
+    "image": "produto_4041040.jpg"
+  },
+  "4041041": {
+    "code": "4041041",
+    "name": "Tío Nacho Reconstrutor Condicionador 415 mL",
+    "stock": 0,
+    "price": 21.78,
+    "image": "produto_4041041.jpg"
+  },
+  "4041041-P1": {
+    "code": "4041041-P1",
+    "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 01/2027)",
+    "stock": 0,
+    "price": 15.0,
+    "image": "produto_4041041.jpg",
+    "preco_cheio": 21.78,
+    "validade": "2027-01-25",
+    "promo": true,
+    "promo_de": "4041041",
+    "preco_base": 34.04,
+    "desconto": 0.5593
+  },
+  "4041041-P2": {
+    "code": "4041041-P2",
+    "name": "Tío Nacho Reconstrutor Condicionador 415 mL — Promoção (venc. 02/2027)",
+    "stock": 0,
+    "price": 17.0,
+    "image": "produto_4041041.jpg",
+    "preco_cheio": 21.78,
+    "validade": "2027-02-14",
+    "promo": true,
+    "promo_de": "4041041",
+    "preco_base": 34.04,
+    "desconto": 0.5006
+  },
+  "4041050": {
+    "code": "4041050",
+    "name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
+    "stock": 0,
+    "price": 8.0,
+    "image": "produto_4041050.jpg",
+    "preco_cheio": 23.59,
+    "validade": "2026-11-12",
+    "preco_base": 33.34,
+    "desconto": 0.76
+  },
+  "4041115": {
+    "code": "4041115",
+    "name": "Tío Nacho Máscara 250g",
+    "stock": 12,
+    "price": 23.64,
+    "image": "produto_4041115.png"
+  },
+  "4041117": {
+    "code": "4041117",
+    "name": "Tío Nacho Leave-in 200mL",
+    "stock": 11,
+    "price": 23.64,
+    "image": "produto_4041117.png"
+  },
+  "4042000": {
+    "code": "4042000",
+    "name": "Tío Nacho Engrossador Shampoo 200 mL",
+    "stock": 0,
+    "price": 13.64,
+    "image": "produto_4042000.jpg"
+  },
+  "4042010": {
+    "code": "4042010",
+    "name": "Tío Nacho Clareador Shampoo 200 mL",
+    "stock": 1,
+    "price": 13.2,
+    "image": "produto_4042010.jpg"
+  },
+  "4043000": {
+    "code": "4043000",
+    "name": "Tío Nacho Engrossador Spray 120 mL",
+    "stock": 3,
+    "price": 21.13,
+    "image": "produto_4043000.jpg"
+  },
+  "4043040": {
+    "code": "4043040",
+    "name": "Tío Nacho Reconstrutor LeaveIn 100 mL",
+    "stock": 12,
+    "price": 16.17,
+    "image": "produto_4043040.jpg"
+  },
+  "4043600": {
+    "code": "4043600",
+    "name": "Tío Nacho Shampoo Antiqueda Engrossador 950 mL",
+    "stock": 0,
+    "price": 44.85,
+    "image": "produto_4043600.jpg",
+    "paused": true
+  },
+  "4043800": {
+    "code": "4043800",
+    "name": "Tío Nacho Shampoo Antiqueda Clareador 950 mL",
+    "stock": 0,
+    "price": 44.85,
+    "image": "produto_4043800.jpg",
+    "paused": true
+  },
+  "4043900": {
+    "code": "4043900",
+    "name": "Tío Nacho Ginseng Shampoo 415 mL",
+    "stock": 8,
+    "price": 10.0,
+    "image": "produto_4043900.jpg",
+    "preco_cheio": 13.56,
+    "validade": "2027-02-27",
+    "preco_base": 31.96,
+    "desconto": 0.6871
+  },
+  "4044000": {
+    "code": "4044000",
+    "name": "Tío Nacho Ginseng Condicionador 415 mL",
+    "stock": 8,
+    "price": 10.0,
+    "image": "produto_4044000.jpg",
+    "preco_cheio": 20.89,
+    "validade": "2027-04-24",
+    "preco_base": 32.65,
+    "desconto": 0.6937
+  },
+  "4044100": {
+    "code": "4044100",
+    "name": "Tío Nacho Anticaspa Shampoo 415 mL",
+    "stock": 5,
+    "price": 23.59,
+    "image": "produto_4044100.jpg"
+  },
+  "4044200": {
+    "code": "4044200",
+    "name": "Tío Nacho Anticaspa 2 em 1 Shampoo 415 mL",
+    "stock": 6,
+    "price": 23.59,
+    "image": "produto_4044200.jpg"
+  },
+  "4044300": {
+    "code": "4044300",
+    "name": "Tío Nacho Shampoo Antigrisalho 415 mL",
+    "stock": 12,
+    "price": 23.59,
+    "image": "produto_4044300.jpg"
+  },
+  "4044400": {
+    "code": "4044400",
+    "name": "Tío Nacho Condicionador Antigrisalho 415 mL",
+    "stock": 22,
+    "price": 22.0,
+    "image": "produto_4044400.jpg"
+  },
+  "4044400-P1": {
+    "code": "4044400-P1",
+    "name": "Tío Nacho Condicionador Antigrisalho 415 mL — Promoção (venc. 04/2027)",
+    "stock": 10,
+    "price": 17.0,
+    "image": "produto_4044400.jpg",
+    "preco_cheio": 21.78,
+    "validade": "2027-04-25",
+    "promo": true,
+    "promo_de": "4044400",
+    "preco_base": 34.04,
+    "desconto": 0.5006
+  },
+  "4406000": {
+    "code": "4406000",
+    "name": "Liris Carmelose Sódica 10 mL 5mg/mL",
+    "stock": 7,
+    "price": 30.0,
+    "image": "produto_4406000.jpg"
+  },
+  "4406100": {
+    "code": "4406100",
+    "name": "Liris Calm 10 mL",
+    "stock": 10,
+    "price": 25.0,
+    "image": "produto_4406100.jpg",
+    "preco_cheio": 31.41,
+    "validade": "2027-06-17",
+    "preco_base": 37.27,
+    "desconto": 0.3292
+  },
+  "4406200": {
+    "code": "4406200",
+    "name": "Liris Power 10 mL",
+    "stock": 9,
+    "price": 25.0,
+    "image": "produto_4406200.jpg",
+    "preco_cheio": 39.58,
+    "validade": "2027-06-19",
+    "preco_base": 46.96,
+    "desconto": 0.4676
+  },
+  "5100100": {
+    "code": "5100100",
+    "name": "Expulsatox Adulto XPE 100mL",
+    "stock": 4,
+    "price": 18.84,
+    "image": "produto_5100100.jpg"
+  },
+  "5100200": {
+    "code": "5100200",
+    "name": "Expulsatox Infantil XPE 100mL",
+    "stock": 6,
+    "price": 18.84,
+    "image": "produto_5100200.jpg"
+  },
+  "5300100": {
+    "code": "5300100",
+    "name": "Renovaflora Probiótico 10 caps",
+    "stock": 37,
+    "price": 28.42,
+    "image": "produto_5300100.jpg"
+  },
+  "600083": {
+    "code": "600083",
+    "name": "Goicoechea Diabetx BR",
+    "stock": 8,
+    "price": 24.49,
+    "image": "produto_600083.jpg"
+  },
+  "600089": {
+    "code": "600089",
+    "name": "Goicoechea Creme Arnica e Camomila 350g",
+    "stock": 12,
+    "price": 23.0,
+    "image": "produto_600089.jpg"
+  },
+  "600090": {
+    "code": "600090",
+    "name": "Goicoechea Creme Centella Asiática 350g",
+    "stock": 4,
+    "price": 22.95,
+    "image": "produto_600090.jpg"
+  },
+  "600119": {
+    "code": "600119",
+    "name": "Asepxia Gel Secativo",
+    "stock": 9,
+    "price": 15.21,
+    "image": "produto_600119.jpg"
+  },
+  "600125": {
+    "code": "600125",
+    "name": "Lomecan Creme 3 dias 20g",
+    "stock": 4,
+    "price": 36.0,
+    "image": "produto_600125.jpg",
+    "preco_cheio": 40.32,
+    "validade": "2027-04-30",
+    "preco_base": 52.17,
+    "desconto": 0.3099
+  },
+  "600146": {
+    "code": "600146",
+    "name": "LaKesia Sérum Fortalecedor 7ml",
+    "stock": 3,
+    "price": 24.01,
+    "image": "produto_600146.jpg"
+  },
+  "600146-P1": {
+    "code": "600146-P1",
+    "name": "LaKesia Sérum Fortalecedor 7ml — Promoção (venc. 04/2027)",
+    "stock": 11,
+    "price": 19.0,
+    "image": "produto_600146.jpg",
+    "preco_cheio": 24.01,
+    "validade": "2027-04-16",
+    "promo": true,
+    "promo_de": "600146",
+    "preco_base": 35.53,
+    "desconto": 0.4652
+  },
+  "600151": {
+    "code": "600151",
+    "name": "Proctan - UQ",
+    "stock": 10,
+    "price": 37.0,
+    "image": "produto_600151.jpg",
+    "preco_cheio": 40.84,
+    "validade": "2027-04-30",
+    "preco_base": 48.45,
+    "desconto": 0.2363
+  },
+  "600170": {
+    "code": "600170",
+    "name": "DiabetTX Creme Hidratante Plus 10% Uréia 250g",
+    "stock": 16,
+    "price": 25.0,
+    "image": "produto_600170.jpg"
+  },
+  "91114": {
+    "code": "91114",
+    "name": "LaKesia Antimicótico 30 mL",
+    "stock": 8,
+    "price": 38.0,
+    "image": "produto_91114.jpg"
+  },
+  "91114-P1": {
+    "code": "91114-P1",
+    "name": "LaKesia Antimicótico 30 mL — Promoção (venc. 01/2027)",
+    "stock": 2,
+    "price": 26.0,
+    "image": "produto_91114.jpg",
+    "preco_cheio": 37.69,
+    "validade": "2027-01-31",
+    "promo": true,
+    "promo_de": "91114",
+    "preco_base": 44.72,
+    "desconto": 0.4186
+  },
+  "91114-P2": {
+    "code": "91114-P2",
+    "name": "LaKesia Antimicótico 30 mL — Promoção (venc. 03/2027)",
+    "stock": 3,
+    "price": 30.0,
+    "image": "produto_91114.jpg",
+    "preco_cheio": 37.69,
+    "validade": "2027-03-01",
+    "promo": true,
+    "promo_de": "91114",
+    "preco_base": 44.72,
+    "desconto": 0.3292
+  }
 }
