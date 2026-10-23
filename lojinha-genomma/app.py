@@ -1927,8 +1927,8 @@ async function excluir(id) {{
     : (o.produto_name||'')) : '';
   if (!confirm(`Excluir este pedido?\n\n${{prod}}`)) return;
   const devolver = confirm(
-    'Devolver os itens ao estoque?\n\n' +
-    'OK      → SIM, devolver (venda cancelada, o produto voltou para a prateleira)\n' +
+    'Devolver os itens ao estoque?\\n\\n' +
+    'OK      → SIM, devolver (venda cancelada, o produto voltou para a prateleira)\\n' +
     'Cancelar → NÃO devolver (pedido de teste, ou saldo já conferido no físico)'
   );
   try {{
