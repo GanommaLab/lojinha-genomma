@@ -30,8 +30,9 @@
     ],
     "valor_total": 57.0,
     "comprovante": "",
-    "status": "pendente",
-    "nota_fiscal": "nf_20261023144132974_20261023_201251_6.006.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20261023144132974_20261023_201251_6.006.pdf",
+    "entregue_em": "23/10/2026 20:13"
   },
   {
     "id": "20261022145733830",
