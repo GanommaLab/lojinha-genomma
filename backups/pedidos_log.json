@@ -1786,5 +1786,38 @@
     "valor_total": 34.0,
     "comprovante": "20261023_113736_IMG_1153.png",
     "status": "pendente"
+  },
+  {
+    "id": "20261023144132974",
+    "data_hora": "23/10/2026 14:41:32",
+    "nome": "maycon Dias",
+    "email": "maycon351@yahoo.com.br",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 2,
+        "preco_unit": 17.0,
+        "valor_total": 34.0
+      },
+      {
+        "produto_code": "4041011-P1",
+        "produto_name": "Tío Nacho Clareador Condicionador 415 mL — Promoção (venc. 03/2027)",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "1031085",
+        "produto_name": "Asepxia Barra Suavizante/Cremoso 80g",
+        "quantidade": 1,
+        "preco_unit": 6.0,
+        "valor_total": 6.0
+      }
+    ],
+    "valor_total": 57.0,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
