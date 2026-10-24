@@ -1819,5 +1819,24 @@
     "valor_total": 57.0,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20261024211743817",
+    "data_hora": "24/10/2026 21:17:43",
+    "nome": "Vitor Pena",
+    "email": "vitor.goncalves@contractor.genommalab.com",
+    "tipo": "terceirizado",
+    "items": [
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 1,
+        "preco_unit": 11.0,
+        "valor_total": 11.0
+      }
+    ],
+    "valor_total": 11.0,
+    "comprovante": "",
+    "status": "pendente"
   }
 ]
