@@ -4,7 +4,7 @@ Lojinha Interna - Genomma Lab  |  Backend Python/Flask
 import os, json, threading, smtplib, logging, urllib.request, urllib.error, base64, time
 import html as htmllib
 import hmac
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -27,6 +27,75 @@ DATA  = BASE / 'data'          # Excel fica sempre junto ao código
 UPLOAD= TMP  / 'uploads'
 STOCK = TMP  / 'stock.json'
 ORDERS= TMP  / 'orders.json'
+
+# ── Horário de funcionamento ──────────────────────────────────────────────────
+# A lojinha só atende em horário comercial. Tudo é configurável pelas variáveis
+# de ambiente do Render, sem precisar mexer no código:
+#   LOJA_ABRE / LOJA_FECHA     → horas (0-24) de abertura e fechamento
+#   LOJA_DIAS                  → dias da semana, 0=segunda ... 6=domingo
+#   LOJA_TOLERANCIA_MIN        → minutos extras só para FINALIZAR um pedido já montado
+#   LOJA_SEMPRE_ABERTA=1       → desliga a restrição (útil para testar)
+try:
+    from zoneinfo import ZoneInfo
+    TZ_BR = ZoneInfo('America/Sao_Paulo')
+except Exception:                      # imagem sem tzdata: o Brasil não tem mais horário de verão
+    TZ_BR = timezone(timedelta(hours=-3))
+
+LOJA_ABRE       = int(os.getenv('LOJA_ABRE', '7'))
+LOJA_FECHA      = int(os.getenv('LOJA_FECHA', '18'))
+LOJA_DIAS       = os.getenv('LOJA_DIAS', '0,1,2,3,4')
+LOJA_TOLERANCIA = int(os.getenv('LOJA_TOLERANCIA_MIN', '15'))
+LOJA_SEMPRE_ABERTA = os.getenv('LOJA_SEMPRE_ABERTA', '') == '1'
+
+_DIA_NOME = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo']
+
+def _dias_abertos():
+    dias = {int(d) for d in LOJA_DIAS.replace(' ', '').split(',') if d.isdigit() and 0 <= int(d) <= 6}
+    return dias or {0, 1, 2, 3, 4}
+
+def _loja_aberta(tolerancia_min=0):
+    """True se a lojinha está no horário de atendimento. `tolerancia_min` estende
+    apenas o fechamento — serve para quem já estava com o carrinho montado na
+    virada das 18h não perder a compra."""
+    if LOJA_SEMPRE_ABERTA:
+        return True
+    agora = datetime.now(TZ_BR)
+    if agora.weekday() not in _dias_abertos():
+        return False
+    meia_noite = agora.replace(hour=0, minute=0, second=0, microsecond=0)
+    abre  = meia_noite + timedelta(hours=LOJA_ABRE)
+    fecha = meia_noite + timedelta(hours=LOJA_FECHA, minutes=tolerancia_min)
+    return abre <= agora < fecha
+
+def _horario_texto():
+    dias = sorted(_dias_abertos())
+    if dias == [0, 1, 2, 3, 4]:
+        faixa = 'de segunda a sexta'
+    elif dias == [0, 1, 2, 3, 4, 5]:
+        faixa = 'de segunda a sábado'
+    elif dias == list(range(7)):
+        faixa = 'todos os dias'
+    else:
+        faixa = 'às ' + ', '.join(_DIA_NOME[d] for d in dias) + '-feira'
+    return f'{faixa}, das {LOJA_ABRE}h às {LOJA_FECHA}h'
+
+def _proxima_abertura():
+    """Texto curto dizendo quando a lojinha abre de novo."""
+    agora = datetime.now(TZ_BR)
+    meia_noite = agora.replace(hour=0, minute=0, second=0, microsecond=0)
+    for somar in range(0, 8):
+        dia = meia_noite + timedelta(days=somar)
+        if dia.weekday() not in _dias_abertos():
+            continue
+        abertura = dia + timedelta(hours=LOJA_ABRE)
+        if abertura <= agora:
+            continue
+        if somar == 0:
+            return f'Abrimos hoje às {LOJA_ABRE}h.'
+        if somar == 1:
+            return f'Abrimos amanhã às {LOJA_ABRE}h.'
+        return f'Abrimos {_DIA_NOME[abertura.weekday()]}-feira às {LOJA_ABRE}h.'.replace('sábado-feira', 'sábado').replace('domingo-feira', 'domingo')
+    return ''
 def _find_excel_with_sheet(predicate, exclude=None):
     """Procura, entre todos os .xlsx do projeto, o primeiro cujas abas satisfaçam
     `predicate(sheetnames) -> bool`. Se `exclude` for informado, pula esse arquivo
@@ -550,6 +619,8 @@ def api_reserve():
     chamada serve para adicionar, alterar, remover e renovar a reserva.
     Carrinho vazio libera tudo. Devolve 409 com o que sobrou de cada item quando
     alguém chegou antes."""
+    if not _loja_aberta(LOJA_TOLERANCIA):
+        return jsonify({'error': f'A lojinha atende {_horario_texto()}. {_proxima_abertura()}'}), 403
     data  = request.get_json(force=True, silent=True) or {}
     cart  = str(data.get('cart') or '').strip()[:64]
     if not cart:
@@ -624,6 +695,10 @@ def api_toggle_pause_product(code):
 # ── API: pedido ───────────────────────────────────────────────────────────────
 @app.post('/api/order')
 def api_order():
+    # Tolerância só no fechamento: quem já estava com o carrinho montado às 18h
+    # ainda consegue finalizar, mas ninguém novo entra depois do horário.
+    if not _loja_aberta(LOJA_TOLERANCIA):
+        return jsonify({'error': f'A lojinha atende {_horario_texto()}. {_proxima_abertura()}'}), 403
     nome  = request.form.get('nome','').strip()
     email = request.form.get('email','').strip()
     tipo  = request.form.get('tipo_comprador','').strip()
@@ -2278,9 +2353,60 @@ def serve_upload(filename):
     return send_from_directory(str(UPLOAD), filename)
 
 # ── Frontend ──────────────────────────────────────────────────────────────────────
+def _pagina_fechada():
+    """Tela mostrada fora do horário comercial, no lugar da lojinha."""
+    agora = datetime.now(TZ_BR)
+    html = f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lojinha Interna — Genomma Lab</title>
+<style>
+*{{box-sizing:border-box;margin:0;padding:0}}
+body{{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+ font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+ background:linear-gradient(135deg,#4c1d95 0%,#6d28d9 55%,#7c3aed 100%);color:#fff}}
+.card{{background:#fff;color:#2e1065;border-radius:20px;max-width:460px;width:100%;
+ padding:40px 32px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.28)}}
+.relogio{{font-size:54px;line-height:1;margin-bottom:6px}}
+h1{{font-size:22px;margin-bottom:14px;color:#4c1d95}}
+p{{font-size:16px;line-height:1.6;color:#4b5563;margin-bottom:12px}}
+.faixa{{display:inline-block;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;
+ padding:12px 18px;margin:8px 0 14px;font-size:17px;font-weight:700;color:#5b21b6}}
+.abre{{font-size:15px;font-weight:600;color:#059669;margin-top:4px}}
+.agora{{margin-top:22px;padding-top:16px;border-top:1px solid #ede9fe;font-size:13px;color:#9ca3af}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="relogio">🕖</div>
+    <h1>Lojinha Interna — Genomma Lab</h1>
+    <p>No momento estamos fora do horário de atendimento.</p>
+    <div class="faixa">A lojinha funciona {_horario_texto()}</div>
+    <p class="abre">{_proxima_abertura()}</p>
+    <p>Volte dentro do horário comercial para fazer seu pedido. 💜</p>
+    <div class="agora">Agora são {agora.strftime('%H:%M')} de {_DIA_NOME[agora.weekday()]}, {agora.strftime('%d/%m/%Y')}</div>
+  </div>
+</body>
+</html>"""
+    return Response(html, mimetype='text/html', status=200)
+
 @app.get('/')
 def index():
+    if not _loja_aberta():
+        return _pagina_fechada()
     return send_from_directory(app.static_folder, 'index.html')
+
+@app.get('/api/horario')
+def api_horario():
+    """Usado pela lojinha para saber se ainda está no ar (a página pode ter
+    ficado aberta desde antes do fechamento)."""
+    return jsonify({
+        'aberta':   _loja_aberta(),
+        'aceita_pedido': _loja_aberta(LOJA_TOLERANCIA),
+        'horario':  _horario_texto(),
+        'proxima':  _proxima_abertura(),
+    })
 
 # ── Notificação Teams ────────────────────────────────────────────────────────
 def _send_teams_notification(order):
