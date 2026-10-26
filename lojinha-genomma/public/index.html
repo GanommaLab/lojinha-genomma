@@ -848,6 +848,18 @@ window.addEventListener('DOMContentLoaded', () => {
     if (cart.length) sincronizarReserva();
     if (document.getElementById('card-2').classList.contains('active')) loadProducts();
   }, 45000);
+
+  // A página pode ter ficado aberta desde antes das 18h. Confere o horário de
+  // tempos em tempos e recarrega na virada, para cair na tela de "fechado"
+  // em vez de deixar a pessoa montar um carrinho que o servidor vai recusar.
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/horario');
+      if (!r.ok) return;
+      const h = await r.json();
+      if (!h.aceita_pedido) location.reload();
+    } catch (e) {}
+  }, 60000);
   // Ao fechar a aba, devolve as unidades em vez de esperar a reserva vencer.
   window.addEventListener('pagehide', () => {
     if (!cart.length) return;
