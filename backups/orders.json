@@ -233,8 +233,10 @@
       }
     ],
     "valor_total": 210.0,
-    "comprovante": "",
-    "status": "pendente"
+    "comprovante": "comp_20261021012738516_20261026_142819_Image__4_.png",
+    "status": "entregue",
+    "nota_fiscal": "nf_20261021012738516_20261026_142907_0006014.pdf",
+    "entregue_em": "26/10/2026 14:29"
   },
   {
     "id": "20261020223630001",
