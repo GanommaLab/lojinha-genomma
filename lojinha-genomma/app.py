@@ -41,8 +41,17 @@ try:
 except Exception:                      # imagem sem tzdata: o Brasil não tem mais horário de verão
     TZ_BR = timezone(timedelta(hours=-3))
 
-LOJA_ABRE       = int(os.getenv('LOJA_ABRE', '7'))
-LOJA_FECHA      = int(os.getenv('LOJA_FECHA', '18'))
+def _hora_min(valor, padrao):
+    """Aceita '7', '17:30' ou '17h30' e devolve (hora, minuto)."""
+    try:
+        txt = str(valor).strip().lower().replace('h', ':').rstrip(':')
+        h, _, m = txt.partition(':')
+        return int(h), int(m or 0)
+    except Exception:
+        return padrao
+
+LOJA_ABRE,  LOJA_ABRE_MIN  = _hora_min(os.getenv('LOJA_ABRE',  '7'),     (7, 0))
+LOJA_FECHA, LOJA_FECHA_MIN = _hora_min(os.getenv('LOJA_FECHA', '17:30'), (17, 30))
 LOJA_DIAS       = os.getenv('LOJA_DIAS', '0,1,2,3,4')
 LOJA_TOLERANCIA = int(os.getenv('LOJA_TOLERANCIA_MIN', '15'))
 LOJA_SEMPRE_ABERTA = os.getenv('LOJA_SEMPRE_ABERTA', '') == '1'
@@ -63,9 +72,12 @@ def _loja_aberta(tolerancia_min=0):
     if agora.weekday() not in _dias_abertos():
         return False
     meia_noite = agora.replace(hour=0, minute=0, second=0, microsecond=0)
-    abre  = meia_noite + timedelta(hours=LOJA_ABRE)
-    fecha = meia_noite + timedelta(hours=LOJA_FECHA, minutes=tolerancia_min)
+    abre  = meia_noite + timedelta(hours=LOJA_ABRE,  minutes=LOJA_ABRE_MIN)
+    fecha = meia_noite + timedelta(hours=LOJA_FECHA, minutes=LOJA_FECHA_MIN + tolerancia_min)
     return abre <= agora < fecha
+
+def _hhmm(h, m):
+    return f'{h}h' if m == 0 else f'{h}h{m:02d}'
 
 def _horario_texto():
     dias = sorted(_dias_abertos())
@@ -77,7 +89,7 @@ def _horario_texto():
         faixa = 'todos os dias'
     else:
         faixa = 'às ' + ', '.join(_DIA_NOME[d] for d in dias) + '-feira'
-    return f'{faixa}, das {LOJA_ABRE}h às {LOJA_FECHA}h'
+    return f'{faixa}, das {_hhmm(LOJA_ABRE, LOJA_ABRE_MIN)} às {_hhmm(LOJA_FECHA, LOJA_FECHA_MIN)}'
 
 def _proxima_abertura():
     """Texto curto dizendo quando a lojinha abre de novo."""
@@ -87,14 +99,15 @@ def _proxima_abertura():
         dia = meia_noite + timedelta(days=somar)
         if dia.weekday() not in _dias_abertos():
             continue
-        abertura = dia + timedelta(hours=LOJA_ABRE)
+        abertura = dia + timedelta(hours=LOJA_ABRE, minutes=LOJA_ABRE_MIN)
         if abertura <= agora:
             continue
+        hora = _hhmm(LOJA_ABRE, LOJA_ABRE_MIN)
         if somar == 0:
-            return f'Abrimos hoje às {LOJA_ABRE}h.'
+            return f'Abrimos hoje às {hora}.'
         if somar == 1:
-            return f'Abrimos amanhã às {LOJA_ABRE}h.'
-        return f'Abrimos {_DIA_NOME[abertura.weekday()]}-feira às {LOJA_ABRE}h.'.replace('sábado-feira', 'sábado').replace('domingo-feira', 'domingo')
+            return f'Abrimos amanhã às {hora}.'
+        return f'Abrimos {_DIA_NOME[abertura.weekday()]}-feira às {hora}.'.replace('sábado-feira', 'sábado').replace('domingo-feira', 'domingo')
     return ''
 def _find_excel_with_sheet(predicate, exclude=None):
     """Procura, entre todos os .xlsx do projeto, o primeiro cujas abas satisfaçam
