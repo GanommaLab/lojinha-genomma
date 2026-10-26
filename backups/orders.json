@@ -36,7 +36,8 @@
     ],
     "valor_total": 11.0,
     "comprovante": "comp_20261024211743817_20261026_150435_Image__6_.png",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261024211743817_20261026_150553_6015.pdf"
   },
   {
     "id": "20261023144132974",
