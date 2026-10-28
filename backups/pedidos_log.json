@@ -1857,5 +1857,38 @@
     "valor_total": 11.0,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20261028145519986",
+    "data_hora": "28/10/2026 14:55:19",
+    "nome": "Julia Florencio Ferreira",
+    "email": "julia.florencio@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 3,
+        "preco_unit": 11.0,
+        "valor_total": 33.0
+      },
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "4041050",
+        "produto_name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 8.0,
+        "valor_total": 8.0
+      }
+    ],
+    "valor_total": 58.0,
+    "comprovante": "20261028_145518_WhatsApp_Image_2026-10-28_at_11.54.49.jpeg",
+    "status": "pendente"
   }
 ]
