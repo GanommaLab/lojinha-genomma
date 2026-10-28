@@ -30,7 +30,8 @@
     ],
     "valor_total": 58.0,
     "comprovante": "20261028_145518_WhatsApp_Image_2026-10-28_at_11.54.49.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261028145519986_20261028_171852_6017.pdf"
   },
   {
     "id": "20261026144733732",
