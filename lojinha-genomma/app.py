@@ -2763,7 +2763,7 @@ def _send_customer_receipt_async(order):
 NF_EMAIL_RECIPIENTS = [
     'vinicius.vaz@contractor.genommalab.com',
     'micaella.santos@genommalab.com',
-    'vanessa.migliatti@genommalab.com',
+    'rogerio.moreira@contractor.genommalab.com',
 ]
 
 def _send_nf_email(order):
