@@ -214,7 +214,7 @@
   "1110200": {
     "code": "1110200",
     "name": "Cicatricure Eye Cream For Face 30g",
-    "stock": 2,
+    "stock": 1,
     "price": 11.0,
     "image": "produto_1110200.png",
     "preco_cheio": 27.52,
@@ -500,7 +500,7 @@
   "4043900": {
     "code": "4043900",
     "name": "Tío Nacho Ginseng Shampoo 415 mL",
-    "stock": 8,
+    "stock": 7,
     "price": 10.0,
     "image": "produto_4043900.jpg",
     "preco_cheio": 13.56,
@@ -511,7 +511,7 @@
   "4044000": {
     "code": "4044000",
     "name": "Tío Nacho Ginseng Condicionador 415 mL",
-    "stock": 8,
+    "stock": 7,
     "price": 10.0,
     "image": "produto_4044000.jpg",
     "preco_cheio": 20.89,
