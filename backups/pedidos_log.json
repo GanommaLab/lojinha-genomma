@@ -1890,5 +1890,38 @@
     "valor_total": 58.0,
     "comprovante": "20261028_145518_WhatsApp_Image_2026-10-28_at_11.54.49.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20261103142854596",
+    "data_hora": "03/11/2026 14:28:54",
+    "nome": "Mariana Reis Bachur",
+    "email": "mariana.bachur@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 1,
+        "preco_unit": 11.0,
+        "valor_total": 11.0
+      },
+      {
+        "produto_code": "4044000",
+        "produto_name": "Tío Nacho Ginseng Condicionador 415 mL",
+        "quantidade": 1,
+        "preco_unit": 10.0,
+        "valor_total": 10.0
+      },
+      {
+        "produto_code": "4043900",
+        "produto_name": "Tío Nacho Ginseng Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 10.0,
+        "valor_total": 10.0
+      }
+    ],
+    "valor_total": 31.0,
+    "comprovante": "20261103_142853_WhatsApp_Image_2026-11-03_at_11.28.33.jpeg",
+    "status": "pendente"
   }
 ]
