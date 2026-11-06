@@ -1923,5 +1923,80 @@
     "valor_total": 31.0,
     "comprovante": "20261103_142853_WhatsApp_Image_2026-11-03_at_11.28.33.jpeg",
     "status": "pendente"
+  },
+  {
+    "id": "20261106202551936",
+    "data_hora": "06/11/2026 20:25:51",
+    "nome": "Danielle Barbosa Gomes",
+    "email": "danielle.gomes@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "1110200",
+        "produto_name": "Cicatricure Eye Cream For Face 30g",
+        "quantidade": 1,
+        "preco_unit": 11.0,
+        "valor_total": 11.0
+      },
+      {
+        "produto_code": "1131080",
+        "produto_name": "Cicatricure Gold Lift Serum Firmador 30mL",
+        "quantidade": 1,
+        "preco_unit": 17.0,
+        "valor_total": 17.0
+      },
+      {
+        "produto_code": "4041050",
+        "produto_name": "Tío Nacho Ervas Milenares Shampoo 415 mL",
+        "quantidade": 1,
+        "preco_unit": 8.0,
+        "valor_total": 8.0
+      },
+      {
+        "produto_code": "4044000",
+        "produto_name": "Tío Nacho Ginseng Condicionador 415 mL",
+        "quantidade": 1,
+        "preco_unit": 10.0,
+        "valor_total": 10.0
+      },
+      {
+        "produto_code": "1031087-P1",
+        "produto_name": "Asepxia Barra Detox 80g — Promoção (venc. 01/2027)",
+        "quantidade": 1,
+        "preco_unit": 5.0,
+        "valor_total": 5.0
+      },
+      {
+        "produto_code": "1108900",
+        "produto_name": "Cicatricure Creme Contorno dos Olhos 15g",
+        "quantidade": 1,
+        "preco_unit": 26.0,
+        "valor_total": 26.0
+      },
+      {
+        "produto_code": "1109100-P1",
+        "produto_name": "Cicatricure Creme para Rugas 50g — Promoção (venc. 02/2027)",
+        "quantidade": 1,
+        "preco_unit": 24.0,
+        "valor_total": 24.0
+      },
+      {
+        "produto_code": "1031082",
+        "produto_name": "Asepxia Barra Esfoliante 80g",
+        "quantidade": 1,
+        "preco_unit": 6.0,
+        "valor_total": 6.0
+      },
+      {
+        "produto_code": "1031085",
+        "produto_name": "Asepxia Barra Suavizante/Cremoso 80g",
+        "quantidade": 1,
+        "preco_unit": 6.0,
+        "valor_total": 6.0
+      }
+    ],
+    "valor_total": 113.0,
+    "comprovante": "20261106_202550_IMG_3105.png",
+    "status": "pendente"
   }
 ]
