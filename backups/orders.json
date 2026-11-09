@@ -36,7 +36,8 @@
     ],
     "valor_total": 46.0,
     "comprovante": "20261109_130959_comprovante_de_pagamento.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261109131001939_20261109_135723_sadrak.pdf"
   },
   {
     "id": "20261106202551936",
