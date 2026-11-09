@@ -112,8 +112,9 @@
     ],
     "valor_total": 113.0,
     "comprovante": "20261106_202550_IMG_3105.png",
-    "status": "pendente",
-    "nota_fiscal": "nf_20261106202551936_20261109_135728_dani.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20261106202551936_20261109_135728_dani.pdf",
+    "entregue_em": "09/11/2026 13:57"
   },
   {
     "id": "20261103142854596",
