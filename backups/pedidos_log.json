@@ -2062,5 +2062,24 @@
     "valor_total": 34.2,
     "comprovante": "",
     "status": "pendente"
+  },
+  {
+    "id": "20261110173541216",
+    "data_hora": "10/11/2026 17:35:41",
+    "nome": "Kate de Sousa Silva",
+    "email": "kate.sousa@genommalab.com",
+    "tipo": "genomma",
+    "items": [
+      {
+        "produto_code": "2100100",
+        "produto_name": "Goicoechea Algodão Creme Corporal Pele Seca 400 mL",
+        "quantidade": 1,
+        "preco_unit": 20.0,
+        "valor_total": 20.0
+      }
+    ],
+    "valor_total": 20.0,
+    "comprovante": "20261110_173539_Image.png",
+    "status": "pendente"
   }
 ]
