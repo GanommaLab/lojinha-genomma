@@ -16,7 +16,8 @@
     ],
     "valor_total": 20.0,
     "comprovante": "20261110_173539_Image.png",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261110173541216_20261110_175041_kate.pdf"
   },
   {
     "id": "20261109133853575",
