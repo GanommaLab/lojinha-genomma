@@ -393,7 +393,8 @@
     ],
     "valor_total": 13.0,
     "comprovante": "",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261021120749967_20261111_183537_rose.pdf"
   },
   {
     "id": "20261021094905548",
