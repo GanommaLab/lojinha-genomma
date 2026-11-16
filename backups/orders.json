@@ -23,7 +23,8 @@
     ],
     "valor_total": 55.49,
     "comprovante": "20261113_163332_pagamento_produtos_genomma.jpeg",
-    "status": "pendente"
+    "status": "pendente",
+    "nota_fiscal": "nf_20261113163334515_20261116_123239_stef.pdf"
   },
   {
     "id": "20261111180808363",
