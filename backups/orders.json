@@ -16,8 +16,9 @@
     ],
     "valor_total": 15.83,
     "comprovante": "20261116_160814_comprovante_genomma_ste.jpeg",
-    "status": "pendente",
-    "nota_fiscal": "nf_20261116160816195_20261117_202037_6043.pdf"
+    "status": "entregue",
+    "nota_fiscal": "nf_20261116160816195_20261117_202037_6043.pdf",
+    "entregue_em": "17/11/2026 20:20"
   },
   {
     "id": "20261113163334515",
